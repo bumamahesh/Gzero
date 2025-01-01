@@ -10,6 +10,7 @@
 
 typedef struct Task_t {
   void *args;
+  void *ctx;
 } Task_t;
 
 class TaskQueue {

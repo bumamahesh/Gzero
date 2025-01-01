@@ -1,5 +1,3 @@
-
-#if 0
 #ifndef ALGO_PIPELINE_H
 #define ALGO_PIPELINE_H
 
@@ -10,16 +8,18 @@
 
 class AlgoPipeline {
 public:
-  AlgoPipeline(const std::string &libraryPath);
+  AlgoPipeline(std::vector<size_t> algoList);
+  AlgoPipeline(std::vector<std::string> algoList);
   ~AlgoPipeline();
 
-  bool AddAlgo(size_t algoId);
-  bool RemoveAlgo(size_t algoId);
-  bool Process();
-
 private:
-  AlgoNodeManager algoNodeMgr_;
-  std::vector<std::shared_ptr<AlgoBase>> algos_;
+  std::shared_ptr<AlgoNodeManager> _algoNodeMgr;
+  std::vector<std::shared_ptr<AlgoBase>> _algos;
+
+  std::vector<size_t> _algoListId;
+  std::vector<std::string> _algoListName;
+
+  std::string AlgosPath = "/home/uma/workspace/Gzero/build/Algos/Hdr/";
+  // "@todo get AlgosPath from xml later"
 };
 #endif // ALGO_PIPELINE_H
-#endif

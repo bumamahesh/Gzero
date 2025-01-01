@@ -103,9 +103,15 @@ void AlgoBase::ThreadCallback(std::shared_ptr<Task_t> task) {
   // Placeholder implementation. Extend as needed.
 
   if (task) {
+
+    AlgoBase *ctx = reinterpret_cast<AlgoBase *>(task->ctx);
+    if (ctx->NotifyEvent) {
+      ctx->NotifyEvent();
+    }
     if (task->args) {
       std::string *request = reinterpret_cast<std::string *>(task->args);
       // std::cout << "ThreadCallback: " << *request << std::endl;
+
       delete request;
     }
   }
@@ -123,8 +129,24 @@ void AlgoBase::EnqueueRequest(const std::string &request) {
     if (mAlgoThread->pCallback) {
       /*callback is where we free obj so make sure a callnackexist first*/
       task_req->args = reinterpret_cast<void *>(new std::string(request));
+      task_req->ctx = reinterpret_cast<void *>(this);
     }
     mAlgoThread->Enqueue(task_req);
     queue_cond_.notify_all();
   }
 }
+
+/**
+@brief Set Notify Event object
+ *
+ * @param NotifyEvent
+ */
+void AlgoBase::SetNotifyEvent(void (*NotifyEvent)()) {
+  this->NotifyEvent = NotifyEvent;
+}
+
+/**
+@brief Wait For Queue Competion object
+ *
+ */
+void AlgoBase::WaitForQueueCompetion() { mAlgoThread->WaitForQueueCompetion(); }

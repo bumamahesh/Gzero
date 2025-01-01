@@ -1,34 +1,54 @@
-#if 0
+
 #include "AlgoPipeline.h"
+#include <assert.h>
 
-AlgoPipeline::AlgoPipeline(const std::string &libraryPath)
-    : algoNodeMgr_(libraryPath) {}
+/**
+@brief Constructs a new AlgoPipeline object with a list of algorithm IDs
+ *
+ * @param algoList
+ */
+AlgoPipeline::AlgoPipeline(std::vector<size_t> algoList) {
+  assert(algoList.size() != 0);
+  _algoListId = algoList;
 
-AlgoPipeline::~AlgoPipeline() {}
+  _algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
+  assert(_algoNodeMgr != nullptr);
 
-bool AlgoPipeline::AddAlgo(size_t algoId) {
-  auto algo = algoNodeMgr_.CreateAlgo(algoId);
-  if (algo == nullptr) {
-    return false;
+  for (auto algoId : _algoListId) {
+    auto algo = _algoNodeMgr->CreateAlgo(algoId);
+    assert(algo != nullptr);
+
+    _algos.push_back(algo);
+    _algoListName.push_back(algo->GetAlgorithmName());
   }
-  algos_.push_back(algo);
-  return true;
 }
 
-bool AlgoPipeline::RemoveAlgo(size_t algoId) {
-  for (auto it = algos_.begin(); it != algos_.end(); ++it) {
-    if ((*it)->GetId() == algoId) {
-      algos_.erase(it);
-      return true;
-    }
+/**
+@brief Constructs a new AlgoPipeline object with a list of algorithm names
+ *
+ * @param algoList
+ */
+AlgoPipeline::AlgoPipeline(std::vector<std::string> algoList) {
+  assert(algoList.size() != 0);
+  _algoListName = algoList;
+
+  _algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
+  assert(_algoNodeMgr != nullptr);
+
+  for (auto algoName : _algoListName) {
+    auto algo = _algoNodeMgr->CreateAlgo(algoName);
+    assert(algo != nullptr);
+    _algos.push_back(algo);
+    _algoListId.push_back(algo->GetAlgoId());
   }
-  return false;
 }
 
-bool AlgoPipeline::Process() {
-  for (auto &algo : algos_) {
-    algo->Process();
-  }
-  return true;
+/**
+@brief Destroy the Algo Pipeline:: Algo Pipeline object
+ *
+ */
+AlgoPipeline::~AlgoPipeline() {
+  _algos.clear();
+  _algoListId.clear();
+  _algoListName.clear();
 }
-#endif

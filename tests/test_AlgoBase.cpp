@@ -51,7 +51,7 @@ public:
       return GetStatus();
     }
     is_process_called_ = true;
-    usleep(1 * 1000); // Simulate processing time 20ms
+    usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::SUCCESS);
     return GetStatus();
   }
@@ -94,8 +94,31 @@ TEST(AlgoBaseNameTest, AlgorithmNameRetrieval) {
   EXPECT_EQ(node.GetAlgorithmName(), "TestAlgorithm");
 
   // Test another node with a different name
-  // MockDerivedAlgo another_node("AnotherAlgorithm");
-  // EXPECT_EQ(another_node.GetAlgorithmName(), "AnotherAlgorithm");
+  MockDerivedAlgo another_node("AnotherAlgorithm");
+
+  // Test the algorithm name
+  EXPECT_EQ(another_node.GetAlgorithmName(), "AnotherAlgorithm");
+}
+
+/**
+ * @brief Test case for verifying algorithm status retrieval.
+ */
+int g_callbacks = 0;
+TEST(AlgoBaseNameTest, CallBackTest) {
+
+  MockDerivedAlgo node("TestAlgorithm");
+
+  // Test the algorithm name
+  EXPECT_EQ(node.GetAlgorithmName(), "TestAlgorithm");
+  g_callbacks = 0;
+  node.SetNotifyEvent([]() { g_callbacks++; });
+
+  for (int i = 0; i < 10000; i++) {
+    std::string request = std::to_string(i);
+    node.EnqueueRequest(request);
+  }
+  node.WaitForQueueCompetion();
+  EXPECT_EQ(g_callbacks, 10000);
 }
 
 /**

@@ -49,6 +49,8 @@ public:
   std::string GetAlgorithmName() const;
   size_t GetAlgoId() const;
   void EnqueueRequest(const std::string &);
+  void SetNotifyEvent(void (*NotifyEvent)());
+  void WaitForQueueCompetion();
 
 protected:
   AlgorithmOperations ops_;
@@ -62,6 +64,8 @@ protected:
   std::shared_ptr<TaskQueue> mAlgoThread;
   size_t algo_id_ = 0XDEADBEEF;
   void SetStatus(AlgoStatus status);
+  // Callback function to notify the event Upper Layer
+  void (*NotifyEvent)() = nullptr;
 
 private:
   static void ThreadFunction(std::shared_ptr<Task_t>);
