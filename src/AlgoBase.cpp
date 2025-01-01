@@ -1,5 +1,5 @@
 #include "AlgoBase.h"
-
+#include <cassert>
 /**
 @brief Construct a new Algo Base:: Algo Base object
  *
@@ -101,17 +101,19 @@ void AlgoBase::ThreadFunction(std::shared_ptr<Task_t>) {
  */
 void AlgoBase::ThreadCallback(std::shared_ptr<Task_t> task) {
   // Placeholder implementation. Extend as needed.
-
   if (task) {
 
     AlgoBase *ctx = reinterpret_cast<AlgoBase *>(task->ctx);
+    assert(ctx != nullptr);
     if (ctx->NotifyEvent) {
       ctx->NotifyEvent();
+    } else {
+      // std::cout << "ThreadCallback: AlgoBase::NotifyEvent Not Set" <<
+      // std::endl;
     }
     if (task->args) {
       std::string *request = reinterpret_cast<std::string *>(task->args);
       // std::cout << "ThreadCallback: " << *request << std::endl;
-
       delete request;
     }
   }
@@ -141,8 +143,8 @@ void AlgoBase::EnqueueRequest(const std::string &request) {
  *
  * @param NotifyEvent
  */
-void AlgoBase::SetNotifyEvent(void (*NotifyEvent)()) {
-  this->NotifyEvent = NotifyEvent;
+void AlgoBase::SetNotifyEvent(void (*EventHandler)()) {
+  this->NotifyEvent = EventHandler;
 }
 
 /**

@@ -12,6 +12,9 @@ public:
   AlgoPipeline(std::vector<std::string> algoList);
   ~AlgoPipeline();
 
+  void Process(std::string &input);
+  static void NodeEventHandler();
+
 private:
   std::shared_ptr<AlgoNodeManager> _algoNodeMgr;
   std::vector<std::shared_ptr<AlgoBase>> _algos;

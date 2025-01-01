@@ -49,7 +49,7 @@ public:
   std::string GetAlgorithmName() const;
   size_t GetAlgoId() const;
   void EnqueueRequest(const std::string &);
-  void SetNotifyEvent(void (*NotifyEvent)());
+  void SetNotifyEvent(void (*EventHandler)());
   void WaitForQueueCompetion();
 
 protected:
