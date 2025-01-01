@@ -12,9 +12,9 @@ class HDRAlgorithm : public AlgoBase {
 public:
   /**
    * @brief Constructor for HDRAlgorithm.
-   * @param name Name of the HDR algorithm.
+   *
    */
-  explicit HDRAlgorithm(const std::string &name);
+  HDRAlgorithm();
 
   /**
    * @brief Destructor for HDRAlgorithm.

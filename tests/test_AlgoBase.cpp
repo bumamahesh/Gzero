@@ -12,7 +12,7 @@ public:
    * @brief Constructor for MockDerivedAlgo.
    * @param name Name of the algorithm.
    */
-  explicit MockDerivedAlgo(const std::string &name) : AlgoBase(name) {}
+  explicit MockDerivedAlgo(const char *name) : AlgoBase(name) {}
 
   /**
    * @brief Destructor for MockDerivedAlgo.

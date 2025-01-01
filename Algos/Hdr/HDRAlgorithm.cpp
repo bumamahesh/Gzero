@@ -2,12 +2,14 @@
 
 #include "HDRAlgorithm.h"
 #include <iostream>
+static const std::string HDR_ALGO_NAME = "HDRAlgorithm";
+static const size_t HDR_ALGO_ID = 0XCAFEBABE;
 /**
  * @brief Constructor for HDRAlgorithm.
  * @param name Name of the HDR algorithm.
  */
-HDRAlgorithm::HDRAlgorithm(const std::string &name) : AlgoBase(name) {
-  algo_id_ = 0xCAFEBABE; // Unique ID for HDR algorithm
+HDRAlgorithm::HDRAlgorithm() : AlgoBase(HDR_ALGO_NAME) {
+  algo_id_ = HDR_ALGO_ID; // Unique ID for HDR algorithm
 }
 
 /**
@@ -76,11 +78,23 @@ AlgoBase::AlgoStatus HDRAlgorithm::Close() {
   return GetStatus();
 }
 
+// Public Exposed API for HDR
 /**
  * @brief Factory function to expose HDRAlgorithm via shared library.
  * @return A pointer to the HDRAlgorithm instance.
  */
 extern "C" AlgoBase *GetAlgoMethod() {
-  HDRAlgorithm *pInstance = new HDRAlgorithm("HDRAlgorithm");
+  HDRAlgorithm *pInstance = new HDRAlgorithm();
   return pInstance;
 }
+
+/**
+@brief Get the algorithm ID.
+ *
+ */
+extern "C" size_t GetAlgoId() { return HDR_ALGO_ID; }
+/**
+@brief Get the algorithm name.
+ *
+ */
+extern "C" std::string GetAlgorithmName() { return HDR_ALGO_NAME; }

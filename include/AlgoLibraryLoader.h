@@ -16,6 +16,12 @@ public:
   // Function to get the algorithm method from the shared library
   std::shared_ptr<AlgoBase> GetAlgoMethod();
 
+  // Function to get the algorithm name
+  std::string GetAlgorithmName() const;
+
+  // Function to get the algorithm ID
+  size_t GetAlgoId() const;
+
 private:
   void *libHandle; // Handle to the shared library
 };

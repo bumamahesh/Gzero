@@ -62,6 +62,9 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "queue": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "bitset": "cpp",
+        "codecvt": "cpp",
+        "regex": "cpp"
     }
 }

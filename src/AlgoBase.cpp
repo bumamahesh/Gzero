@@ -7,7 +7,7 @@
 AlgoBase::AlgoBase() {
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction);
   mAlgoThread->pCallback = AlgoBase::ThreadCallback;
-  mAlgoThread->SetThread(std::string("AlgoBaseDefaultThread"));
+  mAlgoThread->SetThread("AlgoBaseDefaultThread");
 }
 
 /**

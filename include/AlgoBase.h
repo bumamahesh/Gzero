@@ -37,7 +37,7 @@ public:
   // Constructors
   AlgoBase();
   // Constructor
-  explicit AlgoBase(const std::string &name);
+  explicit AlgoBase(const std::string &);
   // Destructor
   virtual ~AlgoBase();
   // Public member functions
@@ -48,7 +48,7 @@ public:
   std::string GetStatusString() const;
   std::string GetAlgorithmName() const;
   size_t GetAlgoId() const;
-  void EnqueueRequest(const std::string &request);
+  void EnqueueRequest(const std::string &);
 
 protected:
   AlgorithmOperations ops_;

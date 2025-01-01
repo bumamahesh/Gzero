@@ -17,10 +17,16 @@ TEST_F(AlgoLibraryLoaderTest, LoadValidLibrary) {
   try {
     AlgoLibraryLoader loader(validLibraryPath);
 
+    ASSERT_EQ(loader.GetAlgoId(), 0XCAFEBABE);
+    ASSERT_EQ(loader.GetAlgorithmName(), std::string("HDRAlgorithm"));
+
     auto algo = loader.GetAlgoMethod();
 
     // Check if we got a valid pointer (mocked for testing)
     ASSERT_NE(algo, nullptr);
+
+    ASSERT_EQ(algo->GetAlgoId(), loader.GetAlgoId());
+    ASSERT_EQ(algo->GetAlgorithmName(), loader.GetAlgorithmName());
 
   } catch (const std::exception &e) {
     FAIL() << "Exception thrown: " << e.what();
@@ -32,12 +38,19 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   // Here, we test the interaction with the returned AlgoBase method.
   AlgoLibraryLoader loader(validLibraryPath);
   auto algo = loader.GetAlgoMethod();
+
+  ASSERT_EQ(loader.GetAlgoId(), 0XCAFEBABE);
+  ASSERT_EQ(loader.GetAlgorithmName(), std::string("HDRAlgorithm"));
+
   if (algo) {
     // Ensure the algorithm method is valid
     ASSERT_NE(algo, nullptr);
-    ASSERT_EQ(algo->GetAlgoId(), 0XCAFEBABE);
+    ASSERT_EQ(algo->GetAlgoId(), loader.GetAlgoId());
+    ASSERT_EQ(algo->GetAlgorithmName(), loader.GetAlgorithmName());
+
     // Call the Open method
     ASSERT_NE(algo->GetAlgorithmName(), "");
+    ASSERT_EQ(algo->GetAlgorithmName(), "HDRAlgorithm");
     ASSERT_EQ(algo->Open(), AlgoBase::AlgoStatus::SUCCESS);
     ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
     static int i;
