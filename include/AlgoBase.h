@@ -30,6 +30,20 @@ public:
     INTERNAL_ERROR = 11
   };
 
+  typedef enum AlgoMeassageType {
+    ALGO_PROCESSING_COMPLETED, // A generic processing completion
+    ALGO_PROCESSING_FAILED,    // Processing failed
+    ALGO_PROCESSING_TIMEOUT,   // Processing timed out
+    ALGO_PROCESSING_PARTIAL    // An intermediate processing step completed (not
+                               // the last)
+  } ALGOMESSAGETYPE;
+
+  typedef struct AlgoCallBaclMessage {
+    ALGOMESSAGETYPE type;
+    AlgoStatus status;
+    std::shared_ptr<Task_t> request;
+  } ALGOCALLBACKMSG;
+
   struct AlgorithmOperations {
     std::string algorithm_name;
     void *context = nullptr;
@@ -48,9 +62,12 @@ public:
   std::string GetStatusString() const;
   std::string GetAlgorithmName() const;
   size_t GetAlgoId() const;
-  void EnqueueRequest(const std::string &);
-  void SetNotifyEvent(void (*EventHandler)());
+  void EnqueueRequest(std::shared_ptr<Task_t> request);
+  void SetNotifyEvent(
+      void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg));
   void WaitForQueueCompetion();
+  void SetNextAlgo(std::weak_ptr<AlgoBase>);
+  std::weak_ptr<AlgoBase> GetNextAlgo();
 
 protected:
   AlgorithmOperations ops_;
@@ -65,7 +82,10 @@ protected:
   size_t algo_id_ = 0XDEADBEEF;
   void SetStatus(AlgoStatus status);
   // Callback function to notify the event Upper Layer
-  void (*NotifyEvent)() = nullptr;
+  void (*NotifyEvent)(void *ctx,
+                      std::shared_ptr<ALGOCALLBACKMSG> msg) = nullptr;
+  /*Linked list */
+  std::weak_ptr<AlgoBase> m_nextAlgo;
 
 private:
   static void ThreadFunction(std::shared_ptr<Task_t>);

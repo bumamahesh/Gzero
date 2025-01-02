@@ -9,17 +9,17 @@
  */
 AlgoPipeline::AlgoPipeline(std::vector<size_t> algoList) {
   assert(algoList.size() != 0);
-  _algoListId = algoList;
+  m_algoListId = algoList;
 
-  _algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
-  assert(_algoNodeMgr != nullptr);
+  m_algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
+  assert(m_algoNodeMgr != nullptr);
 
-  for (auto algoId : _algoListId) {
-    auto algo = _algoNodeMgr->CreateAlgo(algoId);
+  for (auto algoId : m_algoListId) {
+    auto algo = m_algoNodeMgr->CreateAlgo(algoId);
     assert(algo != nullptr);
     algo->SetNotifyEvent(AlgoPipeline::NodeEventHandler);
-    _algos.push_back(algo);
-    _algoListName.push_back(algo->GetAlgorithmName());
+    m_algos.push_back(algo);
+    m_algoListName.push_back(algo->GetAlgorithmName());
   }
 }
 
@@ -30,17 +30,17 @@ AlgoPipeline::AlgoPipeline(std::vector<size_t> algoList) {
  */
 AlgoPipeline::AlgoPipeline(std::vector<std::string> algoList) {
   assert(algoList.size() != 0);
-  _algoListName = algoList;
+  m_algoListName = algoList;
 
-  _algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
-  assert(_algoNodeMgr != nullptr);
+  m_algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
+  assert(m_algoNodeMgr != nullptr);
 
-  for (auto algoName : _algoListName) {
-    auto algo = _algoNodeMgr->CreateAlgo(algoName);
+  for (auto algoName : m_algoListName) {
+    auto algo = m_algoNodeMgr->CreateAlgo(algoName);
     assert(algo != nullptr);
     algo->SetNotifyEvent(AlgoPipeline::NodeEventHandler);
-    _algos.push_back(algo);
-    _algoListId.push_back(algo->GetAlgoId());
+    m_algos.push_back(algo);
+    m_algoListId.push_back(algo->GetAlgoId());
   }
 }
 
@@ -49,23 +49,64 @@ AlgoPipeline::AlgoPipeline(std::vector<std::string> algoList) {
  *
  */
 AlgoPipeline::~AlgoPipeline() {
-  _algos.clear();
-  _algoListId.clear();
-  _algoListName.clear();
+  m_algos.clear();
+  m_algoListId.clear();
+  m_algoListName.clear();
 }
 
 void AlgoPipeline::Process(std::string &input) {
 
-  if (_algos.size() == 0) {
+  if (m_algos.size() == 0) {
     std::cout << "No algos to process" << std::endl;
     return;
   }
-  _algos[0]->EnqueueRequest(
-      input); // put on first request rest will be done by the first algo
+  std::shared_ptr<Task_t> task = std::make_shared<Task_t>();
+  task->ctx = m_algos[0].get();
+  task->args = new std::string(
+      input); // for now request is just string
+              // put on first request rest will be done by the first algo
+  m_algos[0]->EnqueueRequest(task);
 }
 
-void AlgoPipeline::NodeEventHandler() {
-  // @todo
+void AlgoPipeline::NodeEventHandler(
+    void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+  assert(msg != nullptr);
+  assert(ctx != nullptr);
+  AlgoBase *algo = reinterpret_cast<AlgoBase *>(ctx);
+  assert(algo != nullptr);
 
-  // std::cout << "NodeEventHandler" << std::endl;
+  switch (msg->type) {
+  case AlgoBase::ALGO_PROCESSING_COMPLETED: {
+    /*std::cout << "AlgoPipeline::NodeEventHandler: Processing Completed"
+              << std::endl;*/
+    std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
+    if (NextAlgo) {
+      NextAlgo->EnqueueRequest(msg->request);
+    } else {
+      /*last node so let free obj */
+      std::string *input = reinterpret_cast<std::string *>(msg->request->args);
+      delete input;
+      /*std::cout << "AlgoPipeline::NodeEventHandler: No Next Algo" <<
+       * std::endl;*/
+    }
+  }
+  /*kick next node */
+  break;
+  case AlgoBase::ALGO_PROCESSING_FAILED:
+    std::cout << "AlgoPipeline::NodeEventHandler: Processing Failed"
+              << std::endl;
+    break;
+  case AlgoBase::ALGO_PROCESSING_TIMEOUT:
+    std::cout << "AlgoPipeline::NodeEventHandler: Processing Timeout"
+              << std::endl;
+    break;
+  case AlgoBase::ALGO_PROCESSING_PARTIAL:
+    std::cout << "AlgoPipeline::NodeEventHandler: Partial Processing Completed"
+              << std::endl;
+    break;
+  default:
+    std::cout << "AlgoPipeline::NodeEventHandler: Unknown Message Type"
+              << std::endl;
+    break;
+  }
 }

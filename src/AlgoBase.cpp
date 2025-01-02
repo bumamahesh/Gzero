@@ -104,17 +104,18 @@ void AlgoBase::ThreadCallback(std::shared_ptr<Task_t> task) {
   if (task) {
 
     AlgoBase *ctx = reinterpret_cast<AlgoBase *>(task->ctx);
+    /* a node as completed processing if  */
     assert(ctx != nullptr);
     if (ctx->NotifyEvent) {
-      ctx->NotifyEvent();
+      auto msg = std::make_shared<ALGOCALLBACKMSG>();
+      assert(msg != nullptr);
+      msg->request = task;
+      msg->status = ctx->GetStatus();
+      msg->type = ALGO_PROCESSING_COMPLETED;
+      ctx->NotifyEvent(ctx, msg);
     } else {
       // std::cout << "ThreadCallback: AlgoBase::NotifyEvent Not Set" <<
       // std::endl;
-    }
-    if (task->args) {
-      std::string *request = reinterpret_cast<std::string *>(task->args);
-      // std::cout << "ThreadCallback: " << *request << std::endl;
-      delete request;
     }
   }
 }
@@ -124,16 +125,13 @@ void AlgoBase::ThreadCallback(std::shared_ptr<Task_t> task) {
  *
  * @param request
  */
-void AlgoBase::EnqueueRequest(const std::string &request) {
+void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
+  if (!request) {
+    return;
+  }
   {
     std::lock_guard<std::mutex> lock(thread_mutex_);
-    std::shared_ptr<Task_t> task_req = std::make_shared<Task_t>();
-    if (mAlgoThread->pCallback) {
-      /*callback is where we free obj so make sure a callnackexist first*/
-      task_req->args = reinterpret_cast<void *>(new std::string(request));
-      task_req->ctx = reinterpret_cast<void *>(this);
-    }
-    mAlgoThread->Enqueue(task_req);
+    mAlgoThread->Enqueue(request);
     queue_cond_.notify_all();
   }
 }
@@ -143,7 +141,8 @@ void AlgoBase::EnqueueRequest(const std::string &request) {
  *
  * @param NotifyEvent
  */
-void AlgoBase::SetNotifyEvent(void (*EventHandler)()) {
+void AlgoBase::SetNotifyEvent(
+    void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg)) {
   this->NotifyEvent = EventHandler;
 }
 
@@ -152,3 +151,18 @@ void AlgoBase::SetNotifyEvent(void (*EventHandler)()) {
  *
  */
 void AlgoBase::WaitForQueueCompetion() { mAlgoThread->WaitForQueueCompetion(); }
+
+/**
+@brief Set Next Algo object
+ *
+ */
+void AlgoBase::SetNextAlgo(std::weak_ptr<AlgoBase> nextAlgo) {
+  m_nextAlgo = nextAlgo;
+}
+
+/**
+@brief Get Next Algo object
+ *
+ * @return std::weak_ptr<AlgoBase>
+ */
+std::weak_ptr<AlgoBase> AlgoBase::GetNextAlgo() { return m_nextAlgo; }

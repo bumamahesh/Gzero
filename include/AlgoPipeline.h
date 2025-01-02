@@ -13,14 +13,15 @@ public:
   ~AlgoPipeline();
 
   void Process(std::string &input);
-  static void NodeEventHandler();
+  static void NodeEventHandler(void *,
+                               std::shared_ptr<AlgoBase::ALGOCALLBACKMSG>);
 
 private:
-  std::shared_ptr<AlgoNodeManager> _algoNodeMgr;
-  std::vector<std::shared_ptr<AlgoBase>> _algos;
+  std::shared_ptr<AlgoNodeManager> m_algoNodeMgr;
+  std::vector<std::shared_ptr<AlgoBase>> m_algos;
 
-  std::vector<size_t> _algoListId;
-  std::vector<std::string> _algoListName;
+  std::vector<size_t> m_algoListId;
+  std::vector<std::string> m_algoListName;
 
   std::string AlgosPath = "/home/uma/workspace/Gzero/build/Algos/Hdr/";
   // "@todo get AlgosPath from xml later"
