@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project name and description
-project(Hdr VERSION 1.0 LANGUAGES CXX)
+project(Bokeh VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_SHARED_LIBRARY_PREFIX "com.Algo.")
-
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
 
@@ -12,13 +11,13 @@ file(GLOB CORE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
 )
 # Add the shared library
-add_library(Hdr SHARED
-    HDRAlgorithm.cpp
+add_library(Bokeh SHARED
+    BokehAlgorithm.cpp
     ${CORE_SOURCES}
 )
 
 # Include directories
-target_include_directories(Hdr
+target_include_directories(Bokeh
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/include 
@@ -26,7 +25,7 @@ target_include_directories(Hdr
 )
 
 # Set C++ standard
-set_target_properties(Hdr PROPERTIES
+set_target_properties(Bokeh PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
@@ -41,19 +40,19 @@ if(ENABLE_ASAN)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
 
     # Enable AddressSanitizer
-    target_compile_options(Hdr PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-    target_link_options(Hdr PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    target_compile_options(Bokeh PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    target_link_options(Bokeh PRIVATE -fsanitize=address -fno-omit-frame-pointer)
     # Set compiler flags for debugging information
-    target_compile_options(Hdr PRIVATE -g -ggdb -Wall -fPIC)
+    target_compile_options(Bokeh PRIVATE -g -ggdb -Wall -fPIC)
 
 endif()
 
 # Export the shared library
-install(TARGETS Hdr
+install(TARGETS Bokeh
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
 )
 
 # Install header files
-install(FILES HDRAlgorithm.h DESTINATION include)
+install(FILES BokehAlgorithm.h DESTINATION include)

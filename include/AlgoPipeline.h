@@ -13,7 +13,7 @@ public:
   ~AlgoPipeline();
 
   void Process(std::string &input);
-  static void NodeEventHandler(void *,
+  static void NodeEventHandler(std::shared_ptr<void>,
                                std::shared_ptr<AlgoBase::ALGOCALLBACKMSG>);
 
 private:
@@ -23,7 +23,7 @@ private:
   std::vector<size_t> m_algoListId;
   std::vector<std::string> m_algoListName;
 
-  std::string AlgosPath = "/home/uma/workspace/Gzero/build/Algos/Hdr/";
+  std::string AlgosPath = "/home/uma/workspace/Gzero/cmake/lib/";
   // "@todo get AlgosPath from xml later"
 };
 #endif // ALGO_PIPELINE_H

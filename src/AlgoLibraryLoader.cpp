@@ -14,6 +14,7 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath)
     throw std::runtime_error("Failed to load library: " +
                              std::string(dlerror()));
   }
+  totalAlgoInstances = 0;
 }
 
 /**
@@ -21,12 +22,16 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath)
  *
  */
 AlgoLibraryLoader::~AlgoLibraryLoader() {
+  // std::string algoname = GetAlgorithmName();
   if (libHandle) {
     dlclose(libHandle);
   }
+  // std::cout << algoname << "::Total Algo Instances: " << totalAlgoInstances
+  //           << std::endl;
 }
 
 std::shared_ptr<AlgoBase> AlgoLibraryLoader::GetAlgoMethod() {
+  std::lock_guard<std::mutex> lock(libMutex);
   // Try to get the function from the library
   typedef AlgoBase *(*GetAlgoMethodFunc)();
   GetAlgoMethodFunc getAlgoMethod =
@@ -37,6 +42,7 @@ std::shared_ptr<AlgoBase> AlgoLibraryLoader::GetAlgoMethod() {
                              std::string(dlerror()));
   }
   std::shared_ptr<AlgoBase> pAlgoBase(getAlgoMethod());
+  totalAlgoInstances++;
   return pAlgoBase;
 }
 

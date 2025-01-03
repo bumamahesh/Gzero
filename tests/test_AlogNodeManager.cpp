@@ -13,14 +13,14 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
   try {
     std::string HdralgoName("HDRAlgorithm");
     size_t HdrAlgoID = 0XCAFEBABE;
-    std::string libraryPath = "/home/uma/workspace/Gzero/build/Algos/Hdr/";
+    std::string libraryPath = "/home/uma/workspace/Gzero/cmake/lib/";
     auto algoNodeManager = std::make_shared<AlgoNodeManager>(libraryPath);
 
     // Check if the algoNodeManager is created
     EXPECT_NE(algoNodeManager, nullptr);
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), 1);
+    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), 2);
 
     // Check algo available by Id
     EXPECT_EQ(algoNodeManager->IsAlgoAvailable(HdrAlgoID), true);
@@ -35,7 +35,7 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 
 TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
   std::string HdralgoName("HDRAlgorithm");
-  std::string libraryPath = "/home/uma/workspace/Gzero/build/Algos/Hdr/";
+  std::string libraryPath = "/home/uma/workspace/Gzero/cmake/lib/";
   try {
     auto algoNodeManager = std::make_shared<AlgoNodeManager>(libraryPath);
 
@@ -43,7 +43,7 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
     EXPECT_NE(algoNodeManager, nullptr);
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), 1);
+    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), 2);
 
     // Check algo available by name
     EXPECT_EQ(algoNodeManager->IsAlgoAvailable(HdralgoName), true);
@@ -66,14 +66,14 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectById) {
 
   try {
     size_t HdrAlgoID = 0XCAFEBABE;
-    std::string libraryPath = "/home/uma/workspace/Gzero/build/Algos/Hdr/";
+    std::string libraryPath = "/home/uma/workspace/Gzero/cmake/lib/";
     auto algoNodeManager = std::make_shared<AlgoNodeManager>(libraryPath);
 
     // Check if the algoNodeManager is created
     EXPECT_NE(algoNodeManager, nullptr);
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), 1);
+    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), 2);
 
     // Check algo available by Id
     EXPECT_EQ(algoNodeManager->IsAlgoAvailable(HdrAlgoID), true);

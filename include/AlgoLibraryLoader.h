@@ -23,7 +23,9 @@ public:
   size_t GetAlgoId() const;
 
 private:
-  void *libHandle; // Handle to the shared library
+  void *libHandle;     // Handle to the shared library
+  std::mutex libMutex; // Mutex to protect the shared library handle
+  size_t totalAlgoInstances;
 };
 
 #endif // ALGO_LIBRARY_LOADER_H

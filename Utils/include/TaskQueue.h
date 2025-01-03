@@ -10,7 +10,7 @@
 
 typedef struct Task_t {
   void *args;
-  void *ctx;
+  std::shared_ptr<void> ctx;
 } Task_t;
 
 class TaskQueue {
@@ -36,6 +36,9 @@ public:
   // Wait for queue to complete
   void WaitForQueueCompetion();
 
+  // Stop the worker thread
+  void StopWorkerThread();
+
 private:
   // Internal worker thread function
   static void *WorkerThreadFuction(void *arg);
@@ -44,10 +47,11 @@ private:
   void ExecuteTask(std::shared_ptr<Task_t>);
 
   // Member variables
+  // Queue to hold tasks
   std::queue<std::shared_ptr<Task_t>> taskQueue; // Queue to hold tasks
-  pthread_t workerThread;                        // Thread handle
+  std::mutex taskQMux;         // Mutex for accessing taskQueue
+  pthread_t workerThread;      // Thread handle
   std::atomic<bool> isRunning; // Atomic flag to check if the thread should run
-  std::mutex queueMutex;       // Mutex for accessing taskQueue
   std::condition_variable
       conditionVar; // Condition variable for synchronization
 };

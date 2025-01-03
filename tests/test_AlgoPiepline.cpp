@@ -8,7 +8,7 @@ protected:
 };
 
 TEST_F(AlgoPipelineTest, ctorDtor) {
-  std::vector<size_t> algoList = {0XCAFEBABE};
+  std::vector<size_t> algoList = {0XCAFEBABE, 0XCAFEBABE + 1};
   auto algoPipeline = std::make_shared<AlgoPipeline>(algoList);
 
   // Check if the algoPipeline is created
@@ -16,7 +16,7 @@ TEST_F(AlgoPipelineTest, ctorDtor) {
 }
 
 TEST_F(AlgoPipelineTest, Processtest) {
-  std::vector<size_t> algoList = {0XCAFEBABE};
+  std::vector<size_t> algoList = {0XCAFEBABE, 0XCAFEBABE + 1};
   auto algoPipeline = std::make_shared<AlgoPipeline>(algoList);
 
   // Check if the algoPipeline is created

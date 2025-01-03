@@ -29,9 +29,11 @@ AlgoBase::AlgoBase(const std::string &name)
  *
  */
 AlgoBase::~AlgoBase() {
-  // std::cout << "Destructor for AlgoBase E" << std::endl;
-  mAlgoThread->WaitForQueueCompetion();
-  // std::cout << "Destructor for AlgoBase X" << std::endl;
+  // std::cout << "Destructor for AlgoBase E" << std::flush << std::endl;
+  // mAlgoThread->WaitForQueueCompetion();
+  // std::lock_guard<std::mutex> lock(thread_mutex_);
+  // mAlgoThread->StopWorkerThread();
+  // std::cout << "Destructor for AlgoBase X" << std::flush << std::endl;
 }
 
 /**
@@ -102,8 +104,7 @@ void AlgoBase::ThreadFunction(std::shared_ptr<Task_t>) {
 void AlgoBase::ThreadCallback(std::shared_ptr<Task_t> task) {
   // Placeholder implementation. Extend as needed.
   if (task) {
-
-    AlgoBase *ctx = reinterpret_cast<AlgoBase *>(task->ctx);
+    auto ctx = std::static_pointer_cast<AlgoBase>(task->ctx);
     /* a node as completed processing if  */
     assert(ctx != nullptr);
     if (ctx->NotifyEvent) {
@@ -130,7 +131,7 @@ void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
     return;
   }
   {
-    std::lock_guard<std::mutex> lock(thread_mutex_);
+    // std::lock_guard<std::mutex> lock(thread_mutex_);
     mAlgoThread->Enqueue(request);
     queue_cond_.notify_all();
   }
@@ -141,8 +142,8 @@ void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
  *
  * @param NotifyEvent
  */
-void AlgoBase::SetNotifyEvent(
-    void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg)) {
+void AlgoBase::SetNotifyEvent(void (*EventHandler)(
+    std::shared_ptr<void> ctx, std::shared_ptr<ALGOCALLBACKMSG> msg)) {
   this->NotifyEvent = EventHandler;
 }
 

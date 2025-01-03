@@ -63,8 +63,9 @@ public:
   std::string GetAlgorithmName() const;
   size_t GetAlgoId() const;
   void EnqueueRequest(std::shared_ptr<Task_t> request);
-  void SetNotifyEvent(
-      void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg));
+  void
+  SetNotifyEvent(void (*EventHandler)(std::shared_ptr<void> ctx,
+                                      std::shared_ptr<ALGOCALLBACKMSG> msg));
   void WaitForQueueCompetion();
   void SetNextAlgo(std::weak_ptr<AlgoBase>);
   std::weak_ptr<AlgoBase> GetNextAlgo();
@@ -74,7 +75,7 @@ protected:
   AlgoStatus current_status_ = AlgoStatus::SUCCESS;
   pthread_t thread_;
   bool thread_started_ = false;
-  std::mutex thread_mutex_;
+  // std::mutex thread_mutex_;
   std::condition_variable thread_cond_;
   std::condition_variable queue_cond_;
   std::atomic<bool> should_exit_ = false;
@@ -82,7 +83,7 @@ protected:
   size_t algo_id_ = 0XDEADBEEF;
   void SetStatus(AlgoStatus status);
   // Callback function to notify the event Upper Layer
-  void (*NotifyEvent)(void *ctx,
+  void (*NotifyEvent)(std::shared_ptr<void> ctx,
                       std::shared_ptr<ALGOCALLBACKMSG> msg) = nullptr;
   /*Linked list */
   std::weak_ptr<AlgoBase> m_nextAlgo;

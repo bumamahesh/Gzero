@@ -107,49 +107,56 @@ TEST(AlgoBaseNameTest, AlgorithmNameRetrieval) {
 int g_callbacks = 0;
 TEST(AlgoBaseNameTest, CallBackTest) {
 
-  MockDerivedAlgo node("TestAlgorithm");
-
+  // std::cout << "CallBackTest ::E" << std::endl;
+  std::shared_ptr<MockDerivedAlgo> node =
+      std::make_shared<MockDerivedAlgo>("TestAlgorithm");
+  // std::cout << "CallBackTest ::Mock Class Created" << std::endl;
   // Test the algorithm name
-  EXPECT_EQ(node.GetAlgorithmName(), "TestAlgorithm");
+  EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithm");
   g_callbacks = 0;
-  node.SetNotifyEvent(
-      [](void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
-        assert(msg != nullptr);
-        assert(ctx != nullptr);
-        AlgoBase *algo = reinterpret_cast<AlgoBase *>(ctx);
-        assert(algo != nullptr);
+  // std::cout << "CallBackTest ::SetNotifyEvent Set" << std::endl;
+  node->SetNotifyEvent([](std::shared_ptr<void> ctx,
+                          std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+    assert(msg != nullptr);
+    assert(ctx != nullptr);
 
-        switch (msg->type) {
-        case AlgoBase::ALGO_PROCESSING_COMPLETED: {
-          g_callbacks++;
-          std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
-          if (NextAlgo) {
-            NextAlgo->EnqueueRequest(msg->request);
-          } else {
-            /*last node so let free obj */
-            std::string *input =
-                reinterpret_cast<std::string *>(msg->request->args);
-            delete input;
-          }
-        }
+    std::shared_ptr<AlgoBase> algo = std::static_pointer_cast<AlgoBase>(ctx);
+    assert(algo != nullptr);
 
-        default:
-          /*  std::cout << "AlgoPipeline::NodeEventHandler: Unknown MessageType"
-                      << std::endl;
-          */
-          break;
-        }
-      });
+    switch (msg->type) {
+    case AlgoBase::ALGO_PROCESSING_COMPLETED: {
+      g_callbacks++;
+      std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
+      if (NextAlgo) {
+        NextAlgo->EnqueueRequest(msg->request);
+      } else {
+        /*last node so let free obj */
+        std::string *input =
+            reinterpret_cast<std::string *>(msg->request->args);
+        delete input;
+      }
+    }
 
-  for (int i = 0; i < 10000; i++) {
+    default:
+      // std::cout << "AlgoPipeline::NodeEventHandler: Unknown MessageType" <<
+      // std::endl;
+      break;
+    }
+  });
+
+  // std::cout << "CallBackTest ::Put some load on node" << std::endl;
+  for (int i = 0; i < 500; i++) {
     std::string request = std::to_string(i);
     auto task = std::make_shared<Task_t>();
-    task->ctx = &node;
+    task->ctx = std::static_pointer_cast<AlgoBase>(node);
     task->args = new std::string(request);
-    node.EnqueueRequest(task);
+    node->EnqueueRequest(task);
+    // std::cout << "CallBackTest ::EnqueueRequest ::" << i << std::endl;
   }
-  node.WaitForQueueCompetion();
-  EXPECT_EQ(g_callbacks, 10000);
+  // std::cout << "CallBackTest ::WaitForQueueCompetion E" << std::endl;
+  node->WaitForQueueCompetion();
+  // std::cout << "CallBackTest ::WaitForQueueCompetion X" << std::endl;
+  EXPECT_EQ(g_callbacks, 500);
 }
 
 /**

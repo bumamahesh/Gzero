@@ -1,27 +1,27 @@
-// HDRAlgorithm.cpp
+// BokehAlgorithm.cpp
 
-#include "HDRAlgorithm.h"
+#include "BokehAlgorithm.h"
 #include <iostream>
-static const std::string HDR_ALGO_NAME = "HDRAlgorithm";
-static const size_t HDR_ALGO_ID = 0XCAFEBABE;
+static const std::string BOKEH_ALGO_NAME = "BokehAlgorithm";
+static const size_t BOKEH_ALGO_ID = 0XCAFEBABE + 1;
 /**
- * @brief Constructor for HDRAlgorithm.
- * @param name Name of the HDR algorithm.
+ * @brief Constructor for BokehAlgorithm.
+ * @param name Name of the BOKEH algorithm.
  */
-HDRAlgorithm::HDRAlgorithm() : AlgoBase(HDR_ALGO_NAME) {
-  algo_id_ = HDR_ALGO_ID; // Unique ID for HDR algorithm
+BokehAlgorithm::BokehAlgorithm() : AlgoBase(BOKEH_ALGO_NAME) {
+  algo_id_ = BOKEH_ALGO_ID; // Unique ID for BOKEH algorithm
 }
 
 /**
- * @brief Destructor for HDRAlgorithm.
+ * @brief Destructor for BokehAlgorithm.
  */
-HDRAlgorithm::~HDRAlgorithm() = default;
+BokehAlgorithm::~BokehAlgorithm() = default;
 
 /**
- * @brief Open the HDR algorithm, simulating resource checks.
+ * @brief Open the BOKEH algorithm, simulating resource checks.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus HDRAlgorithm::Open() {
+AlgoBase::AlgoStatus BokehAlgorithm::Open() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
   if (is_open_called_) {
     SetStatus(AlgoStatus::ALREADY_OPEN);
@@ -38,11 +38,11 @@ AlgoBase::AlgoStatus HDRAlgorithm::Open() {
 
 // static int i = 0;
 /**
- * @brief Process the HDR algorithm, simulating input validation and HDR
+ * @brief Process the BOKEH algorithm, simulating input validation and BOKEH
  * computation.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus HDRAlgorithm::Process() {
+AlgoBase::AlgoStatus BokehAlgorithm::Process() {
   if (!is_open_called_) {
     SetStatus(AlgoStatus::NOT_INITIALIZED);
     return GetStatus();
@@ -52,18 +52,18 @@ AlgoBase::AlgoStatus HDRAlgorithm::Process() {
     return GetStatus();
   }
 
-  // Simulate HDR computation logic here
-  // std::cout << "Processing HDR Algorithm..." << i++ << std::endl;
+  // Simulate BOKEH computation logic here
+  // std::cout << "Processing BOKEH Algorithm..." << i++ << std::endl;
   // is_process_called_ = true;
   SetStatus(AlgoStatus::SUCCESS);
   return GetStatus();
 }
 
 /**
- * @brief Close the HDR algorithm, simulating cleanup.
+ * @brief Close the BOKEH algorithm, simulating cleanup.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus HDRAlgorithm::Close() {
+AlgoBase::AlgoStatus BokehAlgorithm::Close() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
   if (!is_open_called_) {
     SetStatus(AlgoStatus::NOT_INITIALIZED);
@@ -78,13 +78,13 @@ AlgoBase::AlgoStatus HDRAlgorithm::Close() {
   return GetStatus();
 }
 
-// Public Exposed API for HDR
+// Public Exposed API for BOKEH
 /**
- * @brief Factory function to expose HDRAlgorithm via shared library.
- * @return A pointer to the HDRAlgorithm instance.
+ * @brief Factory function to expose BokehAlgorithm via shared library.
+ * @return A pointer to the BokehAlgorithm instance.
  */
 extern "C" AlgoBase *GetAlgoMethod() {
-  HDRAlgorithm *pInstance = new HDRAlgorithm();
+  BokehAlgorithm *pInstance = new BokehAlgorithm();
   return pInstance;
 }
 
@@ -92,9 +92,9 @@ extern "C" AlgoBase *GetAlgoMethod() {
 @brief Get the algorithm ID.
  *
  */
-extern "C" size_t GetAlgoId() { return HDR_ALGO_ID; }
+extern "C" size_t GetAlgoId() { return BOKEH_ALGO_ID; }
 /**
 @brief Get the algorithm name.
  *
  */
-extern "C" std::string GetAlgorithmName() { return HDR_ALGO_NAME; }
+extern "C" std::string GetAlgorithmName() { return BOKEH_ALGO_NAME; }
