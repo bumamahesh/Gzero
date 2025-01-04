@@ -10,13 +10,13 @@
 
 typedef struct Task_t {
   void *args;
-  std::shared_ptr<void> ctx;
 } Task_t;
 
+typedef void (*TASKFUNC)(void *Ctx, std::shared_ptr<Task_t> task);
 class TaskQueue {
 public:
   // Constructor
-  TaskQueue(void (*callbacks)(std::shared_ptr<Task_t> task) = nullptr);
+  explicit TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *TaskCtx);
 
   // Destructor
   ~TaskQueue();
@@ -27,11 +27,10 @@ public:
   // Enqueue a payload
   void Enqueue(std::shared_ptr<Task_t> payload);
 
-  // Dequeue a payload
-  std::shared_ptr<Task_t> DeQueue();
-
-  // Callback function
-  void (*pCallback)(std::shared_ptr<Task_t> task) = nullptr;
+  // Task and callback
+  TASKFUNC pExecute = nullptr;
+  TASKFUNC pCallback = nullptr;
+  void *pTaskCtx = nullptr;
 
   // Wait for queue to complete
   void WaitForQueueCompetion();
@@ -42,9 +41,6 @@ public:
 private:
   // Internal worker thread function
   static void *WorkerThreadFuction(void *arg);
-
-  // Function to execute tasks
-  void ExecuteTask(std::shared_ptr<Task_t>);
 
   // Member variables
   // Queue to hold tasks

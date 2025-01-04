@@ -58,17 +58,22 @@ public:
   virtual AlgoStatus Open() = 0;
   virtual AlgoStatus Process() = 0;
   virtual AlgoStatus Close() = 0;
+  void StopAlgoThread();
   AlgoStatus GetStatus() const;
   std::string GetStatusString() const;
   std::string GetAlgorithmName() const;
   size_t GetAlgoId() const;
   void EnqueueRequest(std::shared_ptr<Task_t> request);
-  void
-  SetNotifyEvent(void (*EventHandler)(std::shared_ptr<void> ctx,
-                                      std::shared_ptr<ALGOCALLBACKMSG> msg));
+  void SetNotifyEvent(
+      void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg));
   void WaitForQueueCompetion();
   void SetNextAlgo(std::weak_ptr<AlgoBase>);
   std::weak_ptr<AlgoBase> GetNextAlgo();
+  void *m_pipCtx = nullptr;
+
+  // Callback function to notify the event Upper Layer
+  void (*NotifyEvent)(void *ctx,
+                      std::shared_ptr<ALGOCALLBACKMSG> msg) = nullptr;
 
 protected:
   AlgorithmOperations ops_;
@@ -82,15 +87,13 @@ protected:
   std::shared_ptr<TaskQueue> mAlgoThread;
   size_t algo_id_ = 0XDEADBEEF;
   void SetStatus(AlgoStatus status);
-  // Callback function to notify the event Upper Layer
-  void (*NotifyEvent)(std::shared_ptr<void> ctx,
-                      std::shared_ptr<ALGOCALLBACKMSG> msg) = nullptr;
+
   /*Linked list */
   std::weak_ptr<AlgoBase> m_nextAlgo;
 
 private:
-  static void ThreadFunction(std::shared_ptr<Task_t>);
-  static void ThreadCallback(std::shared_ptr<Task_t>);
+  static void ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task);
+  static void ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task);
 };
 
 #endif // ALGO_BASE_H

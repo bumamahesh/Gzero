@@ -23,35 +23,14 @@ public:
    * @brief Open the algorithm, simulating resource availability checks.
    * @return Status of the operation.
    */
-  AlgoStatus Open() override {
-    if (is_open_called_) {
-      SetStatus(AlgoStatus::ALREADY_OPEN);
-      return GetStatus();
-    }
-    if (!resources_available_) {
-      SetStatus(AlgoStatus::RESOURCE_UNAVAILABLE);
-      return GetStatus();
-    }
-    is_open_called_ = true;
-    SetStatus(AlgoStatus::SUCCESS);
-    return GetStatus();
-  }
+  AlgoStatus Open() override { return GetStatus(); }
 
   /**
    * @brief Process the algorithm, simulating input validation.
    * @return Status of the operation.
    */
   AlgoStatus Process() override {
-    if (!is_open_called_) {
-      SetStatus(AlgoStatus::NOT_INITIALIZED);
-      return GetStatus();
-    }
-    if (input_data_invalid_) {
-      SetStatus(AlgoStatus::INVALID_INPUT);
-      return GetStatus();
-    }
-    is_process_called_ = true;
-    usleep(5 * 1000); // Simulate processing time 20ms
+    // usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::SUCCESS);
     return GetStatus();
   }
@@ -61,34 +40,19 @@ public:
    * @return Status of the operation.
    */
   AlgoStatus Close() override {
-    if (!is_open_called_) {
-      SetStatus(AlgoStatus::NOT_INITIALIZED);
-      return GetStatus();
-    }
-    if (is_close_called_) {
-      SetStatus(AlgoStatus::ALREADY_CLOSED);
-      return GetStatus();
-    }
-    is_close_called_ = true;
+
     SetStatus(AlgoStatus::SUCCESS);
     return GetStatus();
   }
 
 private:
-  bool is_open_called_ = false;    ///< Tracks if Open has been called.
-  bool is_process_called_ = false; ///< Tracks if Process has been called.
-  bool is_close_called_ = false;   ///< Tracks if Close has been called.
-
-  // Simulated error conditions
-  bool resources_available_ = true; ///< Simulates resource availability.
-  bool input_data_invalid_ = false; ///< Simulates valid input.
 };
 
 /**
  * @brief
  *
  */
-TEST(AlgoBaseNameTest, AlgorithmNameRetrieval) {
+TEST(AlgoBaseTest, AlgorithmNameRetrieval) {
   MockDerivedAlgo node("TestAlgorithm");
 
   // Test the algorithm name
@@ -105,7 +69,7 @@ TEST(AlgoBaseNameTest, AlgorithmNameRetrieval) {
  * @brief Test case for verifying algorithm status retrieval.
  */
 int g_callbacks = 0;
-TEST(AlgoBaseNameTest, CallBackTest) {
+TEST(AlgoBaseTest, CallBackTest) {
 
   // std::cout << "CallBackTest ::E" << std::endl;
   std::shared_ptr<MockDerivedAlgo> node =
@@ -115,31 +79,22 @@ TEST(AlgoBaseNameTest, CallBackTest) {
   EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithm");
   g_callbacks = 0;
   // std::cout << "CallBackTest ::SetNotifyEvent Set" << std::endl;
-  node->SetNotifyEvent([](std::shared_ptr<void> ctx,
+  node->SetNotifyEvent([](void *ctx,
                           std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
     assert(msg != nullptr);
     assert(ctx != nullptr);
 
-    std::shared_ptr<AlgoBase> algo = std::static_pointer_cast<AlgoBase>(ctx);
+    auto algo = static_cast<AlgoBase *>(ctx);
     assert(algo != nullptr);
-
+    // std::cout << "Callback MockCallback ...:: " << msg->type << std::endl;
     switch (msg->type) {
     case AlgoBase::ALGO_PROCESSING_COMPLETED: {
       g_callbacks++;
-      std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
-      if (NextAlgo) {
-        NextAlgo->EnqueueRequest(msg->request);
-      } else {
-        /*last node so let free obj */
-        std::string *input =
-            reinterpret_cast<std::string *>(msg->request->args);
-        delete input;
-      }
+      std::string *input = reinterpret_cast<std::string *>(msg->request->args);
+      delete input;
     }
 
     default:
-      // std::cout << "AlgoPipeline::NodeEventHandler: Unknown MessageType" <<
-      // std::endl;
       break;
     }
   });
@@ -148,7 +103,6 @@ TEST(AlgoBaseNameTest, CallBackTest) {
   for (int i = 0; i < 500; i++) {
     std::string request = std::to_string(i);
     auto task = std::make_shared<Task_t>();
-    task->ctx = std::static_pointer_cast<AlgoBase>(node);
     task->args = new std::string(request);
     node->EnqueueRequest(task);
     // std::cout << "CallBackTest ::EnqueueRequest ::" << i << std::endl;
@@ -157,6 +111,91 @@ TEST(AlgoBaseNameTest, CallBackTest) {
   node->WaitForQueueCompetion();
   // std::cout << "CallBackTest ::WaitForQueueCompetion X" << std::endl;
   EXPECT_EQ(g_callbacks, 500);
+}
+
+/**
+ * @class MockDerivedAlgoFail
+ * @brief Mock implementation of AlgoBase for testing purposes.
+ */
+class MockDerivedAlgoFail : public AlgoBase {
+public:
+  /**
+   * @brief Constructor for MockDerivedAlgo.
+   * @param name Name of the algorithm.
+   */
+  explicit MockDerivedAlgoFail(const char *name) : AlgoBase(name) {}
+
+  /**
+   * @brief Destructor for MockDerivedAlgoFail.
+   */
+  ~MockDerivedAlgoFail() override = default;
+
+  /**
+   * @brief Open the algorithm, simulating resource availability checks.
+   * @return Status of the operation.
+   */
+  AlgoStatus Open() override {
+
+    SetStatus(AlgoStatus::SUCCESS);
+    return GetStatus();
+  }
+
+  /**
+   * @brief Process the algorithm, simulating input validation.
+   * @return Status of the operation.
+   */
+  AlgoStatus Process() override {
+
+    // usleep(5 * 1000); // Simulate processing time 20ms
+    SetStatus(AlgoStatus::INTERNAL_ERROR);
+    return GetStatus();
+  }
+
+  /**
+   * @brief Close the algorithm, simulating cleanup operations.
+   * @return Status of the operation.
+   */
+  AlgoStatus Close() override {
+
+    SetStatus(AlgoStatus::SUCCESS);
+    return GetStatus();
+  }
+
+private:
+};
+
+size_t g_Failcallbacks = 0;
+TEST(AlgoBaseTest, CallBackTestFail) {
+  std::shared_ptr<MockDerivedAlgoFail> node =
+      std::make_shared<MockDerivedAlgoFail>("TestAlgorithmFail");
+
+  EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithmFail");
+  g_Failcallbacks = 0;
+  node->SetNotifyEvent(
+      [](void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+        assert(msg != nullptr);
+        assert(ctx != nullptr);
+
+        auto algo = static_cast<AlgoBase *>(ctx);
+        assert(algo != nullptr);
+
+        switch (msg->type) {
+        case AlgoBase::ALGO_PROCESSING_FAILED: {
+          g_Failcallbacks++;
+        } break;
+        default:
+          assert(true); // should not ;and here
+          break;
+        }
+      });
+
+  for (int i = 0; i < 500; i++) {
+    auto task = std::make_shared<Task_t>();
+    task->args = nullptr;
+    node->EnqueueRequest(task);
+  }
+  node->WaitForQueueCompetion();
+  EXPECT_EQ(g_Failcallbacks, 500);
 }
 
 /**

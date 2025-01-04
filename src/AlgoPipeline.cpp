@@ -1,4 +1,3 @@
-
 #include "AlgoPipeline.h"
 #include <assert.h>
 
@@ -10,7 +9,7 @@
 AlgoPipeline::AlgoPipeline(std::vector<size_t> algoList) {
   assert(algoList.size() != 0);
   m_algoListId = algoList;
-
+  m_processedFrames = 0;
   m_algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
   assert(m_algoNodeMgr != nullptr);
 
@@ -19,6 +18,7 @@ AlgoPipeline::AlgoPipeline(std::vector<size_t> algoList) {
     auto algo = m_algoNodeMgr->CreateAlgo(algoId);
     assert(algo != nullptr);
     algo->SetNotifyEvent(AlgoPipeline::NodeEventHandler);
+    algo->m_pipCtx = (void *)this;
     m_algos.push_back(algo);
     m_algoListName.push_back(algo->GetAlgorithmName());
     if (previousAlgo) {
@@ -36,7 +36,7 @@ AlgoPipeline::AlgoPipeline(std::vector<size_t> algoList) {
 AlgoPipeline::AlgoPipeline(std::vector<std::string> algoList) {
   assert(algoList.size() != 0);
   m_algoListName = algoList;
-
+  m_processedFrames = 0;
   m_algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
   assert(m_algoNodeMgr != nullptr);
 
@@ -74,34 +74,39 @@ void AlgoPipeline::Process(std::string &input) {
     return;
   }
   std::shared_ptr<Task_t> task = std::make_shared<Task_t>();
-  task->ctx = std::static_pointer_cast<void>(m_algos[0]);
   task->args = new std::string(
       input); // for now request is just string
               // put on first request rest will be done by the first algo
   m_algos[0]->EnqueueRequest(task);
 }
 
+/**
+ * @brief  Node Event Handler
+ *
+ * @param ctx
+ * @param msg
+ */
 void AlgoPipeline::NodeEventHandler(
-    std::shared_ptr<void> ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+    void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
   assert(msg != nullptr);
   assert(ctx != nullptr);
-  std::shared_ptr<AlgoBase> algo = std::static_pointer_cast<AlgoBase>(ctx);
+  auto algo = static_cast<AlgoBase *>(ctx);
   assert(algo != nullptr);
-
+  assert(algo->m_pipCtx != nullptr);
   switch (msg->type) {
   case AlgoBase::ALGO_PROCESSING_COMPLETED: {
     // std::cout << "AlgoPipeline::NodeEventHandler: Processing Completed"<<
     // std::endl;*/
     std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
     if (NextAlgo) {
-      msg->request->ctx = std::static_pointer_cast<void>(NextAlgo);
       NextAlgo->EnqueueRequest(msg->request);
     } else {
       /*last node so let free obj */
       std::string *input = reinterpret_cast<std::string *>(msg->request->args);
       delete input;
-      // std::cout << "AlgoPipeline::NodeEventHandler: No Next Algo" <<
-      // std::endl;*/
+      auto plPipeline = reinterpret_cast<AlgoPipeline *>(algo->m_pipCtx);
+      assert(plPipeline != nullptr);
+      plPipeline->m_processedFrames++;
     }
   }
   /*kick next node */
@@ -124,3 +129,21 @@ void AlgoPipeline::NodeEventHandler(
     break;
   }
 }
+
+/**
+ * @brief   Wait for the queue to complete
+ *
+ */
+void AlgoPipeline::WaitForQueueCompetion() {
+
+  for (auto &algo : m_algos) {
+    algo->WaitForQueueCompetion();
+  }
+}
+
+/**
+ * @brief Get Processed Frames
+ *
+ * @return size_t
+ */
+size_t AlgoPipeline::GetProcessedFrames() const { return m_processedFrames; }

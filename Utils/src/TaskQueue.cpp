@@ -1,4 +1,5 @@
 #include "../include/TaskQueue.h"
+#include <cassert>
 #include <iostream>
 #include <ostream>
 #include <stdexcept>
@@ -7,46 +8,48 @@
  * @brief Worker thread function that processes tasks from the queue
  */
 void *TaskQueue::WorkerThreadFuction(void *arg) {
-  TaskQueue *taskQueueObj = static_cast<TaskQueue *>(arg);
+
+  TaskQueue *pTaskQObj = static_cast<TaskQueue *>(arg);
   // std::cout << "Worker thread Launched ....." << std::endl;
-  if (taskQueueObj == nullptr) {
-    return nullptr;
-  }
-  taskQueueObj->isRunning = true;
+  assert(pTaskQObj != nullptr);
+  assert(pTaskQObj->pExecute != nullptr);
+  pTaskQObj->isRunning = true;
   // std::cout << "Worker thread started" << std::endl;
   while (true) {
     std::shared_ptr<Task_t> task = nullptr;
     // std::cout << "Worker thread started Before Lock E" << std::endl;
     // Lock the queue and wait until a task is available
     {
-      std::unique_lock<std::mutex> lock(taskQueueObj->taskQMux);
+      std::unique_lock<std::mutex> lock(pTaskQObj->taskQMux);
 
       // Wait for a new task or for the thread to stop
-      taskQueueObj->conditionVar.wait(lock, [&]() {
-        return !taskQueueObj->taskQueue.empty() ||
-               !taskQueueObj->isRunning.load();
+      pTaskQObj->conditionVar.wait(lock, [&]() {
+        return !pTaskQObj->taskQueue.empty() || !pTaskQObj->isRunning.load();
       });
 
-      if (!taskQueueObj->isRunning.load()) {
+      if (!pTaskQObj->isRunning.load()) {
         // Exit the thread if the stop signal is received
         break;
       }
       // std::cout << "Worker thread started Before Lock X" << std::endl;
       //  Get the next task from the queue
 
-      if (!taskQueueObj->taskQueue.empty()) {
-        task = taskQueueObj->taskQueue.front();
-        taskQueueObj->taskQueue.pop();
+      if (!pTaskQObj->taskQueue.empty()) {
+        task = pTaskQObj->taskQueue.front();
+        pTaskQObj->taskQueue.pop();
       }
     }
-    // Process the task
-    if (task) {
-      taskQueueObj->ExecuteTask(task);
-      if (taskQueueObj->pCallback != nullptr) {
-        taskQueueObj->pCallback(task);
-      }
+
+    /*Process is here */
+    if (pTaskQObj->pExecute) {
+      pTaskQObj->pExecute(pTaskQObj->pTaskCtx, task);
     } else {
-      break;
+      std::cout << "No Execute" << std::endl;
+    }
+    if (pTaskQObj->pCallback) {
+      pTaskQObj->pCallback(pTaskQObj->pTaskCtx, task);
+    } else {
+      std::cout << "No Callback" << std::endl;
     }
   }
   // std::cout << "Worker thread exiting" << std::endl;
@@ -57,13 +60,22 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
 @brief Construct a new Task Queue::is Running object
  *
  */
-TaskQueue::TaskQueue(void (*callbacks)(std::shared_ptr<Task_t> task)) {
+TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx) {
 
-  pCallback = callbacks;
+  if (!pExecute || !pCallback || !pTaskCtx) {
+    // Log or handle the invalid inputs
+    std::cerr << "Invalid function pointer or context!" << std::endl;
+    std::abort();
+  }
+
+  this->pExecute = pExecute;
+  this->pCallback = pCallback;
+  this->pTaskCtx = pTaskCtx;
+
   isRunning = false;
   // Create a worker thread
   int result = pthread_create(&workerThread, nullptr,
-                              TaskQueue::WorkerThreadFuction, this);
+                              &TaskQueue::WorkerThreadFuction, this);
   if (result != 0) {
     throw std::runtime_error("Failed to create worker thread");
   }
@@ -113,35 +125,6 @@ void TaskQueue::Enqueue(std::shared_ptr<Task_t> payload) {
 }
 
 /**
-@brief Dequeue the task
- *
- * @return Task_t*
- */
-std::shared_ptr<Task_t> TaskQueue::DeQueue() {
-  // std::cout << "DeQueue E" << std::endl;
-  std::shared_ptr<Task_t> task = nullptr;
-  {
-    std::lock_guard<std::mutex> lock(taskQMux);
-    if (!taskQueue.empty()) {
-      task = taskQueue.front();
-      taskQueue.pop();
-    }
-  }
-  // std::cout << "DeQueue X" << std::endl;
-  return task;
-}
-
-/**
-@brief Execute the task
- *
- * @param task
- */
-void TaskQueue::ExecuteTask(std::shared_ptr<Task_t> task) {
-  // Execute the task (this is where the task would be processed)
-  // std::cout << "Processing task: " << task << std::endl;
-}
-
-/**
 @brief Wait for queue competion
  *
  */
@@ -156,10 +139,8 @@ void TaskQueue::WaitForQueueCompetion() {
       // If the condition is satisfied, exit the loop
       break;
     }
-    std::cout << "Waiting for queue to complete Q size" << taskQueue.size()
-              << std::endl;
-
-    // You can perform additional checks or log information here if needed
+    /* std::cout << "Waiting for queue to complete Q size" << taskQueue.size()
+               << std::endl;*/
   }
 }
 #include <iostream>
@@ -170,7 +151,7 @@ void TaskQueue::WaitForQueueCompetion() {
 void TaskQueue::StopWorkerThread() {
 
   if (!isRunning.load()) {
-    std::cout << "StopWorkerThread  not running" << std::flush << std::endl;
+    // std::cout << "StopWorkerThread  not running" << std::flush << std::endl;
     return;
   } else {
 

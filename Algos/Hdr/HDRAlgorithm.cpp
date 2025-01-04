@@ -15,7 +15,10 @@ HDRAlgorithm::HDRAlgorithm() : AlgoBase(HDR_ALGO_NAME) {
 /**
  * @brief Destructor for HDRAlgorithm.
  */
-HDRAlgorithm::~HDRAlgorithm() = default;
+HDRAlgorithm::~HDRAlgorithm() {
+  Close();
+  StopAlgoThread();
+};
 
 /**
  * @brief Open the HDR algorithm, simulating resource checks.
@@ -23,15 +26,7 @@ HDRAlgorithm::~HDRAlgorithm() = default;
  */
 AlgoBase::AlgoStatus HDRAlgorithm::Open() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
-  if (is_open_called_) {
-    SetStatus(AlgoStatus::ALREADY_OPEN);
-    return GetStatus();
-  }
-  if (!resources_available_) {
-    SetStatus(AlgoStatus::RESOURCE_UNAVAILABLE);
-    return GetStatus();
-  }
-  is_open_called_ = true;
+
   SetStatus(AlgoStatus::SUCCESS);
   return GetStatus();
 }
@@ -43,18 +38,8 @@ AlgoBase::AlgoStatus HDRAlgorithm::Open() {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus HDRAlgorithm::Process() {
-  if (!is_open_called_) {
-    SetStatus(AlgoStatus::NOT_INITIALIZED);
-    return GetStatus();
-  }
-  if (input_data_invalid_) {
-    SetStatus(AlgoStatus::INVALID_INPUT);
-    return GetStatus();
-  }
+  std::lock_guard<std::mutex> lock(mutex_);
 
-  // Simulate HDR computation logic here
-  // std::cout << "Processing HDR Algorithm..." << i++ << std::endl;
-  // is_process_called_ = true;
   SetStatus(AlgoStatus::SUCCESS);
   return GetStatus();
 }
@@ -65,15 +50,7 @@ AlgoBase::AlgoStatus HDRAlgorithm::Process() {
  */
 AlgoBase::AlgoStatus HDRAlgorithm::Close() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
-  if (!is_open_called_) {
-    SetStatus(AlgoStatus::NOT_INITIALIZED);
-    return GetStatus();
-  }
-  if (is_close_called_) {
-    SetStatus(AlgoStatus::ALREADY_CLOSED);
-    return GetStatus();
-  }
-  is_close_called_ = true;
+
   SetStatus(AlgoStatus::SUCCESS);
   return GetStatus();
 }

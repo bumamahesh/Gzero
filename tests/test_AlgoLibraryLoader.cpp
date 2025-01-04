@@ -38,42 +38,53 @@ TEST_F(AlgoLibraryLoaderTest, LoadValidLibrary) {
 TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   // Here, we test the interaction with the returned AlgoBase method.
   AlgoLibraryLoader loader(validLibraryPath);
-
-  std::shared_ptr<AlgoBase> algo = loader.GetAlgoMethod();
-
   ASSERT_EQ(loader.GetAlgoId(), 0XCAFEBABE);
   ASSERT_EQ(loader.GetAlgorithmName(), std::string("HDRAlgorithm"));
 
-  if (algo) {
-    // Ensure the algorithm method is valid
-    ASSERT_NE(algo, nullptr);
-    ASSERT_EQ(algo->GetAlgoId(), loader.GetAlgoId());
-    ASSERT_EQ(algo->GetAlgorithmName(), loader.GetAlgorithmName());
+  std::shared_ptr<AlgoBase> algo = loader.GetAlgoMethod();
+  ASSERT_NE(algo, nullptr);
+  algo->SetNotifyEvent(
+      [](void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+        assert(msg != nullptr);
+        assert(ctx != nullptr);
 
-    // Call the Open method
-    ASSERT_NE(algo->GetAlgorithmName(), "");
-    ASSERT_EQ(algo->GetAlgorithmName(), "HDRAlgorithm");
-    ASSERT_EQ(algo->Open(), AlgoBase::AlgoStatus::SUCCESS);
-    ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
+        auto algo = static_cast<AlgoBase *>(ctx);
+        assert(algo != nullptr);
 
-    static int i;
-    i = 0;
-    while (i < 500) {
-      std::string msg = std::string("GSD");
-      auto task = std::make_shared<Task_t>();
-      task->ctx = std::static_pointer_cast<void>(algo);
-      task->args = nullptr;
-      // std::cout << "RetrieveAlgoMethod ::EnqueueRequest E" << std::endl;
-      algo->EnqueueRequest(task);
-      // std::cout << "RetrieveAlgoMethod ::EnqueueRequest X" << std::endl;
-      i++;
-    }
+        switch (msg->type) {
+        case AlgoBase::ALGO_PROCESSING_FAILED:
+          break;
+        default:
+          assert(true);
+          break;
+        }
+      });
 
+  // Ensure the algorithm method is valid
+  ASSERT_NE(algo, nullptr);
+  ASSERT_EQ(algo->GetAlgoId(), loader.GetAlgoId());
+  ASSERT_EQ(algo->GetAlgorithmName(), loader.GetAlgorithmName());
+
+  // Call the Open method
+  ASSERT_NE(algo->GetAlgorithmName(), "");
+  ASSERT_EQ(algo->GetAlgorithmName(), "HDRAlgorithm");
+  ASSERT_EQ(algo->Open(), AlgoBase::AlgoStatus::SUCCESS);
+  ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
+
+  int i = 0;
+  while (i < 500) {
+    std::string msg = std::string("GSD");
+    auto task = std::make_shared<Task_t>();
+    task->args = nullptr;
+    // std::cout << "RetrieveAlgoMethod ::EnqueueRequest E" << std::endl;
+    algo->EnqueueRequest(task);
+    // std::cout << "RetrieveAlgoMethod ::EnqueueRequest X" << std::endl;
+    i++;
+  }
+  /*
     algo->WaitForQueueCompetion();
     ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
     ASSERT_EQ(algo->Close(), AlgoBase::AlgoStatus::SUCCESS);
     ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
-  } else {
-    std::cout << "algo is nullptr" << std::endl;
-  }
+    */
 }

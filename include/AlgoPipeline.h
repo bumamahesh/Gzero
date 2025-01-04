@@ -13,8 +13,10 @@ public:
   ~AlgoPipeline();
 
   void Process(std::string &input);
-  static void NodeEventHandler(std::shared_ptr<void>,
+  static void NodeEventHandler(void *,
                                std::shared_ptr<AlgoBase::ALGOCALLBACKMSG>);
+  void WaitForQueueCompetion();
+  size_t GetProcessedFrames() const;
 
 private:
   std::shared_ptr<AlgoNodeManager> m_algoNodeMgr;
@@ -22,6 +24,8 @@ private:
 
   std::vector<size_t> m_algoListId;
   std::vector<std::string> m_algoListName;
+
+  size_t m_processedFrames = 0;
 
   std::string AlgosPath = "/home/uma/workspace/Gzero/cmake/lib/";
   // "@todo get AlgosPath from xml later"
