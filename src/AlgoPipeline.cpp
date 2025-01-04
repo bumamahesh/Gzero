@@ -8,19 +8,19 @@
  */
 AlgoPipeline::AlgoPipeline(std::vector<size_t> algoList) {
   assert(algoList.size() != 0);
-  m_algoListId = algoList;
-  m_processedFrames = 0;
-  m_algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
-  assert(m_algoNodeMgr != nullptr);
+  mAlgoListId = algoList;
+  mProcessedFrames = 0;
+  mAlgoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
+  assert(mAlgoNodeMgr != nullptr);
 
   std::shared_ptr<AlgoBase> previousAlgo = nullptr;
-  for (auto algoId : m_algoListId) {
-    auto algo = m_algoNodeMgr->CreateAlgo(algoId);
+  for (auto algoId : mAlgoListId) {
+    auto algo = mAlgoNodeMgr->CreateAlgo(algoId);
     assert(algo != nullptr);
     algo->SetNotifyEvent(AlgoPipeline::NodeEventHandler);
-    algo->m_pipCtx = (void *)this;
-    m_algos.push_back(algo);
-    m_algoListName.push_back(algo->GetAlgorithmName());
+    algo->pPipelineCtx = (void *)this;
+    mAlgos.push_back(algo);
+    mAlgoListName.push_back(algo->GetAlgorithmName());
     if (previousAlgo) {
       previousAlgo->SetNextAlgo(algo);
     }
@@ -35,18 +35,18 @@ AlgoPipeline::AlgoPipeline(std::vector<size_t> algoList) {
  */
 AlgoPipeline::AlgoPipeline(std::vector<std::string> algoList) {
   assert(algoList.size() != 0);
-  m_algoListName = algoList;
-  m_processedFrames = 0;
-  m_algoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
-  assert(m_algoNodeMgr != nullptr);
+  mAlgoListName = algoList;
+  mProcessedFrames = 0;
+  mAlgoNodeMgr = std::make_shared<AlgoNodeManager>(AlgosPath);
+  assert(mAlgoNodeMgr != nullptr);
 
   std::shared_ptr<AlgoBase> previousAlgo = nullptr;
-  for (auto algoName : m_algoListName) {
-    auto algo = m_algoNodeMgr->CreateAlgo(algoName);
+  for (auto algoName : mAlgoListName) {
+    auto algo = mAlgoNodeMgr->CreateAlgo(algoName);
     assert(algo != nullptr);
     algo->SetNotifyEvent(AlgoPipeline::NodeEventHandler);
-    m_algos.push_back(algo);
-    m_algoListId.push_back(algo->GetAlgoId());
+    mAlgos.push_back(algo);
+    mAlgoListId.push_back(algo->GetAlgoId());
     if (previousAlgo) {
       previousAlgo->SetNextAlgo(algo);
     }
@@ -59,17 +59,17 @@ AlgoPipeline::AlgoPipeline(std::vector<std::string> algoList) {
  *
  */
 AlgoPipeline::~AlgoPipeline() {
-  for (auto &algo : m_algos) {
+  for (auto &algo : mAlgos) {
     algo->WaitForQueueCompetion();
   }
-  m_algos.clear();
-  m_algoListId.clear();
-  m_algoListName.clear();
+  mAlgos.clear();
+  mAlgoListId.clear();
+  mAlgoListName.clear();
 }
 
 void AlgoPipeline::Process(std::string &input) {
 
-  if (m_algos.size() == 0) {
+  if (mAlgos.size() == 0) {
     LOG(ERROR, ALGOPIPELINE, "No algos to process");
     return;
   }
@@ -77,7 +77,7 @@ void AlgoPipeline::Process(std::string &input) {
   task->args = new std::string(
       input); // for now request is just string
               // put on first request rest will be done by the first algo
-  m_algos[0]->EnqueueRequest(task);
+  mAlgos[0]->EnqueueRequest(task);
 }
 
 /**
@@ -92,20 +92,20 @@ void AlgoPipeline::NodeEventHandler(
   assert(ctx != nullptr);
   auto algo = static_cast<AlgoBase *>(ctx);
   assert(algo != nullptr);
-  assert(algo->m_pipCtx != nullptr);
-  switch (msg->type) {
+  assert(algo->pPipelineCtx != nullptr);
+  switch (msg->mType) {
   case AlgoBase::ALGO_PROCESSING_COMPLETED: {
     LOG(VERBOSE, ALGOPIPELINE, "Processing Completed");
     std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
     if (NextAlgo) {
-      NextAlgo->EnqueueRequest(msg->request);
+      NextAlgo->EnqueueRequest(msg->mRequest);
     } else {
       /*last node so let free obj */
-      std::string *input = reinterpret_cast<std::string *>(msg->request->args);
+      std::string *input = reinterpret_cast<std::string *>(msg->mRequest->args);
       delete input;
-      auto plPipeline = reinterpret_cast<AlgoPipeline *>(algo->m_pipCtx);
+      auto plPipeline = reinterpret_cast<AlgoPipeline *>(algo->pPipelineCtx);
       assert(plPipeline != nullptr);
-      plPipeline->m_processedFrames++;
+      plPipeline->mProcessedFrames++;
     }
   }
   /*kick next node */
@@ -131,7 +131,7 @@ void AlgoPipeline::NodeEventHandler(
  */
 void AlgoPipeline::WaitForQueueCompetion() {
 
-  for (auto &algo : m_algos) {
+  for (auto &algo : mAlgos) {
     algo->WaitForQueueCompetion();
   }
 }
@@ -141,4 +141,4 @@ void AlgoPipeline::WaitForQueueCompetion() {
  *
  * @return size_t
  */
-size_t AlgoPipeline::GetProcessedFrames() const { return m_processedFrames; }
+size_t AlgoPipeline::GetProcessedFrames() const { return mProcessedFrames; }

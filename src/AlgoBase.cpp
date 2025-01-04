@@ -27,17 +27,17 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
   if (pCtx) {
     auto msg = std::make_shared<AlgoBase::ALGOCALLBACKMSG>();
     assert(msg != nullptr);
-    msg->request = task;
-    msg->status = pCtx->GetStatus();
-    if (msg->status == AlgoBase::AlgoStatus::SUCCESS) {
-      msg->type = AlgoBase::ALGO_PROCESSING_COMPLETED;
+    msg->mRequest = task;
+    msg->mStatus = pCtx->GetStatus();
+    if (msg->mStatus == AlgoBase::AlgoStatus::SUCCESS) {
+      msg->mType = AlgoBase::ALGO_PROCESSING_COMPLETED;
     } else {
-      msg->type = AlgoBase::ALGO_PROCESSING_FAILED;
+      msg->mType = AlgoBase::ALGO_PROCESSING_FAILED;
     }
-    if (pCtx->NotifyEvent) {
-      pCtx->NotifyEvent(pCtx, msg);
+    if (pCtx->pNotifyEvent) {
+      pCtx->pNotifyEvent(pCtx, msg);
     } else {
-      LOG(ERROR, ALGOBASE, "pCtx->NotifyEvent is nullptr");
+      LOG(ERROR, ALGOBASE, "pCtx->pNotifyEvent is nullptr");
     }
   } else {
     LOG(ERROR, ALGOBASE, "pCtx is nullptr");
@@ -60,7 +60,7 @@ AlgoBase::AlgoBase() {
  * @param name
  */
 AlgoBase::AlgoBase(const std::string &name)
-    : ops_{name, nullptr}, current_status_{AlgoStatus::SUCCESS} {
+    : mAlgoOperations{name, nullptr}, mCurrentStatus{AlgoStatus::SUCCESS} {
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction,
                                             &AlgoBase::ThreadCallback, this);
   mAlgoThread->SetThread(name);
@@ -83,7 +83,7 @@ void AlgoBase::StopAlgoThread() { mAlgoThread->StopWorkerThread(); }
  *
  * @return AlgoBase::AlgoStatus
  */
-AlgoBase::AlgoStatus AlgoBase::GetStatus() const { return current_status_; }
+AlgoBase::AlgoStatus AlgoBase::GetStatus() const { return mCurrentStatus; }
 
 /**
 @brief Get the Status String object
@@ -105,7 +105,7 @@ std::string AlgoBase::GetStatusString() const {
       {AlgoStatus::NOT_SUPPORTED, "NOT_SUPPORTED"},
       {AlgoStatus::INTERNAL_ERROR, "INTERNAL_ERROR"}};
 
-  auto it = status_map.find(current_status_);
+  auto it = status_map.find(mCurrentStatus);
   return (it != status_map.end()) ? it->second : "UNKNOWN_STATUS";
 }
 
@@ -114,21 +114,23 @@ std::string AlgoBase::GetStatusString() const {
  *
  * @return std::string
  */
-std::string AlgoBase::GetAlgorithmName() const { return ops_.algorithm_name; }
+std::string AlgoBase::GetAlgorithmName() const {
+  return mAlgoOperations.mAlgoName;
+}
 
 /**
 @brief Get the Algo Id object
  *
  * @return size_t
  */
-size_t AlgoBase::GetAlgoId() const { return algo_id_; }
+size_t AlgoBase::GetAlgoId() const { return mAlgoId; }
 
 /**
 @brief Set the Status object
  *
  * @param status
  */
-void AlgoBase::SetStatus(AlgoStatus status) { current_status_ = status; }
+void AlgoBase::SetStatus(AlgoStatus status) { mCurrentStatus = status; }
 
 /**
 @brief  Enqueue Request object
@@ -139,10 +141,7 @@ void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
   if (!request) {
     return;
   }
-  {
-    mAlgoThread->Enqueue(request);
-    queue_cond_.notify_all();
-  }
+  { mAlgoThread->Enqueue(request); }
 }
 
 /**
@@ -152,8 +151,8 @@ void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
  */
 void AlgoBase::SetNotifyEvent(
     void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg)) {
-  this->NotifyEvent = EventHandler;
-  LOG(INFO, ALGOBASE, "NotifyEvent Callback is set");
+  this->pNotifyEvent = EventHandler;
+  LOG(INFO, ALGOBASE, "pNotifyEvent Callback is set");
 }
 
 /**
@@ -167,7 +166,7 @@ void AlgoBase::WaitForQueueCompetion() { mAlgoThread->WaitForQueueCompetion(); }
  *
  */
 void AlgoBase::SetNextAlgo(std::weak_ptr<AlgoBase> nextAlgo) {
-  m_nextAlgo = nextAlgo;
+  mNextAlgo = nextAlgo;
 }
 
 /**
@@ -175,4 +174,4 @@ void AlgoBase::SetNextAlgo(std::weak_ptr<AlgoBase> nextAlgo) {
  *
  * @return std::weak_ptr<AlgoBase>
  */
-std::weak_ptr<AlgoBase> AlgoBase::GetNextAlgo() { return m_nextAlgo; }
+std::weak_ptr<AlgoBase> AlgoBase::GetNextAlgo() { return mNextAlgo; }

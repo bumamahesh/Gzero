@@ -15,40 +15,40 @@ namespace fs = std::filesystem;
  */
 AlgoNodeManager::AlgoNodeManager(std::string &libraryPath) {
 
-  _libraryPath = libraryPath;
+  mLibraryPath = libraryPath;
   /*open path and prepeare a list of shared librbary of format com.Algo.*.so*/
 
   try {
-    if (!fs::exists(_libraryPath) || !fs::is_directory(_libraryPath)) {
-      throw std::runtime_error("Invalid library path: " + _libraryPath);
+    if (!fs::exists(mLibraryPath) || !fs::is_directory(mLibraryPath)) {
+      throw std::runtime_error("Invalid library path: " + mLibraryPath);
     }
 
     std::regex sharedLibraryPattern(R"(com\.Algo\..*\.so)");
-    for (const auto &entry : fs::directory_iterator(_libraryPath)) {
+    for (const auto &entry : fs::directory_iterator(mLibraryPath)) {
       if (entry.is_regular_file()) {
         const auto &fileName = entry.path().filename().string();
         if (std::regex_match(fileName, sharedLibraryPattern)) {
-          _sharedLibrariesPath.push_back(entry.path().string());
+          mSharedLibrariesPath.push_back(entry.path().string());
         }
       }
     }
 
-    if (_sharedLibrariesPath.empty()) {
+    if (mSharedLibrariesPath.empty()) {
       LOG(WARNING, ALGOMANAGER, "No matching shared libraries found in %s",
-          _libraryPath.c_str());
+          mLibraryPath.c_str());
     }
   } catch (const std::exception &e) {
     LOG(ERROR, ALGOMANAGER, "Error initializing AlgoNodeManager: %s", e.what());
   }
 
   /* retrive algo id and name and save , algo objects are not created here */
-  for (auto &lib : _sharedLibrariesPath) {
+  for (auto &lib : mSharedLibrariesPath) {
     auto pAlgoLoader = std::make_shared<AlgoLibraryLoader>(lib);
     if (pAlgoLoader) {
       auto algo = pAlgoLoader->GetAlgoMethod();
-      _IdAlgoNameMap[pAlgoLoader->GetAlgoId()] =
+      mIdToAlgoNameMap[pAlgoLoader->GetAlgoId()] =
           pAlgoLoader->GetAlgorithmName();
-      _IdLoaderMap[pAlgoLoader->GetAlgoId()] = pAlgoLoader;
+      mIdLoaderMap[pAlgoLoader->GetAlgoId()] = pAlgoLoader;
     }
   }
 }
@@ -58,9 +58,9 @@ AlgoNodeManager::AlgoNodeManager(std::string &libraryPath) {
  *
  */
 AlgoNodeManager::~AlgoNodeManager() {
-  _IdAlgoNameMap.clear();
-  _sharedLibrariesPath.clear();
-  _IdLoaderMap.clear();
+  mIdToAlgoNameMap.clear();
+  mSharedLibrariesPath.clear();
+  mIdLoaderMap.clear();
 }
 
 /**
@@ -71,7 +71,7 @@ AlgoNodeManager::~AlgoNodeManager() {
  * @return false
  */
 bool AlgoNodeManager::IsAlgoAvailable(size_t algoId) const {
-  return _IdLoaderMap.find(algoId) != _IdLoaderMap.end();
+  return mIdLoaderMap.find(algoId) != mIdLoaderMap.end();
 }
 
 /**
@@ -82,7 +82,7 @@ bool AlgoNodeManager::IsAlgoAvailable(size_t algoId) const {
  * @return false
  */
 bool AlgoNodeManager::IsAlgoAvailable(std::string &algoName) const {
-  for (const auto &algo : _IdAlgoNameMap) {
+  for (const auto &algo : mIdToAlgoNameMap) {
     if (algo.second == algoName) {
       return true;
     }
@@ -98,7 +98,7 @@ bool AlgoNodeManager::IsAlgoAvailable(std::string &algoName) const {
  */
 std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(size_t algoId) {
   if (IsAlgoAvailable(algoId)) {
-    return _IdLoaderMap[algoId]->GetAlgoMethod();
+    return mIdLoaderMap[algoId]->GetAlgoMethod();
   }
   LOG(ERROR, ALGOMANAGER, "Algo not available");
   return nullptr;
@@ -111,9 +111,9 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(size_t algoId) {
  * @return std::shared_ptr<AlgoBase>
  */
 std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string &algoName) {
-  for (const auto &algo : _IdAlgoNameMap) {
+  for (const auto &algo : mIdToAlgoNameMap) {
     if (algo.second == algoName) {
-      return _IdLoaderMap[algo.first]->GetAlgoMethod();
+      return mIdLoaderMap[algo.first]->GetAlgoMethod();
     }
   }
   LOG(ERROR, ALGOMANAGER, "Algo not available");
@@ -125,5 +125,5 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string &algoName) {
  * @return size_t
  */
 size_t AlgoNodeManager::GetLoadedAlgosSize() const {
-  return _IdLoaderMap.size();
+  return mIdLoaderMap.size();
 }

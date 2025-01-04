@@ -8,7 +8,7 @@ static const size_t BOKEH_ALGO_ID = 0XCAFEBABE + 1;
  * @param name Name of the BOKEH algorithm.
  */
 BokehAlgorithm::BokehAlgorithm() : AlgoBase(BOKEH_ALGO_NAME) {
-  algo_id_ = BOKEH_ALGO_ID; // Unique ID for BOKEH algorithm
+  mAlgoId = BOKEH_ALGO_ID; // Unique ID for BOKEH algorithm
 }
 
 /**

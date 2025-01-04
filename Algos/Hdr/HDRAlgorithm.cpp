@@ -8,7 +8,7 @@ static const size_t HDR_ALGO_ID = 0XCAFEBABE;
  * @param name Name of the HDR algorithm.
  */
 HDRAlgorithm::HDRAlgorithm() : AlgoBase(HDR_ALGO_NAME) {
-  algo_id_ = HDR_ALGO_ID; // Unique ID for HDR algorithm
+  mAlgoId = HDR_ALGO_ID; // Unique ID for HDR algorithm
 }
 
 /**

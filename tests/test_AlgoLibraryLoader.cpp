@@ -51,7 +51,7 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
         auto algo = static_cast<AlgoBase *>(ctx);
         assert(algo != nullptr);
 
-        switch (msg->type) {
+        switch (msg->mType) {
         case AlgoBase::ALGO_PROCESSING_FAILED:
           break;
         default:

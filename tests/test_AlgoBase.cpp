@@ -83,10 +83,10 @@ TEST(AlgoBaseTest, CallBackTest) {
 
     auto algo = static_cast<AlgoBase *>(ctx);
     assert(algo != nullptr);
-    switch (msg->type) {
+    switch (msg->mType) {
     case AlgoBase::ALGO_PROCESSING_COMPLETED: {
       g_callbacks++;
-      std::string *input = reinterpret_cast<std::string *>(msg->request->args);
+      std::string *input = reinterpret_cast<std::string *>(msg->mRequest->args);
       delete input;
     }
 
@@ -171,7 +171,7 @@ TEST(AlgoBaseTest, CallBackTestFail) {
         auto algo = static_cast<AlgoBase *>(ctx);
         assert(algo != nullptr);
 
-        switch (msg->type) {
+        switch (msg->mType) {
         case AlgoBase::ALGO_PROCESSING_FAILED: {
           g_Failcallbacks++;
         } break;

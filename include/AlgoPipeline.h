@@ -19,13 +19,13 @@ public:
   size_t GetProcessedFrames() const;
 
 private:
-  std::shared_ptr<AlgoNodeManager> m_algoNodeMgr;
-  std::vector<std::shared_ptr<AlgoBase>> m_algos;
+  std::shared_ptr<AlgoNodeManager> mAlgoNodeMgr;
+  std::vector<std::shared_ptr<AlgoBase>> mAlgos;
 
-  std::vector<size_t> m_algoListId;
-  std::vector<std::string> m_algoListName;
+  std::vector<size_t> mAlgoListId;
+  std::vector<std::string> mAlgoListName;
 
-  size_t m_processedFrames = 0;
+  size_t mProcessedFrames = 0;
 
   std::string AlgosPath = "/home/uma/workspace/Gzero/cmake/lib/";
   // "@todo get AlgosPath from xml later"

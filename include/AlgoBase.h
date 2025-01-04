@@ -38,14 +38,14 @@ public:
   } ALGOMESSAGETYPE;
 
   typedef struct AlgoCallBaclMessage {
-    ALGOMESSAGETYPE type;
-    AlgoStatus status;
-    std::shared_ptr<Task_t> request;
+    ALGOMESSAGETYPE mType;
+    AlgoStatus mStatus;
+    std::shared_ptr<Task_t> mRequest;
   } ALGOCALLBACKMSG;
 
   struct AlgorithmOperations {
-    std::string algorithm_name;
-    void *context = nullptr;
+    std::string mAlgoName;
+    void *pctx = nullptr;
   };
   // Constructors
   AlgoBase();
@@ -68,27 +68,21 @@ public:
   void WaitForQueueCompetion();
   void SetNextAlgo(std::weak_ptr<AlgoBase>);
   std::weak_ptr<AlgoBase> GetNextAlgo();
-  void *m_pipCtx = nullptr;
+  void *pPipelineCtx = nullptr;
 
   // Callback function to notify the event Upper Layer
-  void (*NotifyEvent)(void *ctx,
-                      std::shared_ptr<ALGOCALLBACKMSG> msg) = nullptr;
+  void (*pNotifyEvent)(void *ctx,
+                       std::shared_ptr<ALGOCALLBACKMSG> msg) = nullptr;
 
 protected:
-  AlgorithmOperations ops_;
-  AlgoStatus current_status_ = AlgoStatus::SUCCESS;
-  pthread_t thread_;
-  bool thread_started_ = false;
-  // std::mutex thread_mutex_;
-  std::condition_variable thread_cond_;
-  std::condition_variable queue_cond_;
-  std::atomic<bool> should_exit_ = false;
+  AlgorithmOperations mAlgoOperations;
+  AlgoStatus mCurrentStatus = AlgoStatus::SUCCESS;
   std::shared_ptr<TaskQueue> mAlgoThread;
-  size_t algo_id_ = 0XDEADBEEF;
+  size_t mAlgoId = 0XDEADBEEF;
   void SetStatus(AlgoStatus status);
 
   /*Linked list */
-  std::weak_ptr<AlgoBase> m_nextAlgo;
+  std::weak_ptr<AlgoBase> mNextAlgo;
 
 private:
   static void ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task);

@@ -12,27 +12,27 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
   LOG(INFO, TASKQUEUE, "Worker thread Launched .....");
   assert(pTaskQObj != nullptr);
   assert(pTaskQObj->pExecute != nullptr);
-  pTaskQObj->isRunning = true;
+  pTaskQObj->bIsRunning = true;
   while (true) {
     std::shared_ptr<Task_t> task = nullptr;
     // Lock the queue and wait until a task is available
     {
-      std::unique_lock<std::mutex> lock(pTaskQObj->taskQMux);
+      std::unique_lock<std::mutex> lock(pTaskQObj->mTaskQMux);
 
       // Wait for a new task or for the thread to stop
-      pTaskQObj->conditionVar.wait(lock, [&]() {
-        return !pTaskQObj->taskQueue.empty() || !pTaskQObj->isRunning.load();
+      pTaskQObj->mConditionVar.wait(lock, [&]() {
+        return !pTaskQObj->mTaskQueue.empty() || !pTaskQObj->bIsRunning.load();
       });
 
-      if (!pTaskQObj->isRunning.load()) {
+      if (!pTaskQObj->bIsRunning.load()) {
         // Exit the thread if the stop signal is received
         break;
       }
       //  Get the next task from the queue
 
-      if (!pTaskQObj->taskQueue.empty()) {
-        task = pTaskQObj->taskQueue.front();
-        pTaskQObj->taskQueue.pop();
+      if (!pTaskQObj->mTaskQueue.empty()) {
+        task = pTaskQObj->mTaskQueue.front();
+        pTaskQObj->mTaskQueue.pop();
       }
     }
 
@@ -63,15 +63,15 @@ TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx) {
   this->pCallback = pCallback;
   this->pTaskCtx = pTaskCtx;
 
-  isRunning = false;
+  bIsRunning = false;
   // Create a worker thread
-  int result = pthread_create(&workerThread, nullptr,
+  int result = pthread_create(&mWorkerThread, nullptr,
                               &TaskQueue::WorkerThreadFuction, this);
   if (result != 0) {
     throw std::runtime_error("Failed to create worker thread");
   }
   /*wait for thread to be start executing*/
-  while (!isRunning.load()) {
+  while (!bIsRunning.load()) {
     usleep(100);
   };
 }
@@ -87,7 +87,7 @@ TaskQueue::~TaskQueue() { StopWorkerThread(); }
  * @param name
  */
 void TaskQueue::SetThread(const std::string &name) {
-  pthread_setname_np(workerThread, name.c_str());
+  pthread_setname_np(mWorkerThread, name.c_str());
 }
 
 /**
@@ -102,13 +102,13 @@ void TaskQueue::Enqueue(std::shared_ptr<Task_t> payload) {
   }
   {
     // Try to acquire the lock with a timeout
-    std::unique_lock<std::mutex> lock(taskQMux);
+    std::unique_lock<std::mutex> lock(mTaskQMux);
     // Lock acquired, add the payload
-    taskQueue.push(payload);
+    mTaskQueue.push(payload);
   }
 
   // Notify the worker thread that a new task is available
-  conditionVar.notify_all();
+  mConditionVar.notify_all();
 }
 
 /**
@@ -117,11 +117,11 @@ void TaskQueue::Enqueue(std::shared_ptr<Task_t> payload) {
  */
 void TaskQueue::WaitForQueueCompetion() {
 
-  std::unique_lock<std::mutex> lock(taskQMux);
-  while (!taskQueue.empty() || isRunning.load()) {
+  std::unique_lock<std::mutex> lock(mTaskQMux);
+  while (!mTaskQueue.empty() || bIsRunning.load()) {
     // Wait with a timeout
-    if (conditionVar.wait_for(lock, std::chrono::milliseconds(100), [&]() {
-          return taskQueue.empty() && isRunning.load();
+    if (mConditionVar.wait_for(lock, std::chrono::milliseconds(100), [&]() {
+          return mTaskQueue.empty() && bIsRunning.load();
         })) {
       // If the condition is satisfied, exit the loop
       break;
@@ -135,20 +135,20 @@ void TaskQueue::WaitForQueueCompetion() {
  */
 void TaskQueue::StopWorkerThread() {
 
-  if (!isRunning.load()) {
+  if (!bIsRunning.load()) {
     return;
   } else {
-    // Set isRunning to false to stop the worker thread
-    isRunning.store(false);
+    // Set bIsRunning to false to stop the worker thread
+    bIsRunning.store(false);
     // Notify the worker thread to wake up and exit
-    conditionVar.notify_all();
-    pthread_join(workerThread, nullptr);
-    workerThread = 0;
+    mConditionVar.notify_all();
+    pthread_join(mWorkerThread, nullptr);
+    mWorkerThread = 0;
     // Discard all remaining tasks in the queue
     {
-      std::lock_guard<std::mutex> lock(taskQMux);
-      while (!taskQueue.empty()) {
-        taskQueue.pop();
+      std::lock_guard<std::mutex> lock(mTaskQMux);
+      while (!mTaskQueue.empty()) {
+        mTaskQueue.pop();
       }
     }
   }

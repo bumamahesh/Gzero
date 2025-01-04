@@ -44,12 +44,12 @@ private:
 
   // Member variables
   // Queue to hold tasks
-  std::queue<std::shared_ptr<Task_t>> taskQueue; // Queue to hold tasks
-  std::mutex taskQMux;         // Mutex for accessing taskQueue
-  pthread_t workerThread;      // Thread handle
-  std::atomic<bool> isRunning; // Atomic flag to check if the thread should run
+  std::queue<std::shared_ptr<Task_t>> mTaskQueue; // Queue to hold tasks
+  std::mutex mTaskQMux;         // Mutex for accessing taskQueue
+  pthread_t mWorkerThread;      // Thread handle
+  std::atomic<bool> bIsRunning; // Atomic flag to check if the thread should run
   std::condition_variable
-      conditionVar; // Condition variable for synchronization
+      mConditionVar; // Condition variable for synchronization
 };
 
 #endif // TASK_QUEUE_H

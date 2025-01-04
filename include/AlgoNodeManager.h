@@ -3,7 +3,6 @@
 
 #include "AlgoBase.h"
 #include "AlgoLibraryLoader.h"
-#include <stdexcept>
 #include <string>
 
 class AlgoNodeManager {
@@ -19,11 +18,11 @@ public:
   std::shared_ptr<AlgoBase> CreateAlgo(std::string &algoName);
 
 private:
-  std::unordered_map<size_t, std::shared_ptr<AlgoBase>> algo_map_;
-  std::string _libraryPath;
-  std::vector<std::string> _sharedLibrariesPath;
-  std::unordered_map<size_t, std::string> _IdAlgoNameMap;
-  std::unordered_map<size_t, std::shared_ptr<AlgoLibraryLoader>> _IdLoaderMap;
+  std::unordered_map<size_t, std::shared_ptr<AlgoBase>> mAlgoMap;
+  std::string mLibraryPath;
+  std::vector<std::string> mSharedLibrariesPath;
+  std::unordered_map<size_t, std::string> mIdToAlgoNameMap;
+  std::unordered_map<size_t, std::shared_ptr<AlgoLibraryLoader>> mIdLoaderMap;
 };
 
 #endif // ALGO_NODE_MANAGER_H
