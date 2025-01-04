@@ -1,7 +1,6 @@
 #include "../include/TaskQueue.h"
+#include "../include/Log.h"
 #include <cassert>
-#include <iostream>
-#include <ostream>
 #include <stdexcept>
 #include <unistd.h> //sleep
 /***
@@ -10,14 +9,12 @@
 void *TaskQueue::WorkerThreadFuction(void *arg) {
 
   TaskQueue *pTaskQObj = static_cast<TaskQueue *>(arg);
-  // std::cout << "Worker thread Launched ....." << std::endl;
+  LOG(INFO, TASKQUEUE, "Worker thread Launched .....");
   assert(pTaskQObj != nullptr);
   assert(pTaskQObj->pExecute != nullptr);
   pTaskQObj->isRunning = true;
-  // std::cout << "Worker thread started" << std::endl;
   while (true) {
     std::shared_ptr<Task_t> task = nullptr;
-    // std::cout << "Worker thread started Before Lock E" << std::endl;
     // Lock the queue and wait until a task is available
     {
       std::unique_lock<std::mutex> lock(pTaskQObj->taskQMux);
@@ -31,7 +28,6 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
         // Exit the thread if the stop signal is received
         break;
       }
-      // std::cout << "Worker thread started Before Lock X" << std::endl;
       //  Get the next task from the queue
 
       if (!pTaskQObj->taskQueue.empty()) {
@@ -43,16 +39,12 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
     /*Process is here */
     if (pTaskQObj->pExecute) {
       pTaskQObj->pExecute(pTaskQObj->pTaskCtx, task);
-    } else {
-      std::cout << "No Execute" << std::endl;
     }
     if (pTaskQObj->pCallback) {
       pTaskQObj->pCallback(pTaskQObj->pTaskCtx, task);
-    } else {
-      std::cout << "No Callback" << std::endl;
     }
   }
-  // std::cout << "Worker thread exiting" << std::endl;
+  LOG(INFO, TASKQUEUE, "Worker thread exiting");
   return nullptr;
 }
 
@@ -63,8 +55,7 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
 TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx) {
 
   if (!pExecute || !pCallback || !pTaskCtx) {
-    // Log or handle the invalid inputs
-    std::cerr << "Invalid function pointer or context!" << std::endl;
+    LOG(ERROR, TASKQUEUE, "Invalid function pointer or context");
     std::abort();
   }
 
@@ -88,11 +79,7 @@ TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx) {
 @brief Destroy the Task Queue:: Task Queue object
  *
  */
-TaskQueue::~TaskQueue() {
-
-  StopWorkerThread();
-  // std::cout << "Task Queue destroyed" << std::endl;
-}
+TaskQueue::~TaskQueue() { StopWorkerThread(); }
 
 /**
 @brief Set the Thread object
@@ -139,11 +126,9 @@ void TaskQueue::WaitForQueueCompetion() {
       // If the condition is satisfied, exit the loop
       break;
     }
-    /* std::cout << "Waiting for queue to complete Q size" << taskQueue.size()
-               << std::endl;*/
   }
 }
-#include <iostream>
+
 /**
 @brief Stop the worker thread
  *
@@ -151,20 +136,14 @@ void TaskQueue::WaitForQueueCompetion() {
 void TaskQueue::StopWorkerThread() {
 
   if (!isRunning.load()) {
-    // std::cout << "StopWorkerThread  not running" << std::flush << std::endl;
     return;
   } else {
-
-    // std::cout << "StopWorkerThread  E" << std::flush << std::endl;
-
     // Set isRunning to false to stop the worker thread
     isRunning.store(false);
     // Notify the worker thread to wake up and exit
     conditionVar.notify_all();
-    //  if (workerThread-joinable()) {
     pthread_join(workerThread, nullptr);
     workerThread = 0;
-    // }
     // Discard all remaining tasks in the queue
     {
       std::lock_guard<std::mutex> lock(taskQMux);
@@ -172,8 +151,5 @@ void TaskQueue::StopWorkerThread() {
         taskQueue.pop();
       }
     }
-
-    // std::cout << "StopWorkerThread  X" << std::flush << std::endl;
-    // Wait for the thread to join (i.e., complete its execution)
   }
 }

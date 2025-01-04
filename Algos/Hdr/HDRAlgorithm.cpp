@@ -1,7 +1,6 @@
 // HDRAlgorithm.cpp
 
 #include "HDRAlgorithm.h"
-#include <iostream>
 static const std::string HDR_ALGO_NAME = "HDRAlgorithm";
 static const size_t HDR_ALGO_ID = 0XCAFEBABE;
 /**

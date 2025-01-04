@@ -13,6 +13,7 @@ file(GLOB CORE_SOURCES
     ${CMAKE_SOURCE_DIR}/tests/src/TaskProcessor.cpp
     ${CMAKE_SOURCE_DIR}/src/*.cpp
     ${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
 )
 
 # Source files

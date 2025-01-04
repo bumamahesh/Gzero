@@ -1,6 +1,6 @@
 #include "AlgoBase.h"
+#include "Log.h"
 #include <cassert>
-
 /**
 @brief Thread Function object
  *
@@ -12,10 +12,6 @@ void AlgoBase::ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task) {
   auto pCtx = static_cast<AlgoBase *>(Ctx);
   AlgoBase::AlgoStatus rc = pCtx->Process();
   pCtx->SetStatus(rc);
-  /* if (rc != AlgoBase::AlgoStatus::SUCCESS) {
-     std::cout << pCtx->GetAlgorithmName() << "::" << pCtx->GetStatusString()
-               << std::endl;
-   }*/
 }
 
 /**
@@ -41,10 +37,10 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
     if (pCtx->NotifyEvent) {
       pCtx->NotifyEvent(pCtx, msg);
     } else {
-      std::cout << "pCtx->NotifyEvent is nullptr" << std::endl;
+      LOG(ERROR, ALGOBASE, "pCtx->NotifyEvent is nullptr");
     }
   } else {
-    std::cout << "pCtx is nullptr" << std::endl;
+    LOG(ERROR, ALGOBASE, "pCtx is nullptr");
   }
 }
 
@@ -65,24 +61,16 @@ AlgoBase::AlgoBase() {
  */
 AlgoBase::AlgoBase(const std::string &name)
     : ops_{name, nullptr}, current_status_{AlgoStatus::SUCCESS} {
-  // std::cout << "Constructor for AlgoBase E" << std::endl;
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction,
                                             &AlgoBase::ThreadCallback, this);
   mAlgoThread->SetThread(name);
-  // std::cout << "Constructor for AlgoBase X" << std::endl;
 }
 
 /**
 @brief Destroy the Algo Base:: Algo Base object
  *
  */
-AlgoBase::~AlgoBase() {
-  // std::cout << "Destructor for AlgoBase E" << std::flush << std::endl;
-  mAlgoThread->WaitForQueueCompetion();
-  // std::lock_guard<std::mutex> lock(thread_mutex_);
-  // mAlgoThread->StopWorkerThread();
-  // std::cout << "Destructor for AlgoBase X" << std::flush << std::endl;
-}
+AlgoBase::~AlgoBase() { mAlgoThread->WaitForQueueCompetion(); }
 
 /**
  * @brief  Stop Worker Thread
@@ -152,7 +140,6 @@ void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
     return;
   }
   {
-    // std::lock_guard<std::mutex> lock(thread_mutex_);
     mAlgoThread->Enqueue(request);
     queue_cond_.notify_all();
   }
@@ -166,6 +153,7 @@ void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
 void AlgoBase::SetNotifyEvent(
     void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg)) {
   this->NotifyEvent = EventHandler;
+  LOG(INFO, ALGOBASE, "NotifyEvent Callback is set");
 }
 
 /**

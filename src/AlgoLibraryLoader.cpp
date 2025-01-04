@@ -1,4 +1,6 @@
 #include "AlgoLibraryLoader.h"
+#include "Log.h"
+#include <cassert>
 #include <dlfcn.h>
 
 /**
@@ -11,8 +13,8 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath)
   // Attempt to load the shared library
   libHandle = dlopen(libraryPath.c_str(), RTLD_LAZY);
   if (!libHandle) {
-    throw std::runtime_error("Failed to load library: " +
-                             std::string(dlerror()));
+    LOG(ERROR, ALGOLIBLOADER, "Failed to load library: %s", dlerror());
+    assert(!libHandle);
   }
   totalAlgoInstances = 0;
 }
@@ -22,15 +24,18 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath)
  *
  */
 AlgoLibraryLoader::~AlgoLibraryLoader() {
-  // std::string algoname = GetAlgorithmName();
+  LOG(VERBOSE, ALGOLIBLOADER, "%s::Total Algo Instances %ld",
+      GetAlgorithmName().c_str(), totalAlgoInstances);
   if (libHandle) {
     dlclose(libHandle);
   }
-  // std::cout << algoname << "::Total Algo Instances: " << totalAlgoInstances
-  //           << std::endl;
 }
 
 std::shared_ptr<AlgoBase> AlgoLibraryLoader::GetAlgoMethod() {
+  if (!libHandle) {
+    LOG(ERROR, ALGOLIBLOADER, "Library handle is nullptr");
+    return nullptr;
+  }
   std::lock_guard<std::mutex> lock(libMutex);
   // Try to get the function from the library
   typedef AlgoBase *(*GetAlgoMethodFunc)();
@@ -38,8 +43,8 @@ std::shared_ptr<AlgoBase> AlgoLibraryLoader::GetAlgoMethod() {
       reinterpret_cast<GetAlgoMethodFunc>(dlsym(libHandle, "GetAlgoMethod"));
 
   if (!getAlgoMethod) {
-    throw std::runtime_error("Failed to find GetAlgoMethod: " +
-                             std::string(dlerror()));
+    LOG(ERROR, ALGOLIBLOADER, "Failed to find GetAlgoMethod: %s", dlerror());
+    assert(!getAlgoMethod);
   }
   std::shared_ptr<AlgoBase> pAlgoBase(getAlgoMethod());
   totalAlgoInstances++;
@@ -52,14 +57,18 @@ std::shared_ptr<AlgoBase> AlgoLibraryLoader::GetAlgoMethod() {
  * @return std::string
  */
 std::string AlgoLibraryLoader::GetAlgorithmName() const {
+  if (!libHandle) {
+    LOG(ERROR, ALGOLIBLOADER, "Library handle is nullptr");
+    return "";
+  }
   // Try to get the function from the library
   typedef std::string (*GetAlgorithmNameFunc)();
   GetAlgorithmNameFunc getAlgoName = reinterpret_cast<GetAlgorithmNameFunc>(
       dlsym(libHandle, "GetAlgorithmName"));
 
   if (!getAlgoName) {
-    throw std::runtime_error("Failed to find GetAlgorithmName: " +
-                             std::string(dlerror()));
+    LOG(ERROR, ALGOLIBLOADER, "Failed to find GetAlgorithmName: %s", dlerror());
+    assert(!getAlgoName);
   }
   return getAlgoName();
 }
@@ -71,14 +80,18 @@ std::string AlgoLibraryLoader::GetAlgorithmName() const {
  */
 size_t AlgoLibraryLoader::GetAlgoId() const {
 
+  if (!libHandle) {
+    LOG(ERROR, ALGOLIBLOADER, "Library handle is nullptr");
+    return 0XDEADBEAF;
+  }
   // Try to get the function from the library
   typedef size_t (*GetAlgoIdFunc)();
   GetAlgoIdFunc getAlgoId =
       reinterpret_cast<GetAlgoIdFunc>(dlsym(libHandle, "GetAlgoId"));
 
   if (!getAlgoId) {
-    throw std::runtime_error("Failed to find GetAlgoId: " +
-                             std::string(dlerror()));
+    LOG(ERROR, ALGOLIBLOADER, "Failed to find GetAlgoId: %s", dlerror());
+    assert(!getAlgoId);
   }
   return getAlgoId();
 }

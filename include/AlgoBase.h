@@ -5,7 +5,6 @@
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
-#include <iostream>
 #include <memory>
 #include <mutex>
 #include <pthread.h>

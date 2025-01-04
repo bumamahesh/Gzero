@@ -71,14 +71,11 @@ TEST(AlgoBaseTest, AlgorithmNameRetrieval) {
 int g_callbacks = 0;
 TEST(AlgoBaseTest, CallBackTest) {
 
-  // std::cout << "CallBackTest ::E" << std::endl;
   std::shared_ptr<MockDerivedAlgo> node =
       std::make_shared<MockDerivedAlgo>("TestAlgorithm");
-  // std::cout << "CallBackTest ::Mock Class Created" << std::endl;
   // Test the algorithm name
   EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithm");
   g_callbacks = 0;
-  // std::cout << "CallBackTest ::SetNotifyEvent Set" << std::endl;
   node->SetNotifyEvent([](void *ctx,
                           std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
     assert(msg != nullptr);
@@ -86,7 +83,6 @@ TEST(AlgoBaseTest, CallBackTest) {
 
     auto algo = static_cast<AlgoBase *>(ctx);
     assert(algo != nullptr);
-    // std::cout << "Callback MockCallback ...:: " << msg->type << std::endl;
     switch (msg->type) {
     case AlgoBase::ALGO_PROCESSING_COMPLETED: {
       g_callbacks++;
@@ -99,17 +95,13 @@ TEST(AlgoBaseTest, CallBackTest) {
     }
   });
 
-  // std::cout << "CallBackTest ::Put some load on node" << std::endl;
   for (int i = 0; i < 500; i++) {
     std::string request = std::to_string(i);
     auto task = std::make_shared<Task_t>();
     task->args = new std::string(request);
     node->EnqueueRequest(task);
-    // std::cout << "CallBackTest ::EnqueueRequest ::" << i << std::endl;
   }
-  // std::cout << "CallBackTest ::WaitForQueueCompetion E" << std::endl;
   node->WaitForQueueCompetion();
-  // std::cout << "CallBackTest ::WaitForQueueCompetion X" << std::endl;
   EXPECT_EQ(g_callbacks, 500);
 }
 

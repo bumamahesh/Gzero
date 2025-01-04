@@ -76,9 +76,7 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
     std::string msg = std::string("GSD");
     auto task = std::make_shared<Task_t>();
     task->args = nullptr;
-    // std::cout << "RetrieveAlgoMethod ::EnqueueRequest E" << std::endl;
     algo->EnqueueRequest(task);
-    // std::cout << "RetrieveAlgoMethod ::EnqueueRequest X" << std::endl;
     i++;
   }
   /*

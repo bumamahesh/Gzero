@@ -8,6 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
 
 file(GLOB CORE_SOURCES
     ${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
 )
 # Add the shared library

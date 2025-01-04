@@ -1,7 +1,7 @@
 #include "AlgoNodeManager.h"
 #include "AlgoLibraryLoader.h"
+#include "Log.h"
 #include <filesystem>
-#include <iostream>
 #include <regex>
 #include <string>
 #include <vector>
@@ -34,12 +34,11 @@ AlgoNodeManager::AlgoNodeManager(std::string &libraryPath) {
     }
 
     if (_sharedLibrariesPath.empty()) {
-      std::cerr << "Warning: No matching shared libraries found in "
-                << _libraryPath << std::endl;
+      LOG(WARNING, ALGOMANAGER, "No matching shared libraries found in %s",
+          _libraryPath.c_str());
     }
   } catch (const std::exception &e) {
-    std::cerr << "Error initializing AlgoNodeManager: " << e.what()
-              << std::endl;
+    LOG(ERROR, ALGOMANAGER, "Error initializing AlgoNodeManager: %s", e.what());
   }
 
   /* retrive algo id and name and save , algo objects are not created here */
@@ -101,7 +100,7 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(size_t algoId) {
   if (IsAlgoAvailable(algoId)) {
     return _IdLoaderMap[algoId]->GetAlgoMethod();
   }
-  std::cout << "Algo not available" << std::endl;
+  LOG(ERROR, ALGOMANAGER, "Algo not available");
   return nullptr;
 }
 
@@ -117,7 +116,7 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string &algoName) {
       return _IdLoaderMap[algo.first]->GetAlgoMethod();
     }
   }
-  std::cout << "Algo not available" << std::endl;
+  LOG(ERROR, ALGOMANAGER, "Algo not available");
   return nullptr;
 }
 /**

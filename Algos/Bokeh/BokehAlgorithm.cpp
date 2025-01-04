@@ -1,7 +1,6 @@
 // BokehAlgorithm.cpp
 
 #include "BokehAlgorithm.h"
-#include <iostream>
 static const std::string BOKEH_ALGO_NAME = "BokehAlgorithm";
 static const size_t BOKEH_ALGO_ID = 0XCAFEBABE + 1;
 /**

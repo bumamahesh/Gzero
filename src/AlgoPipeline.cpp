@@ -1,6 +1,6 @@
 #include "AlgoPipeline.h"
+#include "Log.h"
 #include <assert.h>
-
 /**
 @brief Constructs a new AlgoPipeline object with a list of algorithm IDs
  *
@@ -70,7 +70,7 @@ AlgoPipeline::~AlgoPipeline() {
 void AlgoPipeline::Process(std::string &input) {
 
   if (m_algos.size() == 0) {
-    std::cout << "No algos to process" << std::endl;
+    LOG(ERROR, ALGOPIPELINE, "No algos to process");
     return;
   }
   std::shared_ptr<Task_t> task = std::make_shared<Task_t>();
@@ -95,8 +95,7 @@ void AlgoPipeline::NodeEventHandler(
   assert(algo->m_pipCtx != nullptr);
   switch (msg->type) {
   case AlgoBase::ALGO_PROCESSING_COMPLETED: {
-    // std::cout << "AlgoPipeline::NodeEventHandler: Processing Completed"<<
-    // std::endl;*/
+    LOG(VERBOSE, ALGOPIPELINE, "Processing Completed");
     std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
     if (NextAlgo) {
       NextAlgo->EnqueueRequest(msg->request);
@@ -112,20 +111,16 @@ void AlgoPipeline::NodeEventHandler(
   /*kick next node */
   break;
   case AlgoBase::ALGO_PROCESSING_FAILED:
-    std::cout << "AlgoPipeline::NodeEventHandler: Processing Failed"
-              << std::endl;
+    LOG(ERROR, ALGOPIPELINE, "Processing Failed");
     break;
   case AlgoBase::ALGO_PROCESSING_TIMEOUT:
-    std::cout << "AlgoPipeline::NodeEventHandler: Processing Timeout"
-              << std::endl;
+    LOG(ERROR, ALGOPIPELINE, "Processing Timeout");
     break;
   case AlgoBase::ALGO_PROCESSING_PARTIAL:
-    std::cout << "AlgoPipeline::NodeEventHandler: Partial Processing Completed"
-              << std::endl;
+    LOG(ERROR, ALGOPIPELINE, "Partial Processing");
     break;
   default:
-    std::cout << "AlgoPipeline::NodeEventHandler: Unknown Message Type"
-              << std::endl;
+    LOG(ERROR, ALGOPIPELINE, "Unknown Message Type");
     break;
   }
 }
