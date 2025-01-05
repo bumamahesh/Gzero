@@ -13,8 +13,8 @@ FilterAlgorithm::FilterAlgorithm() : AlgoBase(FILTER_NAME) {
  * @brief Destructor for FilterAlgorithm.
  */
 FilterAlgorithm::~FilterAlgorithm() {
-  Close();
   StopAlgoThread();
+  Close();
 };
 
 /**

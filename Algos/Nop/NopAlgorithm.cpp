@@ -13,8 +13,8 @@ NopAlgorithm::NopAlgorithm() : AlgoBase(NOP_NAME) {
  * @brief Destructor for NopAlgorithm.
  */
 NopAlgorithm::~NopAlgorithm() {
-  Close();
   StopAlgoThread();
+  Close();
 };
 
 /**

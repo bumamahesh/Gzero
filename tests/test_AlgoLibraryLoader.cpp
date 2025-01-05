@@ -79,10 +79,9 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
     algo->EnqueueRequest(task);
     i++;
   }
-  /*
-    algo->WaitForQueueCompetion();
-    ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
-    ASSERT_EQ(algo->Close(), AlgoBase::AlgoStatus::SUCCESS);
-    ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
-    */
+
+  algo->WaitForQueueCompetion();
+  ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
+  ASSERT_EQ(algo->Close(), AlgoBase::AlgoStatus::SUCCESS);
+  ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
 }

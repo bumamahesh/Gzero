@@ -13,8 +13,8 @@ HDRAlgorithm::HDRAlgorithm() : AlgoBase(HDR_NAME) {
  * @brief Destructor for HDRAlgorithm.
  */
 HDRAlgorithm::~HDRAlgorithm() {
-  Close();
   StopAlgoThread();
+  Close();
 };
 
 /**

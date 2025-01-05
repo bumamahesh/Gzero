@@ -13,8 +13,8 @@ BokehAlgorithm::BokehAlgorithm() : AlgoBase(BOKEH_NAME) {
  * @brief Destructor for BokehAlgorithm.
  */
 BokehAlgorithm::~BokehAlgorithm() {
-  Close();
   StopAlgoThread();
+  Close();
 };
 
 /**
