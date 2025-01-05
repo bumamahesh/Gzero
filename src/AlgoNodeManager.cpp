@@ -8,14 +8,19 @@
 
 namespace fs = std::filesystem;
 
+AlgoNodeManager &AlgoNodeManager::Getinstance() {
+  static AlgoNodeManager instance;
+  return instance;
+}
 /**
 @brief Construct a new Algo Node Manager:: Algo Node Manager object
  *
  * @param libraryPath
  */
-AlgoNodeManager::AlgoNodeManager(std::string &libraryPath) {
+AlgoNodeManager::AlgoNodeManager() {
 
-  mLibraryPath = libraryPath;
+  mLibraryPath =
+      "/home/uma/workspace/Gzero/cmake/lib/"; // "@todo get from xml later
   /*open path and prepeare a list of shared librbary of format com.Algo.*.so*/
 
   try {

@@ -2,7 +2,6 @@
 #define BOKEH_ALGORITHM_H
 
 #include "AlgoBase.h"
-#include <string>
 
 /**
  * @brief BokehAlgorithm class derived from AlgoBase to perform BOKEH-specific
@@ -38,6 +37,7 @@ public:
    * @return Status of the operation.
    */
   AlgoStatus Close() override;
+  // cppcheck-suppress virtualCallInConstructor
 
 private:
   mutable std::mutex mutex_; // Mutex to protect the shared state

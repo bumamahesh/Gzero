@@ -4,9 +4,11 @@
 #include "AlgoBase.h"
 #include <string>
 
+// All exposed api of libs
 typedef AlgoBase *(*GetAlgoMethodFunc)();
 typedef std::string (*GetAlgorithmNameFunc)();
 typedef size_t (*GetAlgoIdFunc)();
+
 class AlgoLibraryLoader {
 public:
   // Constructor to load the shared library
@@ -25,9 +27,9 @@ public:
   size_t GetAlgoId() const;
 
 private:
-  void *plibHandle = nullptr; // Handle to the shared library
-  std::mutex mlibMutex;       // Mutex to protect the shared library handle
-  size_t mTotalAlgoInstances = 0;
+  void *plibHandle = nullptr;     // Handle to the shared library
+  std::mutex mlibMutex;           // Mutex to protect the shared library handle
+  size_t mTotalAlgoInstances = 0; // Total Algo Instanced Opned
 
   GetAlgoMethodFunc mGetAlgoMethod = nullptr;
   GetAlgorithmNameFunc mGetAlgoName = nullptr;

@@ -6,11 +6,24 @@
 #include <memory>
 #include <vector>
 
+typedef enum AlgoPipelineState {
+  NOT_INITIALISED = 0,
+  INITIALISED,
+  CONFIGURED_WITH_ID,
+  CONFIGURED_WITH_NAME,
+  INVALID_ALGO_LIST,
+  FAILED_TO_CONFIGURE,
+  SUCESSFULL,
+  FAILED_TO_PROCESS
+} ALGOPIPELINESTATE;
+
 class AlgoPipeline {
 public:
-  AlgoPipeline(std::vector<size_t> algoList);
-  AlgoPipeline(std::vector<std::string> algoList);
+  AlgoPipeline();
   ~AlgoPipeline();
+
+  ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<size_t> &algoList);
+  ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<std::string> &algoList);
 
   void Process(std::string &input);
   static void NodeEventHandler(void *,
@@ -18,16 +31,19 @@ public:
   void WaitForQueueCompetion();
   size_t GetProcessedFrames() const;
 
+  ALGOPIPELINESTATE GetState() const;
+  ALGOPIPELINESTATE SetState(ALGOPIPELINESTATE state);
+
+  std::vector<size_t> GetAlgoListId() const;
+
 private:
-  std::shared_ptr<AlgoNodeManager> mAlgoNodeMgr;
+  AlgoNodeManager *mAlgoNodeMgr = nullptr;
   std::vector<std::shared_ptr<AlgoBase>> mAlgos;
 
   std::vector<size_t> mAlgoListId;
   std::vector<std::string> mAlgoListName;
 
   size_t mProcessedFrames = 0;
-
-  std::string AlgosPath = "/home/uma/workspace/Gzero/cmake/lib/";
-  // "@todo get AlgosPath from xml later"
+  ALGOPIPELINESTATE mState = NOT_INITIALISED;
 };
 #endif // ALGO_PIPELINE_H

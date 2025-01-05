@@ -2,7 +2,6 @@
 #define HDR_ALGORITHM_H
 
 #include "AlgoBase.h"
-#include <string>
 
 /**
  * @brief HDRAlgorithm class derived from AlgoBase to perform HDR-specific
@@ -37,6 +36,7 @@ public:
    * @brief Close the HDR algorithm, simulating cleanup.
    * @return Status of the operation.
    */
+  // cppcheck-suppress virtualCallInConstructor
   AlgoStatus Close() override;
 
 private:

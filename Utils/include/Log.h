@@ -31,6 +31,7 @@ enum class LogLevel {
 #define ALGOLIBLOADER "ALGOLIBLOADER"
 #define ALGOMANAGER "ALGOMANAGER"
 #define ALGOPIPELINE "ALGOPIPELINE"
+#define ALGOSESSION "ALGOSESSION"
 
 // Function declarations
 std::string getCurrentTime();

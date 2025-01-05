@@ -7,7 +7,7 @@
 
 class AlgoNodeManager {
 public:
-  explicit AlgoNodeManager(std::string &libraryPath);
+  static AlgoNodeManager &Getinstance();
   ~AlgoNodeManager();
 
   bool IsAlgoAvailable(size_t algoId) const;
@@ -18,6 +18,7 @@ public:
   std::shared_ptr<AlgoBase> CreateAlgo(std::string &algoName);
 
 private:
+  AlgoNodeManager();
   std::unordered_map<size_t, std::shared_ptr<AlgoBase>> mAlgoMap;
   std::string mLibraryPath;
   std::vector<std::string> mSharedLibrariesPath;

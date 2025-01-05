@@ -8,20 +8,34 @@ class AlgoPipelineTest : public ::testing::Test {
 protected:
 };
 
-TEST_F(AlgoPipelineTest, CtorDtor) {
+TEST_F(AlgoPipelineTest, CtorDtorID) {
   std::vector<size_t> algoList = {0XCAFEBABE, 0XCAFEBABE + 1};
-  auto algoPipeline = std::make_shared<AlgoPipeline>(algoList);
-
-  // Check if the algoPipeline is created
+  auto algoPipeline = std::make_shared<AlgoPipeline>();
+  EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
   EXPECT_NE(algoPipeline, nullptr);
+  EXPECT_EQ(algoList.size(), 2);
+  algoPipeline->ConfigureAlgoPipeline(algoList);
+  EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::CONFIGURED_WITH_ID);
+}
+
+TEST_F(AlgoPipelineTest, CtorDtorName) {
+  std::vector<std::string> algoList = {"HDRAlgorithm", "BokehAlgorithm"};
+  auto algoPipeline = std::make_shared<AlgoPipeline>();
+  EXPECT_NE(algoPipeline, nullptr);
+  EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
+  EXPECT_EQ(algoList.size(), 2);
+  algoPipeline->ConfigureAlgoPipeline(algoList);
+  EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::CONFIGURED_WITH_NAME);
 }
 
 TEST_F(AlgoPipelineTest, Processtest) {
-  std::vector<size_t> algoList = {0XCAFEBABE, 0XCAFEBABE + 1};
-  auto algoPipeline = std::make_shared<AlgoPipeline>(algoList);
 
-  // Check if the algoPipeline is created
+  std::vector<size_t> algoList = {0XCAFEBABE, 0XCAFEBABE + 1};
+  auto algoPipeline = std::make_shared<AlgoPipeline>();
   EXPECT_NE(algoPipeline, nullptr);
+  EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
+  algoPipeline->ConfigureAlgoPipeline(algoList);
+  EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::CONFIGURED_WITH_ID);
 
   for (int i = 0; i < STRESS_CNT; i++) {
     std::string input = "Test";
@@ -30,4 +44,19 @@ TEST_F(AlgoPipelineTest, Processtest) {
 
   algoPipeline->WaitForQueueCompetion();
   EXPECT_EQ(algoPipeline->GetProcessedFrames(), STRESS_CNT);
+}
+
+TEST_F(AlgoPipelineTest, ProcesstestFail) {
+  std::vector<size_t> algoList = {0XCAFEBABE + 2};
+  auto algoPipeline = std::make_shared<AlgoPipeline>();
+  EXPECT_NE(algoPipeline, nullptr);
+  EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
+  algoPipeline->ConfigureAlgoPipeline(algoList);
+  EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::FAILED_TO_CONFIGURE);
+
+  std::string input = "Test";
+  algoPipeline->Process(input);
+
+  algoPipeline->WaitForQueueCompetion();
+  EXPECT_EQ(algoPipeline->GetProcessedFrames(), 0);
 }
