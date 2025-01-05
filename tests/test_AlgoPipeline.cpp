@@ -28,10 +28,16 @@ TEST_F(AlgoPipelineTest, CtorDtorName) {
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::CONFIGURED_WITH_NAME);
 }
 
+int ProcessedFrame = 0;
 TEST_F(AlgoPipelineTest, Processtest) {
 
   std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
-  auto algoPipeline = std::make_shared<AlgoPipeline>();
+
+  auto pipelineCallback = [](void *ctx, std::shared_ptr<AlgoRequest> input) {
+    ProcessedFrame++;
+  };
+  ProcessedFrame = 0;
+  auto algoPipeline = std::make_shared<AlgoPipeline>(pipelineCallback);
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
   algoPipeline->ConfigureAlgoPipeline(algoList);
@@ -44,11 +50,16 @@ TEST_F(AlgoPipelineTest, Processtest) {
 
   algoPipeline->WaitForQueueCompetion();
   EXPECT_EQ(algoPipeline->GetProcessedFrames(), STRESS_CNT);
+  EXPECT_EQ(ProcessedFrame, STRESS_CNT);
 }
 
 TEST_F(AlgoPipelineTest, ProcesstestFail) {
   std::vector<AlgoId> algoList = {ALGO_MAX};
-  auto algoPipeline = std::make_shared<AlgoPipeline>();
+  auto pipelineCallback = [](void *ctx, std::shared_ptr<AlgoRequest> input) {
+    ProcessedFrame++;
+  };
+  ProcessedFrame = 0;
+  auto algoPipeline = std::make_shared<AlgoPipeline>(pipelineCallback);
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
   algoPipeline->ConfigureAlgoPipeline(algoList);
@@ -59,4 +70,5 @@ TEST_F(AlgoPipelineTest, ProcesstestFail) {
 
   algoPipeline->WaitForQueueCompetion();
   EXPECT_EQ(algoPipeline->GetProcessedFrames(), 0);
+  EXPECT_EQ(ProcessedFrame, 0);
 }

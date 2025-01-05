@@ -2,30 +2,17 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-class AlgoSessionMock : public AlgoSession {
+int TotalCallbacks = 0;
 
-  std::vector<AlgoId> GetAlgoList() override {
-    static int count = 0;
-    std::vector<AlgoId> algoList;
-    if (count % 3 == 0) {
-      algoList.push_back(ALGO_HDR);
-      algoList.push_back(ALGO_BOKEH);
-    } else if (count % 3 == 1) {
-      algoList.push_back(ALGO_HDR);
-    } else {
-      algoList.push_back(ALGO_BOKEH);
-    }
-    count++;
-    return algoList;
-  }
+auto callback = [](void *ctx, std::shared_ptr<AlgoRequest> input) {
+  TotalCallbacks++;
 };
 
 TEST(AlgoSessionTest, AlgoSessionApi) {
   try {
     std::string config = "config";
-    auto algoSession = std::make_shared<AlgoSessionMock>();
+    auto algoSession = std::make_shared<AlgoSession>(callback, nullptr);
     EXPECT_NE(algoSession, nullptr);
-    EXPECT_EQ(algoSession->Initialize(config), true);
     EXPECT_EQ(algoSession->GetPipelineCount(), 0);
     std::shared_ptr<AlgoPipeline> pipeline = std::make_shared<AlgoPipeline>();
     std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
@@ -43,13 +30,17 @@ TEST(AlgoSessionTest, AlgoSessionApi) {
 
 TEST(AlgoSessionTest, ProcessTest) {
 
-  auto algoSession = std::make_shared<AlgoSessionMock>();
-  EXPECT_NE(algoSession, nullptr);
-  EXPECT_EQ(algoSession->GetPipelineCount(), 0);
+  {
+    TotalCallbacks = 0;
+    auto algoSession = std::make_shared<AlgoSession>(callback, nullptr);
+    EXPECT_NE(algoSession, nullptr);
+    EXPECT_EQ(algoSession->GetPipelineCount(), 0);
 
-  for (int i = 0; i < 3; i++) {
-    std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
-    EXPECT_EQ(algoSession->Process(input), true);
+    for (int i = 0; i < 100; i++) {
+      std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
+      EXPECT_EQ(algoSession->Process(input), true);
+    }
+    EXPECT_EQ(algoSession->GetPipelineCount(), 3);
   }
-  EXPECT_EQ(algoSession->GetPipelineCount(), 3);
+  EXPECT_EQ(TotalCallbacks, 100);
 }

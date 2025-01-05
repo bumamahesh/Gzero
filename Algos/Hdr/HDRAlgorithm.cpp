@@ -1,6 +1,8 @@
 // HDRAlgorithm.cpp
 
 #include "HDRAlgorithm.h"
+#include "Log.h"
+
 /**
  * @brief Constructor for HDRAlgorithm.
  * @param name Name of the HDR algorithm.
@@ -23,7 +25,7 @@ HDRAlgorithm::~HDRAlgorithm() {
  */
 AlgoBase::AlgoStatus HDRAlgorithm::Open() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
-
+  LOG(DEBUG, ALGOBASE, "OPEN In HDR Algo");
   SetStatus(AlgoStatus::SUCCESS);
   return GetStatus();
 }
@@ -47,7 +49,7 @@ AlgoBase::AlgoStatus HDRAlgorithm::Process() {
  */
 AlgoBase::AlgoStatus HDRAlgorithm::Close() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
-
+  LOG(DEBUG, ALGOBASE, "Close In HDR Algo");
   SetStatus(AlgoStatus::SUCCESS);
   return GetStatus();
 }

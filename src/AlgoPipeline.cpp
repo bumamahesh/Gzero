@@ -6,9 +6,11 @@
  *
  * @param algoList
  */
-AlgoPipeline::AlgoPipeline() {
+AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
   mProcessedFrames = 0;
   mState = ALGOPIPELINESTATE::INITIALISED;
+  this->pSesionCallBackHandler = pSesionCallBackHandler;
+  this->pSessionCtx = pCtx;
 }
 
 /**
@@ -183,6 +185,9 @@ void AlgoPipeline::NodeEventHandler(
        furthure on this same thread , lets stop here and put loadf
        on new thread which is of pipeline or session
        */
+      if (plPipeline->pSesionCallBackHandler) {
+        plPipeline->pSesionCallBackHandler(plPipeline->pSessionCtx, input);
+      }
       plPipeline->mProcessedFrames++;
     }
   }

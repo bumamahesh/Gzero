@@ -18,9 +18,12 @@ typedef enum AlgoPipelineState {
   FAILED_TO_PROCESS
 } ALGOPIPELINESTATE;
 
+typedef void (*SESSIONCALLBACK)(void *cntx, std::shared_ptr<AlgoRequest> input);
+
 class AlgoPipeline {
 public:
-  AlgoPipeline();
+  AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler = nullptr,
+               void *pCtx = nullptr);
   ~AlgoPipeline();
 
   ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<AlgoId> &algoList);
@@ -36,6 +39,9 @@ public:
   ALGOPIPELINESTATE SetState(ALGOPIPELINESTATE state);
 
   std::vector<AlgoId> GetAlgoListId() const;
+
+  SESSIONCALLBACK pSesionCallBackHandler = nullptr;
+  void *pSessionCtx = nullptr;
 
 private:
   AlgoNodeManager *mAlgoNodeMgr = nullptr;

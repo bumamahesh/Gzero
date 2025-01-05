@@ -6,34 +6,17 @@
  * @brief Construct a new Algo Session:: Algo Session object
  *
  */
-AlgoSession::AlgoSession() {}
+AlgoSession::AlgoSession(INTERFACECALLBACK pInterfaceCallBackHandler,
+                         void *pCtx) {
+  this->pInterfaceCallBackHandler = pInterfaceCallBackHandler;
+  this->pInterfaceCtx = pCtx;
+}
 
 /**
  * @brief Destroy the Algo Session:: Algo Session object
  *
  */
 AlgoSession::~AlgoSession() { Stop(); }
-
-/**
- * @brief  Initialize with Config
- *
- * @param config
- * @return true
- * @return false
- */
-bool AlgoSession::Initialize(std::string &config) {
-  LOG(INFO, ALGOSESSION, "AlgoSession Initialized");
-
-  return true;
-}
-
-/**
- * @brief Start Session
- *
- * @return true
- * @return false
- */
-bool AlgoSession::Start() { return true; }
 
 /**
  * @brief Stop Session
@@ -101,7 +84,8 @@ bool AlgoSession::Process(std::shared_ptr<AlgoRequest> input) {
   std::vector<AlgoId> algoList = GetAlgoList();
   int pipelineId = GetpipelineId(algoList);
   if (pipelineId == -1) {
-    auto lPipeline = std::make_shared<AlgoPipeline>();
+    auto lPipeline = std::make_shared<AlgoPipeline>(
+        &AlgoSession::PiplineCallBackHandler, this);
     lPipeline->ConfigureAlgoPipeline(algoList);
     if (lPipeline->GetState() != ALGOPIPELINESTATE::CONFIGURED_WITH_ID) {
       LOG(ERROR, ALGOSESSION, "Failed to Configure Pipeline");
@@ -159,7 +143,22 @@ std::vector<size_t> AlgoSession::GetPipelineIds() const {
  *
  * @return std::vector<size_t>
  */
-std::vector<AlgoId> AlgoSession::GetAlgoList() { return {}; }
+std::vector<AlgoId> AlgoSession::GetAlgoList() {
+  // pAlgoInterface->GetAlgoList();
+  /**get object of Decisionmanager and get a algo list  */
+  static int count = 0;
+  std::vector<AlgoId> algoList;
+  if (count % 3 == 0) {
+    algoList.push_back(ALGO_HDR);
+    algoList.push_back(ALGO_BOKEH);
+  } else if (count % 3 == 1) {
+    algoList.push_back(ALGO_HDR);
+  } else {
+    algoList.push_back(ALGO_BOKEH);
+  }
+  count++;
+  return algoList;
+}
 
 /**
  * @brief Get Pipeline id
@@ -167,15 +166,13 @@ std::vector<AlgoId> AlgoSession::GetAlgoList() { return {}; }
  * @return int
  */
 int AlgoSession::GetpipelineId(std::vector<AlgoId> algoList) {
-  if (mPipelines.size() > 0) {
+  if (mPipelines.size() == 0) {
     return -1;
   }
   int pipelineId = 0;
   for (auto pipeline : mPipelines) {
-    if (pipeline->GetState() == ALGOPIPELINESTATE::CONFIGURED_WITH_ID) {
-      if (pipeline->GetAlgoListId() == algoList) {
-        return pipelineId;
-      }
+    if (pipeline->GetAlgoListId() == algoList) {
+      return pipelineId;
     }
     pipelineId++;
   }
@@ -197,4 +194,20 @@ std::shared_ptr<AlgoPipeline> AlgoSession::GetPipeline(size_t pipelineId) {
     return nullptr;
   }
   return it->second;
+}
+
+/**
+ * @brief Pipline CallBack handler
+ *
+ * @param input
+ */
+void AlgoSession::PiplineCallBackHandler(void *pctx,
+                                         std::shared_ptr<AlgoRequest> input) {
+  /**multiple pipline can call this so handle with mutex */
+  AlgoSession *pSession = static_cast<AlgoSession *>(pctx);
+  if (pSession) {
+    if (pSession && pSession->pInterfaceCallBackHandler) {
+      pSession->pInterfaceCallBackHandler(pSession->pInterfaceCtx, input);
+    }
+  }
 }

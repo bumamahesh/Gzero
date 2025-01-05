@@ -3,19 +3,6 @@
 
 #include "AlgoSession.h"
 
-class AlgoInterface;
-class AlgoInterfaceSession : public AlgoSession {
-
-public:
-  AlgoInterfaceSession(AlgoInterface *pAlgoInterface);
-  ~AlgoInterfaceSession();
-
-  std::vector<AlgoId> GetAlgoList() override;
-
-private:
-  AlgoInterface *pAlgoInterface = nullptr;
-};
-
 class AlgoInterface {
 public:
   AlgoInterface();
@@ -23,7 +10,7 @@ public:
   bool Process(std::shared_ptr<AlgoRequest> request);
 
 private:
-  std::shared_ptr<AlgoInterfaceSession> mSession;
+  std::shared_ptr<AlgoSession> mSession;
   // decision manager instance @todo
 };
 
