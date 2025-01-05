@@ -91,13 +91,13 @@ bool AlgoSession::RemovePipeline(size_t pipelineId) {
 }
 
 /**
- * @brief
+ * @brief Processing Input Request
  *
  * @param input
  * @return true
  * @return false
  */
-bool AlgoSession::Process(std::string &input) {
+bool AlgoSession::Process(std::shared_ptr<AlgoRequest> input) {
   std::vector<AlgoId> algoList = GetAlgoList();
   int pipelineId = GetpipelineId(algoList);
   if (pipelineId == -1) {
@@ -124,7 +124,8 @@ bool AlgoSession::Process(std::string &input) {
  * @return true
  * @return false
  */
-bool AlgoSession::Process(size_t pipelineId, std::string &input) {
+bool AlgoSession::Process(size_t pipelineId,
+                          std::shared_ptr<AlgoRequest> input) {
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
     return false;

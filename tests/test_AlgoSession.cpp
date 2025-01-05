@@ -32,7 +32,7 @@ TEST(AlgoSessionTest, AlgoSessionApi) {
     pipeline->ConfigureAlgoPipeline(algoList);
     EXPECT_EQ(algoSession->AddPipeline(pipeline), true);
     EXPECT_EQ(algoSession->GetPipelineCount(), 1);
-    std::string input = "test";
+    std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
     EXPECT_EQ(algoSession->Process(0, input), true);
     EXPECT_EQ(algoSession->Stop(), true);
     EXPECT_EQ(algoSession->GetPipelineCount(), 0);
@@ -48,7 +48,7 @@ TEST(AlgoSessionTest, ProcessTest) {
   EXPECT_EQ(algoSession->GetPipelineCount(), 0);
 
   for (int i = 0; i < 3; i++) {
-    std::string input = "test";
+    std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
     EXPECT_EQ(algoSession->Process(input), true);
   }
   EXPECT_EQ(algoSession->GetPipelineCount(), 3);

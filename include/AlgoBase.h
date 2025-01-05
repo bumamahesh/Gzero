@@ -2,6 +2,7 @@
 #define ALGO_BASE_H
 
 #include "AlgoDefs.h"
+#include "AlgoRequest.h"
 #include "TaskQueue.h"
 #include <atomic>
 #include <chrono>

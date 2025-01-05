@@ -105,7 +105,7 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(AlgoId algoId) {
   if (IsAlgoAvailable(algoId)) {
     return mIdLoaderMap[algoId]->GetAlgoMethod();
   }
-  LOG(ERROR, ALGOMANAGER, "Algo not available");
+  LOG(DEBUG, ALGOMANAGER, "Algo not available");
   return nullptr;
 }
 
@@ -121,7 +121,7 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string &algoName) {
       return mIdLoaderMap[algo.first]->GetAlgoMethod();
     }
   }
-  LOG(ERROR, ALGOMANAGER, "Algo not available");
+  LOG(DEBUG, ALGOMANAGER, "Algo not available");
   return nullptr;
 }
 /**

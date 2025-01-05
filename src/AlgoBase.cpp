@@ -139,9 +139,10 @@ void AlgoBase::SetStatus(AlgoStatus status) { mCurrentStatus = status; }
  */
 void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
   if (!request) {
+    LOG(ERROR, ALGOBASE, "request is nullptr");
     return;
   }
-  { mAlgoThread->Enqueue(request); }
+  mAlgoThread->Enqueue(request);
 }
 
 /**

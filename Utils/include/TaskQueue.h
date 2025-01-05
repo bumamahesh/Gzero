@@ -1,6 +1,7 @@
 #ifndef TASK_QUEUE_H
 #define TASK_QUEUE_H
 #pragma once
+#include "AlgoRequest.h"
 #include <atomic>
 #include <condition_variable>
 #include <memory>
@@ -9,7 +10,7 @@
 #include <queue>
 
 typedef struct Task_t {
-  void *args;
+  std::shared_ptr<AlgoRequest> request;
 } Task_t;
 
 typedef void (*TASKFUNC)(void *Ctx, std::shared_ptr<Task_t> task);

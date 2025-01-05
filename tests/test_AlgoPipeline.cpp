@@ -38,7 +38,7 @@ TEST_F(AlgoPipelineTest, Processtest) {
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::CONFIGURED_WITH_ID);
 
   for (int i = 0; i < STRESS_CNT; i++) {
-    std::string input = "Test";
+    std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
     algoPipeline->Process(input);
   }
 
@@ -54,7 +54,7 @@ TEST_F(AlgoPipelineTest, ProcesstestFail) {
   algoPipeline->ConfigureAlgoPipeline(algoList);
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::FAILED_TO_CONFIGURE);
 
-  std::string input = "Test";
+  std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
   algoPipeline->Process(input);
 
   algoPipeline->WaitForQueueCompetion();

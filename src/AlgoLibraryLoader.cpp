@@ -42,7 +42,7 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
  *
  */
 AlgoLibraryLoader::~AlgoLibraryLoader() {
-  LOG(ERROR, ALGOLIBLOADER, "%s::[%p]Total Algo Instances %ld",
+  LOG(VERBOSE, ALGOLIBLOADER, "%s::[%p]Total Algo Instances %ld",
       GetAlgorithmName().c_str(), this, mTotalAlgoInstances);
   if (plibHandle) {
     dlclose(plibHandle);

@@ -76,29 +76,27 @@ TEST(AlgoBaseTest, CallBackTest) {
   // Test the algorithm name
   EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithm");
   g_callbacks = 0;
-  node->SetNotifyEvent([](void *ctx,
-                          std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
-    assert(msg != nullptr);
-    assert(ctx != nullptr);
+  node->SetNotifyEvent(
+      [](void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+        assert(msg != nullptr);
+        assert(ctx != nullptr);
 
-    auto algo = static_cast<AlgoBase *>(ctx);
-    assert(algo != nullptr);
-    switch (msg->mType) {
-    case AlgoBase::ALGO_PROCESSING_COMPLETED: {
-      g_callbacks++;
-      std::string *input = reinterpret_cast<std::string *>(msg->mRequest->args);
-      delete input;
-    }
+        auto algo = static_cast<AlgoBase *>(ctx);
+        assert(algo != nullptr);
+        switch (msg->mType) {
+        case AlgoBase::ALGO_PROCESSING_COMPLETED: {
+          g_callbacks++;
+        }
 
-    default:
-      break;
-    }
-  });
+        default:
+          break;
+        }
+      });
 
   for (int i = 0; i < 500; i++) {
-    std::string request = std::to_string(i);
     auto task = std::make_shared<Task_t>();
-    task->args = new std::string(request);
+    std::shared_ptr<AlgoRequest> algoRequest = std::make_shared<AlgoRequest>();
+    task->request = algoRequest;
     node->EnqueueRequest(task);
   }
   node->WaitForQueueCompetion();
@@ -183,7 +181,7 @@ TEST(AlgoBaseTest, CallBackTestFail) {
 
   for (int i = 0; i < 500; i++) {
     auto task = std::make_shared<Task_t>();
-    task->args = nullptr;
+    task->request = nullptr;
     node->EnqueueRequest(task);
   }
   node->WaitForQueueCompetion();

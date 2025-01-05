@@ -140,7 +140,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
  *
  * @param input
  */
-void AlgoPipeline::Process(std::string &input) {
+void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
 
   if (mAlgos.size() == 0) {
     // LOG(ERROR, ALGOPIPELINE, "No algos to process");
@@ -148,9 +148,7 @@ void AlgoPipeline::Process(std::string &input) {
   }
   if (GetState() == CONFIGURED_WITH_NAME || GetState() == CONFIGURED_WITH_ID) {
     std::shared_ptr<Task_t> task = std::make_shared<Task_t>();
-    task->args = new std::string(
-        input); // for now request is just string
-                // put on first request rest will be done by the first algo
+    task->request = input;
     mAlgos[0]->EnqueueRequest(task);
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Process");
@@ -179,13 +177,11 @@ void AlgoPipeline::NodeEventHandler(
     if (NextAlgo) {
       NextAlgo->EnqueueRequest(msg->mRequest);
     } else {
-      /*last node so let free obj */
-      std::string *input = reinterpret_cast<std::string *>(msg->mRequest->args);
-      delete input;
-      /*we need to put the update on new thread for now this is last node thread
-       which hasupdated this info do not prpogare furthure on this same thread ,
-       lets stop here and put loadf on new thread which is of pipeline or
-       session
+      std::shared_ptr<AlgoRequest> input = msg->mRequest->request;
+      /*we need to put the update on new thread for now this is last
+       node thread which hasupdated this info do not prpogare
+       furthure on this same thread , lets stop here and put loadf
+       on new thread which is of pipeline or session
        */
       plPipeline->mProcessedFrames++;
     }

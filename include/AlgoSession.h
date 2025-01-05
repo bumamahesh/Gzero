@@ -16,8 +16,8 @@ public:
   bool Stop();
   bool AddPipeline(std::shared_ptr<AlgoPipeline> &pipeline);
   bool RemovePipeline(size_t pipelineId);
-  bool Process(std::string &input);
-  bool Process(size_t pipelineId, std::string &input);
+  bool Process(std::shared_ptr<AlgoRequest> input);
+  bool Process(size_t pipelineId, std::shared_ptr<AlgoRequest> input);
   size_t GetPipelineCount() const;
   std::vector<size_t> GetPipelineIds() const;
 

@@ -26,7 +26,7 @@ public:
   ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<AlgoId> &algoList);
   ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<std::string> &algoList);
 
-  void Process(std::string &input);
+  void Process(std::shared_ptr<AlgoRequest> input);
   static void NodeEventHandler(void *,
                                std::shared_ptr<AlgoBase::ALGOCALLBACKMSG>);
   void WaitForQueueCompetion();

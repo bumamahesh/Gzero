@@ -75,7 +75,7 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   while (i < 500) {
     std::string msg = std::string("GSD");
     auto task = std::make_shared<Task_t>();
-    task->args = nullptr;
+    task->request = nullptr; // make a request here  @todo
     algo->EnqueueRequest(task);
     i++;
   }
