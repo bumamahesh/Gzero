@@ -4,16 +4,16 @@
 
 class AlgoSessionMock : public AlgoSession {
 
-  std::vector<size_t> GetAlgoList() override {
+  std::vector<AlgoId> GetAlgoList() override {
     static int count = 0;
-    std::vector<size_t> algoList;
+    std::vector<AlgoId> algoList;
     if (count % 3 == 0) {
-      algoList.push_back(0xCAFEBABE);
-      algoList.push_back(0xCAFEBABE + 1);
+      algoList.push_back(ALGO_HDR);
+      algoList.push_back(ALGO_BOKEH);
     } else if (count % 3 == 1) {
-      algoList.push_back(0xCAFEBABE + 1);
+      algoList.push_back(ALGO_HDR);
     } else {
-      algoList.push_back(0xCAFEBABE);
+      algoList.push_back(ALGO_BOKEH);
     }
     count++;
     return algoList;
@@ -28,7 +28,7 @@ TEST(AlgoSessionTest, AlgoSessionApi) {
     EXPECT_EQ(algoSession->Initialize(config), true);
     EXPECT_EQ(algoSession->GetPipelineCount(), 0);
     std::shared_ptr<AlgoPipeline> pipeline = std::make_shared<AlgoPipeline>();
-    std::vector<size_t> algoList = {0XCAFEBABE, 0XCAFEBABE + 1};
+    std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
     pipeline->ConfigureAlgoPipeline(algoList);
     EXPECT_EQ(algoSession->AddPipeline(pipeline), true);
     EXPECT_EQ(algoSession->GetPipelineCount(), 1);

@@ -123,7 +123,7 @@ std::string AlgoBase::GetAlgorithmName() const {
  *
  * @return size_t
  */
-size_t AlgoBase::GetAlgoId() const { return mAlgoId; }
+AlgoId AlgoBase::GetAlgoId() const { return mAlgoId; }
 
 /**
 @brief Set the Status object

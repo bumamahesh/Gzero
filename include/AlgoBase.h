@@ -1,6 +1,7 @@
 #ifndef ALGO_BASE_H
 #define ALGO_BASE_H
 
+#include "AlgoDefs.h"
 #include "TaskQueue.h"
 #include <atomic>
 #include <chrono>
@@ -61,7 +62,7 @@ public:
   AlgoStatus GetStatus() const;
   std::string GetStatusString() const;
   std::string GetAlgorithmName() const;
-  size_t GetAlgoId() const;
+  AlgoId GetAlgoId() const;
   void EnqueueRequest(std::shared_ptr<Task_t> request);
   void SetNotifyEvent(
       void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg));
@@ -78,7 +79,7 @@ protected:
   AlgorithmOperations mAlgoOperations;
   AlgoStatus mCurrentStatus = AlgoStatus::SUCCESS;
   std::shared_ptr<TaskQueue> mAlgoThread;
-  size_t mAlgoId = 0XDEADBEEF;
+  AlgoId mAlgoId = ALGO_MAX;
   void SetStatus(AlgoStatus status);
 
   /*Linked list */

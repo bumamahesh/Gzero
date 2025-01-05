@@ -47,7 +47,7 @@ ALGOPIPELINESTATE AlgoPipeline::SetState(ALGOPIPELINESTATE state) {
  *
  * @return std::vector<size_t>
  */
-std::vector<size_t> AlgoPipeline::GetAlgoListId() const { return mAlgoListId; }
+std::vector<AlgoId> AlgoPipeline::GetAlgoListId() const { return mAlgoListId; }
 
 /**
  * @brief  Configure Pipeline with Provided algo List
@@ -56,7 +56,7 @@ std::vector<size_t> AlgoPipeline::GetAlgoListId() const { return mAlgoListId; }
  * @return ALGOPIPELINESTATE
  */
 ALGOPIPELINESTATE
-AlgoPipeline::ConfigureAlgoPipeline(std::vector<size_t> &algoList) {
+AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
 
   LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld",
       algoList.size());

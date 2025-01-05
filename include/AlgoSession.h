@@ -21,9 +21,9 @@ public:
   size_t GetPipelineCount() const;
   std::vector<size_t> GetPipelineIds() const;
 
-  virtual std::vector<size_t> GetAlgoList();
+  virtual std::vector<AlgoId> GetAlgoList();
 
-  int GetpipelineId(std::vector<size_t> algoList);
+  int GetpipelineId(std::vector<AlgoId> algoList);
   std::shared_ptr<AlgoPipeline> GetPipeline(size_t pipelineId);
 
 private:

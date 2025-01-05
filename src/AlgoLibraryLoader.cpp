@@ -72,4 +72,4 @@ std::string AlgoLibraryLoader::GetAlgorithmName() const {
  *
  * @return size_t
  */
-size_t AlgoLibraryLoader::GetAlgoId() const { return mGetAlgoId(); }
+AlgoId AlgoLibraryLoader::GetAlgoId() const { return mGetAlgoId(); }

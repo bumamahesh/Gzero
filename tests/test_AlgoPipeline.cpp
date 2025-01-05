@@ -9,7 +9,7 @@ protected:
 };
 
 TEST_F(AlgoPipelineTest, CtorDtorID) {
-  std::vector<size_t> algoList = {0XCAFEBABE, 0XCAFEBABE + 1};
+  std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
   auto algoPipeline = std::make_shared<AlgoPipeline>();
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
   EXPECT_NE(algoPipeline, nullptr);
@@ -19,7 +19,7 @@ TEST_F(AlgoPipelineTest, CtorDtorID) {
 }
 
 TEST_F(AlgoPipelineTest, CtorDtorName) {
-  std::vector<std::string> algoList = {"HDRAlgorithm", "BokehAlgorithm"};
+  std::vector<std::string> algoList = {HDR_NAME, BOKEH_NAME};
   auto algoPipeline = std::make_shared<AlgoPipeline>();
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
@@ -30,7 +30,7 @@ TEST_F(AlgoPipelineTest, CtorDtorName) {
 
 TEST_F(AlgoPipelineTest, Processtest) {
 
-  std::vector<size_t> algoList = {0XCAFEBABE, 0XCAFEBABE + 1};
+  std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
   auto algoPipeline = std::make_shared<AlgoPipeline>();
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);
@@ -47,7 +47,7 @@ TEST_F(AlgoPipelineTest, Processtest) {
 }
 
 TEST_F(AlgoPipelineTest, ProcesstestFail) {
-  std::vector<size_t> algoList = {0XCAFEBABE + 2};
+  std::vector<AlgoId> algoList = {ALGO_MAX};
   auto algoPipeline = std::make_shared<AlgoPipeline>();
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), ALGOPIPELINESTATE::INITIALISED);

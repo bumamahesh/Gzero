@@ -11,15 +11,14 @@ protected:
 TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 
   try {
-    std::string HdralgoName("HDRAlgorithm");
-    size_t HdrAlgoID = 0XCAFEBABE;
+    std::string HdralgoName(HDR_NAME);
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
     EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 2);
 
     // Check algo available by Id
-    EXPECT_EQ(algoNodeManager.IsAlgoAvailable(HdrAlgoID), true);
+    EXPECT_EQ(algoNodeManager.IsAlgoAvailable(ALGO_HDR), true);
 
     // Check algo available by name
     EXPECT_EQ(algoNodeManager.IsAlgoAvailable(HdralgoName), true);
@@ -30,7 +29,7 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 }
 
 TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
-  std::string HdralgoName("HDRAlgorithm");
+  std::string HdralgoName(HDR_NAME);
   try {
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
@@ -57,7 +56,6 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
 TEST_F(AlgoNodeManagerTest, GetAlgoObjectById) {
 
   try {
-    size_t HdrAlgoID = 0XCAFEBABE;
 
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
@@ -65,16 +63,16 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectById) {
     EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 2);
 
     // Check algo available by Id
-    EXPECT_EQ(algoNodeManager.IsAlgoAvailable(HdrAlgoID), true);
+    EXPECT_EQ(algoNodeManager.IsAlgoAvailable(ALGO_HDR), true);
 
     // Create an algo object
-    auto algo = algoNodeManager.CreateAlgo(HdrAlgoID);
+    auto algo = algoNodeManager.CreateAlgo(ALGO_HDR);
 
     // Check if the algo object is created
     EXPECT_NE(algo, nullptr);
 
     // Check if the algo object is created with the correct algoId
-    EXPECT_EQ(algo->GetAlgoId(), HdrAlgoID);
+    EXPECT_EQ(algo->GetAlgoId(), ALGO_HDR);
 
   } catch (const std::exception &e) {
     FAIL() << "Exception thrown: " << e.what();

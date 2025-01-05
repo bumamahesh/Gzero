@@ -1,14 +1,12 @@
 // BokehAlgorithm.cpp
 
 #include "BokehAlgorithm.h"
-static const std::string BOKEH_ALGO_NAME = "BokehAlgorithm";
-static const size_t BOKEH_ALGO_ID = 0XCAFEBABE + 1;
 /**
  * @brief Constructor for BokehAlgorithm.
  * @param name Name of the BOKEH algorithm.
  */
-BokehAlgorithm::BokehAlgorithm() : AlgoBase(BOKEH_ALGO_NAME) {
-  mAlgoId = BOKEH_ALGO_ID; // Unique ID for BOKEH algorithm
+BokehAlgorithm::BokehAlgorithm() : AlgoBase(BOKEH_NAME) {
+  mAlgoId = ALGO_BOKEH; // Unique ID for BOKEH algorithm
 }
 
 /**
@@ -67,9 +65,9 @@ extern "C" AlgoBase *GetAlgoMethod() {
 @brief Get the algorithm ID.
  *
  */
-extern "C" size_t GetAlgoId() { return BOKEH_ALGO_ID; }
+extern "C" AlgoId GetAlgoId() { return ALGO_BOKEH; }
 /**
 @brief Get the algorithm name.
  *
  */
-extern "C" std::string GetAlgorithmName() { return BOKEH_ALGO_NAME; }
+extern "C" std::string GetAlgorithmName() { return BOKEH_NAME; }

@@ -98,7 +98,7 @@ bool AlgoSession::RemovePipeline(size_t pipelineId) {
  * @return false
  */
 bool AlgoSession::Process(std::string &input) {
-  std::vector<size_t> algoList = GetAlgoList();
+  std::vector<AlgoId> algoList = GetAlgoList();
   int pipelineId = GetpipelineId(algoList);
   if (pipelineId == -1) {
     auto lPipeline = std::make_shared<AlgoPipeline>();
@@ -158,14 +158,14 @@ std::vector<size_t> AlgoSession::GetPipelineIds() const {
  *
  * @return std::vector<size_t>
  */
-std::vector<size_t> AlgoSession::GetAlgoList() { return {}; }
+std::vector<AlgoId> AlgoSession::GetAlgoList() { return {}; }
 
 /**
  * @brief Get Pipeline id
  *
  * @return int
  */
-int AlgoSession::GetpipelineId(std::vector<size_t> algoList) {
+int AlgoSession::GetpipelineId(std::vector<AlgoId> algoList) {
   if (mPipelines.size() > 0) {
     return -1;
   }

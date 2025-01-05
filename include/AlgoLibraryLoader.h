@@ -7,7 +7,7 @@
 // All exposed api of libs
 typedef AlgoBase *(*GetAlgoMethodFunc)();
 typedef std::string (*GetAlgorithmNameFunc)();
-typedef size_t (*GetAlgoIdFunc)();
+typedef AlgoId (*GetAlgoIdFunc)();
 
 class AlgoLibraryLoader {
 public:
@@ -24,7 +24,7 @@ public:
   std::string GetAlgorithmName() const;
 
   // Function to get the algorithm ID
-  size_t GetAlgoId() const;
+  AlgoId GetAlgoId() const;
 
 private:
   void *plibHandle = nullptr;     // Handle to the shared library

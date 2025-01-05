@@ -2,6 +2,7 @@
 #define ALGO_PIPELINE_H
 
 #include "AlgoBase.h"
+#include "AlgoDefs.h"
 #include "AlgoNodeManager.h"
 #include <memory>
 #include <vector>
@@ -22,7 +23,7 @@ public:
   AlgoPipeline();
   ~AlgoPipeline();
 
-  ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<size_t> &algoList);
+  ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<AlgoId> &algoList);
   ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<std::string> &algoList);
 
   void Process(std::string &input);
@@ -34,13 +35,13 @@ public:
   ALGOPIPELINESTATE GetState() const;
   ALGOPIPELINESTATE SetState(ALGOPIPELINESTATE state);
 
-  std::vector<size_t> GetAlgoListId() const;
+  std::vector<AlgoId> GetAlgoListId() const;
 
 private:
   AlgoNodeManager *mAlgoNodeMgr = nullptr;
   std::vector<std::shared_ptr<AlgoBase>> mAlgos;
 
-  std::vector<size_t> mAlgoListId;
+  std::vector<AlgoId> mAlgoListId;
   std::vector<std::string> mAlgoListName;
 
   size_t mProcessedFrames = 0;

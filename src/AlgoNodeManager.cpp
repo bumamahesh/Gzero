@@ -75,7 +75,7 @@ AlgoNodeManager::~AlgoNodeManager() {
  * @return true
  * @return false
  */
-bool AlgoNodeManager::IsAlgoAvailable(size_t algoId) const {
+bool AlgoNodeManager::IsAlgoAvailable(AlgoId algoId) const {
   return mIdLoaderMap.find(algoId) != mIdLoaderMap.end();
 }
 
@@ -101,7 +101,7 @@ bool AlgoNodeManager::IsAlgoAvailable(std::string &algoName) const {
  * @param algoId
  * @return std::shared_ptr<AlgoBase>
  */
-std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(size_t algoId) {
+std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(AlgoId algoId) {
   if (IsAlgoAvailable(algoId)) {
     return mIdLoaderMap[algoId]->GetAlgoMethod();
   }
