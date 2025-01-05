@@ -15,7 +15,7 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 2);
+    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 4);
 
     // Check algo available by Id
     EXPECT_EQ(algoNodeManager.IsAlgoAvailable(ALGO_HDR), true);
@@ -34,7 +34,7 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 2);
+    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 4);
 
     // Check algo available by name
     EXPECT_EQ(algoNodeManager.IsAlgoAvailable(HdralgoName), true);
@@ -60,7 +60,7 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectById) {
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 2);
+    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 4);
 
     // Check algo available by Id
     EXPECT_EQ(algoNodeManager.IsAlgoAvailable(ALGO_HDR), true);

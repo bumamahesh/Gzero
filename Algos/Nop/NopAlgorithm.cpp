@@ -1,0 +1,73 @@
+// NopAlgorithm.cpp
+
+#include "NopAlgorithm.h"
+/**
+ * @brief Constructor for NopAlgorithm.
+ * @param name Name of the Nop algorithm.
+ */
+NopAlgorithm::NopAlgorithm() : AlgoBase(NOP_NAME) {
+  mAlgoId = ALGO_NOP; // Unique ID for Nop algorithm
+}
+
+/**
+ * @brief Destructor for NopAlgorithm.
+ */
+NopAlgorithm::~NopAlgorithm() {
+  Close();
+  StopAlgoThread();
+};
+
+/**
+ * @brief Open the Nop algorithm, simulating resource checks.
+ * @return Status of the operation.
+ */
+AlgoBase::AlgoStatus NopAlgorithm::Open() {
+  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+
+  SetStatus(AlgoStatus::SUCCESS);
+  return GetStatus();
+}
+
+// static int i = 0;
+/**
+ * @brief Process the Nop algorithm, simulating input validation and Nop
+ * computation.
+ * @return Status of the operation.
+ */
+AlgoBase::AlgoStatus NopAlgorithm::Process() {
+
+  SetStatus(AlgoStatus::SUCCESS);
+  return GetStatus();
+}
+
+/**
+ * @brief Close the Nop algorithm, simulating cleanup.
+ * @return Status of the operation.
+ */
+AlgoBase::AlgoStatus NopAlgorithm::Close() {
+  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+
+  SetStatus(AlgoStatus::SUCCESS);
+  return GetStatus();
+}
+
+// Public Exposed API for Nop
+/**
+ * @brief Factory function to expose NopAlgorithm via shared library.
+ * @return A pointer to the NopAlgorithm instance.
+ */
+extern "C" AlgoBase *GetAlgoMethod() {
+  NopAlgorithm *pInstance = new NopAlgorithm();
+  return pInstance;
+}
+
+/**
+@brief Get the algorithm ID.
+ *
+ */
+extern "C" AlgoId GetAlgoId() { return ALGO_NOP; }
+/**
+@brief Get the algorithm name.
+ *
+ */
+extern "C" std::string GetAlgorithmName() { return NOP_NAME; }
