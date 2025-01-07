@@ -11,6 +11,9 @@ AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
   mState = ALGOPIPELINESTATE::INITIALISED;
   this->pSesionCallBackHandler = pSesionCallBackHandler;
   this->pSessionCtx = pCtx;
+  pEventHandlerThread =
+      std::make_shared<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>(
+          AlgoPipeline::NodeEventHandler, this);
 }
 
 /**
@@ -21,6 +24,7 @@ AlgoPipeline::~AlgoPipeline() {
   for (auto &algo : mAlgos) {
     algo->WaitForQueueCompetion();
   }
+  // pEventHandlerThread->stop();
   mAlgos.clear();
   mAlgoListId.clear();
   mAlgoListName.clear();
@@ -79,14 +83,15 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
       if (algo == nullptr) {
         return SetState(FAILED_TO_CONFIGURE);
       }
-      algo->SetNotifyEvent(AlgoPipeline::NodeEventHandler);
-      algo->pPipelineCtx = (void *)this;
+      algo->SetEventThread(pEventHandlerThread);
+      // algo->pPipelineCtx = (void *)this;
       mAlgos.push_back(algo);
       mAlgoListName.push_back(algo->GetAlgorithmName());
       if (previousAlgo) {
         previousAlgo->SetNextAlgo(algo);
       }
       previousAlgo = algo;
+      mAlgoMap[algoId] = algo;
     }
     SetState(CONFIGURED_WITH_ID);
   } else {
@@ -122,13 +127,15 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
       if (algo == nullptr) {
         return SetState(FAILED_TO_CONFIGURE);
       }
-      algo->SetNotifyEvent(AlgoPipeline::NodeEventHandler);
+      algo->SetEventThread(pEventHandlerThread);
+      // algo->pPipelineCtx = (void *)this;
       mAlgos.push_back(algo);
       mAlgoListId.push_back(algo->GetAlgoId());
       if (previousAlgo) {
         previousAlgo->SetNextAlgo(algo);
       }
       previousAlgo = algo;
+      mAlgoMap[algo->GetAlgoId()] = algo;
     }
     SetState(CONFIGURED_WITH_NAME);
   } else {
@@ -167,11 +174,11 @@ void AlgoPipeline::NodeEventHandler(
     void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
   assert(msg != nullptr);
   assert(ctx != nullptr);
-  auto algo = static_cast<AlgoBase *>(ctx);
-  assert(algo != nullptr);
-  assert(algo->pPipelineCtx != nullptr);
-  auto plPipeline = reinterpret_cast<AlgoPipeline *>(algo->pPipelineCtx);
+  auto plPipeline = reinterpret_cast<AlgoPipeline *>(ctx);
   assert(plPipeline != nullptr);
+  assert(plPipeline->mAlgoMap.find(msg->mAlgoId) != plPipeline->mAlgoMap.end());
+  auto algo = plPipeline->mAlgoMap.at(msg->mAlgoId);
+  assert(algo != nullptr);
   switch (msg->mType) {
   case AlgoBase::ALGO_PROCESSING_COMPLETED: {
     LOG(VERBOSE, ALGOPIPELINE, "Processing Completed");

@@ -1,4 +1,5 @@
 #include "AlgoBase.h"
+#include "EventHandlerThread.h"
 #include <gtest/gtest.h>
 #include <string>
 
@@ -23,7 +24,7 @@ public:
    * @brief Open the algorithm, simulating resource availability checks.
    * @return Status of the operation.
    */
-  AlgoStatus Open() override { return GetStatus(); }
+  AlgoStatus Open() override { return GetAlgoStatus(); }
 
   /**
    * @brief Process the algorithm, simulating input validation.
@@ -32,7 +33,7 @@ public:
   AlgoStatus Process() override {
     // usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::SUCCESS);
-    return GetStatus();
+    return GetAlgoStatus();
   }
 
   /**
@@ -42,7 +43,7 @@ public:
   AlgoStatus Close() override {
 
     SetStatus(AlgoStatus::SUCCESS);
-    return GetStatus();
+    return GetAlgoStatus();
   }
 
 private:
@@ -73,25 +74,30 @@ TEST(AlgoBaseTest, CallBackTest) {
 
   std::shared_ptr<MockDerivedAlgo> node =
       std::make_shared<MockDerivedAlgo>("TestAlgorithm");
-  // Test the algorithm name
+
+  EXPECT_NE(node, nullptr);
   EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithm");
   g_callbacks = 0;
-  node->SetNotifyEvent(
-      [](void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
-        assert(msg != nullptr);
-        assert(ctx != nullptr);
 
-        auto algo = static_cast<AlgoBase *>(ctx);
-        assert(algo != nullptr);
-        switch (msg->mType) {
-        case AlgoBase::ALGO_PROCESSING_COMPLETED: {
-          g_callbacks++;
-        }
+  auto callback = [](void *ctx,
+                     std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+    assert(msg != nullptr);
+    switch (msg->mType) {
+    case AlgoBase::ALGO_PROCESSING_COMPLETED:
+      g_callbacks++;
+      break;
+    default:
+      assert(true);
+      break;
+    }
+  };
+  auto eventHandler =
+      std::make_shared<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>(callback,
+                                                                      nullptr);
 
-        default:
-          break;
-        }
-      });
+  EXPECT_NE(eventHandler, nullptr);
+
+  node->SetEventThread(eventHandler);
 
   for (int i = 0; i < 500; i++) {
     auto task = std::make_shared<Task_t>();
@@ -127,7 +133,7 @@ public:
   AlgoStatus Open() override {
 
     SetStatus(AlgoStatus::SUCCESS);
-    return GetStatus();
+    return GetAlgoStatus();
   }
 
   /**
@@ -138,7 +144,7 @@ public:
 
     // usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::INTERNAL_ERROR);
-    return GetStatus();
+    return GetAlgoStatus();
   }
 
   /**
@@ -148,7 +154,7 @@ public:
   AlgoStatus Close() override {
 
     SetStatus(AlgoStatus::SUCCESS);
-    return GetStatus();
+    return GetAlgoStatus();
   }
 
 private:
@@ -161,23 +167,23 @@ TEST(AlgoBaseTest, CallBackTestFail) {
 
   EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithmFail");
   g_Failcallbacks = 0;
-  node->SetNotifyEvent(
-      [](void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
-        assert(msg != nullptr);
-        assert(ctx != nullptr);
 
-        auto algo = static_cast<AlgoBase *>(ctx);
-        assert(algo != nullptr);
-
-        switch (msg->mType) {
-        case AlgoBase::ALGO_PROCESSING_FAILED: {
-          g_Failcallbacks++;
-        } break;
-        default:
-          assert(true); // should not ;and here
-          break;
-        }
-      });
+  auto callback = [](void *ctx,
+                     std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+    assert(msg != nullptr);
+    switch (msg->mType) {
+    case AlgoBase::ALGO_PROCESSING_FAILED:
+      g_Failcallbacks++;
+      break;
+    default:
+      assert(true);
+      break;
+    }
+  };
+  auto eventHandler =
+      std::make_shared<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>(callback,
+                                                                      nullptr);
+  node->SetEventThread(eventHandler);
 
   for (int i = 0; i < 500; i++) {
     auto task = std::make_shared<Task_t>();

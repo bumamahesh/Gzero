@@ -48,7 +48,7 @@ std::ostream &operator<<(std::ostream &os, const LogLevel &level) {
 }
 
 // Log class static member definition and implementation
-LogLevel Log::logLevel = LogLevel::L_ERROR; // Initialize static member
+LogLevel Log::logLevel = LogLevel::L_WARNING; // Initialize static member
 
 void Log::SetLevel(LogLevel level) { logLevel = level; }
 

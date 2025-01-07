@@ -28,17 +28,15 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
     auto msg = std::make_shared<AlgoBase::ALGOCALLBACKMSG>();
     assert(msg != nullptr);
     msg->mRequest = task;
-    msg->mStatus = pCtx->GetStatus();
+    msg->mStatus = pCtx->GetAlgoStatus();
+    msg->mAlgoId = pCtx->GetAlgoId();
     if (msg->mStatus == AlgoBase::AlgoStatus::SUCCESS) {
       msg->mType = AlgoBase::ALGO_PROCESSING_COMPLETED;
     } else {
       msg->mType = AlgoBase::ALGO_PROCESSING_FAILED;
     }
-    if (pCtx->pNotifyEvent) {
-      pCtx->pNotifyEvent(pCtx, msg);
-    } else {
-      LOG(ERROR, ALGOBASE, "pCtx->pNotifyEvent is nullptr");
-    }
+    pCtx->SetEvent(msg);
+
   } else {
     LOG(ERROR, ALGOBASE, "pCtx is nullptr");
   }
@@ -83,7 +81,7 @@ void AlgoBase::StopAlgoThread() { mAlgoThread->StopWorkerThread(); }
  *
  * @return AlgoBase::AlgoStatus
  */
-AlgoBase::AlgoStatus AlgoBase::GetStatus() const { return mCurrentStatus; }
+AlgoBase::AlgoStatus AlgoBase::GetAlgoStatus() const { return mCurrentStatus; }
 
 /**
 @brief Get the Status String object
@@ -146,14 +144,14 @@ void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
 }
 
 /**
-@brief Set Notify Event object
+@brief Set Event Thread object
  *
- * @param NotifyEvent
+ * @param mEventCallbackThread
  */
-void AlgoBase::SetNotifyEvent(
-    void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg)) {
-  this->pNotifyEvent = EventHandler;
-  LOG(INFO, ALGOBASE, "pNotifyEvent Callback is set");
+void AlgoBase::SetEventThread(
+    std::shared_ptr<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>
+        mEventCallbackThread) {
+  pEventHandlerThread = mEventCallbackThread;
 }
 
 /**
@@ -176,3 +174,16 @@ void AlgoBase::SetNextAlgo(std::weak_ptr<AlgoBase> nextAlgo) {
  * @return std::weak_ptr<AlgoBase>
  */
 std::weak_ptr<AlgoBase> AlgoBase::GetNextAlgo() { return mNextAlgo; }
+
+/**
+ * @brief
+ *
+ * @param msg
+ */
+void AlgoBase::SetEvent(std::shared_ptr<ALGOCALLBACKMSG> msg) {
+  if (pEventHandlerThread) {
+    pEventHandlerThread->SetEvent(msg);
+  } else {
+    LOG(ERROR, ALGOBASE, "pEventHandlerThread is nullptr");
+  }
+}

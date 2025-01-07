@@ -4,6 +4,7 @@
 #include "AlgoBase.h"
 #include "AlgoDefs.h"
 #include "AlgoNodeManager.h"
+#include "EventHandlerThread.h"
 #include <memory>
 #include <vector>
 
@@ -49,8 +50,11 @@ private:
 
   std::vector<AlgoId> mAlgoListId;
   std::vector<std::string> mAlgoListName;
+  std::unordered_map<AlgoId, std::shared_ptr<AlgoBase>> mAlgoMap;
 
   size_t mProcessedFrames = 0;
   ALGOPIPELINESTATE mState = NOT_INITIALISED;
+  std::shared_ptr<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>
+      pEventHandlerThread;
 };
 #endif // ALGO_PIPELINE_H

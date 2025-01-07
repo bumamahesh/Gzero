@@ -22,7 +22,7 @@ AlgoInterface::~AlgoInterface() {}
 bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request) {
 
   if (mSession) {
-    mSession->Process(request);
+    mSession->SessionProcess(request);
   } else {
     // LOG(ERROR, ALGOINTERFACE, "mSession is nullptr");
   }

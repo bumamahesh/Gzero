@@ -16,7 +16,7 @@ AlgoSession::AlgoSession(INTERFACECALLBACK pInterfaceCallBackHandler,
  * @brief Destroy the Algo Session:: Algo Session object
  *
  */
-AlgoSession::~AlgoSession() { Stop(); }
+AlgoSession::~AlgoSession() { SessionStop(); }
 
 /**
  * @brief Stop Session
@@ -24,7 +24,7 @@ AlgoSession::~AlgoSession() { Stop(); }
  * @return true
  * @return false
  */
-bool AlgoSession::Stop() {
+bool AlgoSession::SessionStop() {
   for (auto &pipeline : mPipelines) {
     pipeline->WaitForQueueCompetion();
   }
@@ -41,7 +41,7 @@ bool AlgoSession::Stop() {
  * @return true
  * @return false
  */
-bool AlgoSession::AddPipeline(std::shared_ptr<AlgoPipeline> &pipeline) {
+bool AlgoSession::SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline) {
   if (pipeline == nullptr) {
     return false;
   }
@@ -58,7 +58,7 @@ bool AlgoSession::AddPipeline(std::shared_ptr<AlgoPipeline> &pipeline) {
  * @return true
  * @return false
  */
-bool AlgoSession::RemovePipeline(size_t pipelineId) {
+bool AlgoSession::SessionRemovePipeline(size_t pipelineId) {
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
     return false;
@@ -80,9 +80,9 @@ bool AlgoSession::RemovePipeline(size_t pipelineId) {
  * @return true
  * @return false
  */
-bool AlgoSession::Process(std::shared_ptr<AlgoRequest> input) {
-  std::vector<AlgoId> algoList = GetAlgoList();
-  int pipelineId = GetpipelineId(algoList);
+bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
+  std::vector<AlgoId> algoList = SessionGetAlgoList();
+  int pipelineId = SessionGetpipelineId(algoList);
   if (pipelineId == -1) {
     auto lPipeline = std::make_shared<AlgoPipeline>(
         &AlgoSession::PiplineCallBackHandler, this);
@@ -91,11 +91,11 @@ bool AlgoSession::Process(std::shared_ptr<AlgoRequest> input) {
       LOG(ERROR, ALGOSESSION, "Failed to Configure Pipeline");
       return false;
     }
-    AddPipeline(lPipeline);
+    SessionAddPipeline(lPipeline);
     pipelineId = 0;
   }
 
-  Process(pipelineId, input);
+  SessionProcess(pipelineId, input);
 
   return true;
 }
@@ -108,8 +108,8 @@ bool AlgoSession::Process(std::shared_ptr<AlgoRequest> input) {
  * @return true
  * @return false
  */
-bool AlgoSession::Process(size_t pipelineId,
-                          std::shared_ptr<AlgoRequest> input) {
+bool AlgoSession::SessionProcess(size_t pipelineId,
+                                 std::shared_ptr<AlgoRequest> input) {
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
     return false;
@@ -123,14 +123,16 @@ bool AlgoSession::Process(size_t pipelineId,
  *
  * @return size_t
  */
-size_t AlgoSession::GetPipelineCount() const { return mPipelines.size(); }
+size_t AlgoSession::SessionGetPipelineCount() const {
+  return mPipelines.size();
+}
 
 /**
  * @brief   Get PiplineIds
  *
  * @return std::vector<size_t>
  */
-std::vector<size_t> AlgoSession::GetPipelineIds() const {
+std::vector<size_t> AlgoSession::SessionGetPipelineIds() const {
   std::vector<size_t> ids;
   for (const auto &pair : mPipelineMap) {
     ids.push_back(pair.first);
@@ -143,7 +145,7 @@ std::vector<size_t> AlgoSession::GetPipelineIds() const {
  *
  * @return std::vector<size_t>
  */
-std::vector<AlgoId> AlgoSession::GetAlgoList() {
+std::vector<AlgoId> AlgoSession::SessionGetAlgoList() {
   // pAlgoInterface->GetAlgoList();
   /**get object of Decisionmanager and get a algo list  */
   static int count = 0;
@@ -165,7 +167,7 @@ std::vector<AlgoId> AlgoSession::GetAlgoList() {
  *
  * @return int
  */
-int AlgoSession::GetpipelineId(std::vector<AlgoId> algoList) {
+int AlgoSession::SessionGetpipelineId(std::vector<AlgoId> algoList) {
   if (mPipelines.size() == 0) {
     return -1;
   }
@@ -188,7 +190,8 @@ int AlgoSession::GetpipelineId(std::vector<AlgoId> algoList) {
  * @param pipelineId
  * @return std::shared_ptr<AlgoPipeline>
  */
-std::shared_ptr<AlgoPipeline> AlgoSession::GetPipeline(size_t pipelineId) {
+std::shared_ptr<AlgoPipeline>
+AlgoSession::SessionGetPipeline(size_t pipelineId) {
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
     return nullptr;

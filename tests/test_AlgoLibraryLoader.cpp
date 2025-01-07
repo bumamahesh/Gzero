@@ -1,4 +1,5 @@
 #include "../include/AlgoLibraryLoader.h" // Include the header file for your class
+#include "EventHandlerThread.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -43,22 +44,24 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
 
   std::shared_ptr<AlgoBase> algo = loader.GetAlgoMethod();
   ASSERT_NE(algo, nullptr);
-  algo->SetNotifyEvent(
-      [](void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
-        assert(msg != nullptr);
-        assert(ctx != nullptr);
 
-        auto algo = static_cast<AlgoBase *>(ctx);
-        assert(algo != nullptr);
+  auto callback = [](void *ctx,
+                     std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+    assert(msg != nullptr);
+    switch (msg->mType) {
+    case AlgoBase::ALGO_PROCESSING_COMPLETED:
+      break;
+    default:
+      assert(true);
+      break;
+    }
+  };
+  auto eventHandler =
+      std::make_shared<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>(callback,
+                                                                      nullptr);
 
-        switch (msg->mType) {
-        case AlgoBase::ALGO_PROCESSING_FAILED:
-          break;
-        default:
-          assert(true);
-          break;
-        }
-      });
+  algo->SetEventThread(eventHandler);
+  /**/
 
   // Ensure the algorithm method is valid
   ASSERT_NE(algo, nullptr);
@@ -69,7 +72,7 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   ASSERT_NE(algo->GetAlgorithmName(), "");
   ASSERT_EQ(algo->GetAlgorithmName(), HDR_NAME);
   ASSERT_EQ(algo->Open(), AlgoBase::AlgoStatus::SUCCESS);
-  ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
+  ASSERT_EQ(algo->GetAlgoStatus(), AlgoBase::AlgoStatus::SUCCESS);
 
   int i = 0;
   while (i < 500) {
@@ -81,7 +84,7 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   }
 
   algo->WaitForQueueCompetion();
-  ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
+  ASSERT_EQ(algo->GetAlgoStatus(), AlgoBase::AlgoStatus::SUCCESS);
   ASSERT_EQ(algo->Close(), AlgoBase::AlgoStatus::SUCCESS);
-  ASSERT_EQ(algo->GetStatus(), AlgoBase::AlgoStatus::SUCCESS);
+  ASSERT_EQ(algo->GetAlgoStatus(), AlgoBase::AlgoStatus::SUCCESS);
 }

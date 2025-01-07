@@ -25,7 +25,7 @@ AlgoBase::AlgoStatus FilterAlgorithm::Open() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
-  return GetStatus();
+  return GetAlgoStatus();
 }
 
 // static int i = 0;
@@ -37,7 +37,7 @@ AlgoBase::AlgoStatus FilterAlgorithm::Open() {
 AlgoBase::AlgoStatus FilterAlgorithm::Process() {
 
   SetStatus(AlgoStatus::SUCCESS);
-  return GetStatus();
+  return GetAlgoStatus();
 }
 
 /**
@@ -48,7 +48,7 @@ AlgoBase::AlgoStatus FilterAlgorithm::Close() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
-  return GetStatus();
+  return GetAlgoStatus();
 }
 
 // Public Exposed API for Nop

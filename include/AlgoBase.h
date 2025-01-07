@@ -3,6 +3,7 @@
 
 #include "AlgoDefs.h"
 #include "AlgoRequest.h"
+#include "EventHandlerThread.h"
 #include "TaskQueue.h"
 #include <atomic>
 #include <chrono>
@@ -43,6 +44,7 @@ public:
     ALGOMESSAGETYPE mType;
     AlgoStatus mStatus;
     std::shared_ptr<Task_t> mRequest;
+    AlgoId mAlgoId;
   } ALGOCALLBACKMSG;
 
   struct AlgorithmOperations {
@@ -60,21 +62,19 @@ public:
   virtual AlgoStatus Process() = 0;
   virtual AlgoStatus Close() = 0;
   void StopAlgoThread();
-  AlgoStatus GetStatus() const;
+  AlgoStatus GetAlgoStatus() const;
   std::string GetStatusString() const;
   std::string GetAlgorithmName() const;
   AlgoId GetAlgoId() const;
   void EnqueueRequest(std::shared_ptr<Task_t> request);
-  void SetNotifyEvent(
-      void (*EventHandler)(void *ctx, std::shared_ptr<ALGOCALLBACKMSG> msg));
+  void
+  SetEventThread(std::shared_ptr<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>
+                     mEventCallbackThread);
   void WaitForQueueCompetion();
   void SetNextAlgo(std::weak_ptr<AlgoBase>);
   std::weak_ptr<AlgoBase> GetNextAlgo();
-  void *pPipelineCtx = nullptr;
-
-  // Callback function to notify the event Upper Layer
-  void (*pNotifyEvent)(void *ctx,
-                       std::shared_ptr<ALGOCALLBACKMSG> msg) = nullptr;
+  // void *pPipelineCtx = nullptr;
+  void SetEvent(std::shared_ptr<ALGOCALLBACKMSG> msg);
 
 protected:
   AlgorithmOperations mAlgoOperations;
@@ -85,6 +85,8 @@ protected:
 
   /*Linked list */
   std::weak_ptr<AlgoBase> mNextAlgo;
+  std::shared_ptr<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>
+      pEventHandlerThread = nullptr;
 
 private:
   static void ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task);

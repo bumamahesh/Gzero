@@ -27,7 +27,7 @@ AlgoBase::AlgoStatus HDRAlgorithm::Open() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
   LOG(DEBUG, ALGOBASE, "OPEN In HDR Algo");
   SetStatus(AlgoStatus::SUCCESS);
-  return GetStatus();
+  return GetAlgoStatus();
 }
 
 // static int i = 0;
@@ -40,7 +40,7 @@ AlgoBase::AlgoStatus HDRAlgorithm::Process() {
   std::lock_guard<std::mutex> lock(mutex_);
 
   SetStatus(AlgoStatus::SUCCESS);
-  return GetStatus();
+  return GetAlgoStatus();
 }
 
 /**
@@ -51,7 +51,7 @@ AlgoBase::AlgoStatus HDRAlgorithm::Close() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
   LOG(DEBUG, ALGOBASE, "Close In HDR Algo");
   SetStatus(AlgoStatus::SUCCESS);
-  return GetStatus();
+  return GetAlgoStatus();
 }
 
 // Public Exposed API for HDR

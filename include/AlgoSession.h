@@ -12,18 +12,18 @@ public:
   AlgoSession(INTERFACECALLBACK pInterfaceCallBackHandler = nullptr,
               void *pCtx = nullptr);
   ~AlgoSession();
-  bool Stop();
-  bool AddPipeline(std::shared_ptr<AlgoPipeline> &pipeline);
-  bool RemovePipeline(size_t pipelineId);
-  bool Process(std::shared_ptr<AlgoRequest> input);
-  bool Process(size_t pipelineId, std::shared_ptr<AlgoRequest> input);
-  size_t GetPipelineCount() const;
-  std::vector<size_t> GetPipelineIds() const;
+  bool SessionStop();
+  bool SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline);
+  bool SessionRemovePipeline(size_t pipelineId);
+  bool SessionProcess(std::shared_ptr<AlgoRequest> input);
+  bool SessionProcess(size_t pipelineId, std::shared_ptr<AlgoRequest> input);
+  size_t SessionGetPipelineCount() const;
+  std::vector<size_t> SessionGetPipelineIds() const;
 
-  std::vector<AlgoId> GetAlgoList();
+  std::vector<AlgoId> SessionGetAlgoList();
 
-  int GetpipelineId(std::vector<AlgoId> algoList);
-  std::shared_ptr<AlgoPipeline> GetPipeline(size_t pipelineId);
+  int SessionGetpipelineId(std::vector<AlgoId> algoList);
+  std::shared_ptr<AlgoPipeline> SessionGetPipeline(size_t pipelineId);
   INTERFACECALLBACK pInterfaceCallBackHandler = nullptr;
   void *pInterfaceCtx = nullptr;
 
