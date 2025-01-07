@@ -87,7 +87,7 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
     auto lPipeline = std::make_shared<AlgoPipeline>(
         &AlgoSession::PiplineCallBackHandler, this);
     lPipeline->ConfigureAlgoPipeline(algoList);
-    if (lPipeline->GetState() != ALGOPIPELINESTATE::CONFIGURED_WITH_ID) {
+    if (lPipeline->GetState() != AlgoPipelineState::ConfiguredWithId) {
       LOG(ERROR, ALGOSESSION, "Failed to Configure Pipeline");
       return false;
     }

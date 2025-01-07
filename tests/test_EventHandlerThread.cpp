@@ -1,8 +1,6 @@
 #include "EventHandlerThread.h"
 #include <atomic>
-#include <chrono>
 #include <gtest/gtest.h>
-#include <thread>
 
 typedef struct AlgoEvent {
   void *arg = nullptr;

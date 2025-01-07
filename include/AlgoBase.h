@@ -2,18 +2,11 @@
 #define ALGO_BASE_H
 
 #include "AlgoDefs.h"
-#include "AlgoRequest.h"
 #include "EventHandlerThread.h"
 #include "TaskQueue.h"
-#include <atomic>
-#include <chrono>
-#include <condition_variable>
 #include <memory>
-#include <mutex>
 #include <pthread.h>
-#include <queue>
 #include <string>
-#include <unordered_map>
 
 class AlgoBase {
 public:
@@ -32,20 +25,23 @@ public:
     INTERNAL_ERROR = 11
   };
 
-  typedef enum AlgoMeassageType {
-    ALGO_PROCESSING_COMPLETED, // A generic processing completion
-    ALGO_PROCESSING_FAILED,    // Processing failed
-    ALGO_PROCESSING_TIMEOUT,   // Processing timed out
-    ALGO_PROCESSING_PARTIAL    // An intermediate processing step completed (not
-                               // the last)
-  } ALGOMESSAGETYPE;
+  enum class AlgoMessageType {
+    ProcessingCompleted, // A generic processing completion
+    ProcessingFailed,    // Processing failed
+    ProcessingTimeout,   // Processing timed out
+    ProcessingPartial    // An intermediate processing step completed (not the
+                         // last)
+  };
 
-  typedef struct AlgoCallBaclMessage {
-    ALGOMESSAGETYPE mType;
+  typedef struct AlgoCallbackMessage {
+    AlgoMessageType mType;
     AlgoStatus mStatus;
     std::shared_ptr<Task_t> mRequest;
     AlgoId mAlgoId;
-  } ALGOCALLBACKMSG;
+    AlgoCallbackMessage(AlgoMessageType type, AlgoStatus status,
+                        std::shared_ptr<Task_t> request, AlgoId algoId)
+        : mType(type), mStatus(status), mRequest(request), mAlgoId(algoId) {}
+  } AlgoCallbackMessage;
 
   struct AlgorithmOperations {
     std::string mAlgoName;
@@ -67,14 +63,13 @@ public:
   std::string GetAlgorithmName() const;
   AlgoId GetAlgoId() const;
   void EnqueueRequest(std::shared_ptr<Task_t> request);
-  void
-  SetEventThread(std::shared_ptr<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>
-                     mEventCallbackThread);
+  void SetEventThread(
+      std::shared_ptr<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>
+          mEventCallbackThread);
   void WaitForQueueCompetion();
   void SetNextAlgo(std::weak_ptr<AlgoBase>);
   std::weak_ptr<AlgoBase> GetNextAlgo();
-  // void *pPipelineCtx = nullptr;
-  void SetEvent(std::shared_ptr<ALGOCALLBACKMSG> msg);
+  void SetEvent(std::shared_ptr<AlgoCallbackMessage> msg);
 
 protected:
   AlgorithmOperations mAlgoOperations;
@@ -85,7 +80,7 @@ protected:
 
   /*Linked list */
   std::weak_ptr<AlgoBase> mNextAlgo;
-  std::shared_ptr<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>
+  std::shared_ptr<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>
       pEventHandlerThread = nullptr;
 
 private:

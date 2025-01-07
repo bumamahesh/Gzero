@@ -80,10 +80,10 @@ TEST(AlgoBaseTest, CallBackTest) {
   g_callbacks = 0;
 
   auto callback = [](void *ctx,
-                     std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+                     std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
     assert(msg != nullptr);
     switch (msg->mType) {
-    case AlgoBase::ALGO_PROCESSING_COMPLETED:
+    case AlgoBase::AlgoMessageType::ProcessingCompleted:
       g_callbacks++;
       break;
     default:
@@ -92,8 +92,8 @@ TEST(AlgoBaseTest, CallBackTest) {
     }
   };
   auto eventHandler =
-      std::make_shared<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>(callback,
-                                                                      nullptr);
+      std::make_shared<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>(
+          callback, nullptr);
 
   EXPECT_NE(eventHandler, nullptr);
 
@@ -169,10 +169,10 @@ TEST(AlgoBaseTest, CallBackTestFail) {
   g_Failcallbacks = 0;
 
   auto callback = [](void *ctx,
-                     std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+                     std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
     assert(msg != nullptr);
     switch (msg->mType) {
-    case AlgoBase::ALGO_PROCESSING_FAILED:
+    case AlgoBase::AlgoMessageType::ProcessingFailed:
       g_Failcallbacks++;
       break;
     default:
@@ -181,8 +181,8 @@ TEST(AlgoBaseTest, CallBackTestFail) {
     }
   };
   auto eventHandler =
-      std::make_shared<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>(callback,
-                                                                      nullptr);
+      std::make_shared<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>(
+          callback, nullptr);
   node->SetEventThread(eventHandler);
 
   for (int i = 0; i < 500; i++) {

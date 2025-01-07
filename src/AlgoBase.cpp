@@ -24,21 +24,22 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
   assert(task != nullptr);
   assert(Ctx != nullptr);
   auto pCtx = static_cast<AlgoBase *>(Ctx);
-  if (pCtx) {
-    auto msg = std::make_shared<AlgoBase::ALGOCALLBACKMSG>();
-    assert(msg != nullptr);
-    msg->mRequest = task;
-    msg->mStatus = pCtx->GetAlgoStatus();
-    msg->mAlgoId = pCtx->GetAlgoId();
-    if (msg->mStatus == AlgoBase::AlgoStatus::SUCCESS) {
-      msg->mType = AlgoBase::ALGO_PROCESSING_COMPLETED;
+  if (pCtx && pCtx->pEventHandlerThread) {
+    AlgoMessageType msgType;
+    AlgoStatus algoStatus = pCtx->GetAlgoStatus();
+    if (pCtx->GetAlgoStatus() == AlgoBase::AlgoStatus::SUCCESS) {
+      msgType = AlgoMessageType::ProcessingCompleted;
+    } else if (pCtx->GetAlgoStatus() == AlgoBase::AlgoStatus::TIMEOUT) {
+      msgType = AlgoMessageType::ProcessingTimeout;
     } else {
-      msg->mType = AlgoBase::ALGO_PROCESSING_FAILED;
+      msgType = AlgoMessageType::ProcessingFailed;
     }
-    pCtx->SetEvent(msg);
+
+    pCtx->SetEvent(std::make_shared<AlgoBase::AlgoCallbackMessage>(
+        msgType, algoStatus, task, pCtx->GetAlgoId()));
 
   } else {
-    LOG(ERROR, ALGOBASE, "pCtx is nullptr");
+    LOG(ERROR, ALGOBASE, "  pEventHandlerThread is nullptr");
   }
 }
 
@@ -149,7 +150,7 @@ void AlgoBase::EnqueueRequest(std::shared_ptr<Task_t> request) {
  * @param mEventCallbackThread
  */
 void AlgoBase::SetEventThread(
-    std::shared_ptr<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>
+    std::shared_ptr<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>
         mEventCallbackThread) {
   pEventHandlerThread = mEventCallbackThread;
 }
@@ -176,11 +177,11 @@ void AlgoBase::SetNextAlgo(std::weak_ptr<AlgoBase> nextAlgo) {
 std::weak_ptr<AlgoBase> AlgoBase::GetNextAlgo() { return mNextAlgo; }
 
 /**
- * @brief
+ * @brief Set Event Message
  *
  * @param msg
  */
-void AlgoBase::SetEvent(std::shared_ptr<ALGOCALLBACKMSG> msg) {
+void AlgoBase::SetEvent(std::shared_ptr<AlgoCallbackMessage> msg) {
   if (pEventHandlerThread) {
     pEventHandlerThread->SetEvent(msg);
   } else {

@@ -4,7 +4,6 @@
 
 #include <condition_variable>
 #include <functional>
-#include <iostream> //cout
 #include <memory>
 #include <mutex>
 #include <pthread.h>
@@ -18,6 +17,7 @@ public:
   EventHandlerThread(EventHandler handler, void *context)
       : mHandler(handler), mContext(context), mRunning(false) {
     pthread_create(&mPthread, nullptr, &EventHandlerThread::threadFunc, this);
+    pthread_setname_np(mPthread, "EventHandlerThread");
   }
 
   // Destructor
@@ -66,7 +66,6 @@ private:
       }
       if (event && self->mHandler) {
         self->mHandler(self->mContext, event);
-        // std::cout << "EVENT HANDLER CALLED" << std::endl;
       }
     }
     return nullptr;

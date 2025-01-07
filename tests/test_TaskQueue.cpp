@@ -1,6 +1,5 @@
 #include "TaskQueue.h"
 #include <gtest/gtest.h>
-#include <string>
 
 #define STRESS_CNT 100
 size_t gCallback = 0;

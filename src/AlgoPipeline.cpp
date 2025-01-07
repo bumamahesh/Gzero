@@ -8,11 +8,11 @@
  */
 AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
   mProcessedFrames = 0;
-  mState = ALGOPIPELINESTATE::INITIALISED;
+  mState = AlgoPipelineState::Initialised;
   this->pSesionCallBackHandler = pSesionCallBackHandler;
   this->pSessionCtx = pCtx;
   pEventHandlerThread =
-      std::make_shared<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>(
+      std::make_shared<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>(
           AlgoPipeline::NodeEventHandler, this);
 }
 
@@ -33,17 +33,17 @@ AlgoPipeline::~AlgoPipeline() {
 /**
  * @brief  Get state of Pipeline
  *
- * @return ALGOPIPELINESTATE
+ * @return AlgoPipelineState
  */
-ALGOPIPELINESTATE AlgoPipeline::GetState() const { return mState; }
+AlgoPipelineState AlgoPipeline::GetState() const { return mState; }
 
 /**
  * @brief  Set state of pipeline
  *
  * @param state
- * @return ALGOPIPELINESTATE
+ * @return AlgoPipelineState
  */
-ALGOPIPELINESTATE AlgoPipeline::SetState(ALGOPIPELINESTATE state) {
+AlgoPipelineState AlgoPipeline::SetState(AlgoPipelineState state) {
   mState = state;
   return mState;
 }
@@ -59,18 +59,18 @@ std::vector<AlgoId> AlgoPipeline::GetAlgoListId() const { return mAlgoListId; }
  * @brief  Configure Pipeline with Provided algo List
  *
  * @param algoList
- * @return ALGOPIPELINESTATE
+ * @return AlgoPipelineState
  */
-ALGOPIPELINESTATE
+AlgoPipelineState
 AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
 
   LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld",
       algoList.size());
 
-  if (GetState() == ALGOPIPELINESTATE::INITIALISED) {
+  if (GetState() == AlgoPipelineState::Initialised) {
     if (algoList.size() == 0) {
       LOG(ERROR, ALGOPIPELINE, "AlgoList is empty");
-      return SetState(FAILED_TO_CONFIGURE);
+      return SetState(AlgoPipelineState::FailedToConfigure);
     }
     mAlgoListId = algoList;
     mProcessedFrames = 0;
@@ -81,10 +81,9 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
     for (auto algoId : mAlgoListId) {
       auto algo = mAlgoNodeMgr->CreateAlgo(algoId);
       if (algo == nullptr) {
-        return SetState(FAILED_TO_CONFIGURE);
+        return SetState(AlgoPipelineState::FailedToConfigure);
       }
       algo->SetEventThread(pEventHandlerThread);
-      // algo->pPipelineCtx = (void *)this;
       mAlgos.push_back(algo);
       mAlgoListName.push_back(algo->GetAlgorithmName());
       if (previousAlgo) {
@@ -93,9 +92,10 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
       previousAlgo = algo;
       mAlgoMap[algoId] = algo;
     }
-    SetState(CONFIGURED_WITH_ID);
+    SetState(AlgoPipelineState::ConfiguredWithId);
   } else {
-    LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Configure");
+    LOG(ERROR, ALGOPIPELINE,
+        "AlgoPipeline is not Currect State to Configure ::%d", (int)GetState());
   }
   return GetState();
 }
@@ -104,17 +104,17 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
  * @brief  Configure Pipeline with Provided algo List
  *
  * @param algoList
- * @return ALGOPIPELINESTATE
+ * @return AlgoPipelineState
  */
-ALGOPIPELINESTATE
+AlgoPipelineState
 AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
 
   LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld",
       algoList.size());
-  if (GetState() == ALGOPIPELINESTATE::INITIALISED) {
+  if (GetState() == AlgoPipelineState::Initialised) {
     if (algoList.size() == 0) {
       LOG(ERROR, ALGOPIPELINE, "AlgoList is empty");
-      return SetState(FAILED_TO_CONFIGURE);
+      return SetState(AlgoPipelineState::FailedToConfigure);
     }
     mAlgoListName = algoList;
     mProcessedFrames = 0;
@@ -125,10 +125,9 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
     for (auto algoName : mAlgoListName) {
       auto algo = mAlgoNodeMgr->CreateAlgo(algoName);
       if (algo == nullptr) {
-        return SetState(FAILED_TO_CONFIGURE);
+        return SetState(AlgoPipelineState::FailedToConfigure);
       }
       algo->SetEventThread(pEventHandlerThread);
-      // algo->pPipelineCtx = (void *)this;
       mAlgos.push_back(algo);
       mAlgoListId.push_back(algo->GetAlgoId());
       if (previousAlgo) {
@@ -137,7 +136,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
       previousAlgo = algo;
       mAlgoMap[algo->GetAlgoId()] = algo;
     }
-    SetState(CONFIGURED_WITH_NAME);
+    SetState(AlgoPipelineState::ConfiguredWithName);
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Configure");
   }
@@ -155,7 +154,8 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
     // LOG(ERROR, ALGOPIPELINE, "No algos to process");
     return;
   }
-  if (GetState() == CONFIGURED_WITH_NAME || GetState() == CONFIGURED_WITH_ID) {
+  if (GetState() == AlgoPipelineState::ConfiguredWithName ||
+      GetState() == AlgoPipelineState::ConfiguredWithId) {
     std::shared_ptr<Task_t> task = std::make_shared<Task_t>();
     task->request = input;
     mAlgos[0]->EnqueueRequest(task);
@@ -171,7 +171,7 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
  * @param msg
  */
 void AlgoPipeline::NodeEventHandler(
-    void *ctx, std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+    void *ctx, std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
   assert(msg != nullptr);
   assert(ctx != nullptr);
   auto plPipeline = reinterpret_cast<AlgoPipeline *>(ctx);
@@ -180,7 +180,7 @@ void AlgoPipeline::NodeEventHandler(
   auto algo = plPipeline->mAlgoMap.at(msg->mAlgoId);
   assert(algo != nullptr);
   switch (msg->mType) {
-  case AlgoBase::ALGO_PROCESSING_COMPLETED: {
+  case AlgoBase::AlgoMessageType::ProcessingCompleted: {
     LOG(VERBOSE, ALGOPIPELINE, "Processing Completed");
     std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
     if (NextAlgo) {
@@ -200,15 +200,15 @@ void AlgoPipeline::NodeEventHandler(
   }
   /*kick next node */
   break;
-  case AlgoBase::ALGO_PROCESSING_FAILED:
+  case AlgoBase::AlgoMessageType::ProcessingFailed:
     LOG(ERROR, ALGOPIPELINE, "Processing Failed");
-    plPipeline->mState = FAILED_TO_PROCESS;
+    plPipeline->mState = AlgoPipelineState::FailedToProcess;
     break;
-  case AlgoBase::ALGO_PROCESSING_TIMEOUT:
+  case AlgoBase::AlgoMessageType::ProcessingTimeout:
     LOG(ERROR, ALGOPIPELINE, "Processing Timeout");
-    plPipeline->mState = FAILED_TO_PROCESS;
+    plPipeline->mState = AlgoPipelineState::FailedToProcess;
     break;
-  case AlgoBase::ALGO_PROCESSING_PARTIAL:
+  case AlgoBase::AlgoMessageType::ProcessingPartial:
     LOG(ERROR, ALGOPIPELINE, "Partial Processing");
     break;
   default:

@@ -46,10 +46,10 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   ASSERT_NE(algo, nullptr);
 
   auto callback = [](void *ctx,
-                     std::shared_ptr<AlgoBase::ALGOCALLBACKMSG> msg) {
+                     std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
     assert(msg != nullptr);
     switch (msg->mType) {
-    case AlgoBase::ALGO_PROCESSING_COMPLETED:
+    case AlgoBase::AlgoMessageType::ProcessingCompleted:
       break;
     default:
       assert(true);
@@ -57,8 +57,8 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
     }
   };
   auto eventHandler =
-      std::make_shared<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>(callback,
-                                                                      nullptr);
+      std::make_shared<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>(
+          callback, nullptr);
 
   algo->SetEventThread(eventHandler);
   /**/

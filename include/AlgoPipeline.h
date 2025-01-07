@@ -8,16 +8,16 @@
 #include <memory>
 #include <vector>
 
-typedef enum AlgoPipelineState {
-  NOT_INITIALISED = 0,
-  INITIALISED,
-  CONFIGURED_WITH_ID,
-  CONFIGURED_WITH_NAME,
-  INVALID_ALGO_LIST,
-  FAILED_TO_CONFIGURE,
-  SUCESSFULL,
-  FAILED_TO_PROCESS
-} ALGOPIPELINESTATE;
+enum class AlgoPipelineState {
+  NotInitialised = 0,
+  Initialised,
+  ConfiguredWithId,
+  ConfiguredWithName,
+  InvalidAlgoList,
+  FailedToConfigure,
+  Successful,
+  FailedToProcess
+};
 
 typedef void (*SESSIONCALLBACK)(void *cntx, std::shared_ptr<AlgoRequest> input);
 
@@ -27,17 +27,17 @@ public:
                void *pCtx = nullptr);
   ~AlgoPipeline();
 
-  ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<AlgoId> &algoList);
-  ALGOPIPELINESTATE ConfigureAlgoPipeline(std::vector<std::string> &algoList);
+  AlgoPipelineState ConfigureAlgoPipeline(std::vector<AlgoId> &algoList);
+  AlgoPipelineState ConfigureAlgoPipeline(std::vector<std::string> &algoList);
 
   void Process(std::shared_ptr<AlgoRequest> input);
   static void NodeEventHandler(void *,
-                               std::shared_ptr<AlgoBase::ALGOCALLBACKMSG>);
+                               std::shared_ptr<AlgoBase::AlgoCallbackMessage>);
   void WaitForQueueCompetion();
   size_t GetProcessedFrames() const;
 
-  ALGOPIPELINESTATE GetState() const;
-  ALGOPIPELINESTATE SetState(ALGOPIPELINESTATE state);
+  AlgoPipelineState GetState() const;
+  AlgoPipelineState SetState(AlgoPipelineState state);
 
   std::vector<AlgoId> GetAlgoListId() const;
 
@@ -53,8 +53,8 @@ private:
   std::unordered_map<AlgoId, std::shared_ptr<AlgoBase>> mAlgoMap;
 
   size_t mProcessedFrames = 0;
-  ALGOPIPELINESTATE mState = NOT_INITIALISED;
-  std::shared_ptr<EventHandlerThread<AlgoBase::ALGOCALLBACKMSG>>
+  AlgoPipelineState mState = AlgoPipelineState::NotInitialised;
+  std::shared_ptr<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>
       pEventHandlerThread;
 };
 #endif // ALGO_PIPELINE_H
