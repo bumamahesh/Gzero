@@ -24,7 +24,7 @@ AlgoPipeline::~AlgoPipeline() {
   for (auto &algo : mAlgos) {
     algo->WaitForQueueCompetion();
   }
-  // pEventHandlerThread->stop();
+  pEventHandlerThread->stop();
   mAlgos.clear();
   mAlgoListId.clear();
   mAlgoListName.clear();
@@ -92,6 +92,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
       previousAlgo = algo;
       mAlgoMap[algoId] = algo;
     }
+    previousAlgo->bIslastNode = true; // lets mark last  node
     SetState(AlgoPipelineState::ConfiguredWithId);
   } else {
     LOG(ERROR, ALGOPIPELINE,
@@ -136,6 +137,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
       previousAlgo = algo;
       mAlgoMap[algo->GetAlgoId()] = algo;
     }
+    previousAlgo->bIslastNode = true; // lets mark last  node
     SetState(AlgoPipelineState::ConfiguredWithName);
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Configure");
@@ -172,6 +174,9 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
  */
 void AlgoPipeline::NodeEventHandler(
     void *ctx, std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+  // static lockguard
+  static std::mutex mCallbackMutex;
+  std::lock_guard<std::mutex> lock(mCallbackMutex);
   assert(msg != nullptr);
   assert(ctx != nullptr);
   auto plPipeline = reinterpret_cast<AlgoPipeline *>(ctx);
@@ -181,25 +186,28 @@ void AlgoPipeline::NodeEventHandler(
   assert(algo != nullptr);
   switch (msg->mType) {
   case AlgoBase::AlgoMessageType::ProcessingCompleted: {
-    LOG(VERBOSE, ALGOPIPELINE, "Processing Completed");
+    /*some node */
     std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
     if (NextAlgo) {
       NextAlgo->EnqueueRequest(msg->mRequest);
-    } else {
-      std::shared_ptr<AlgoRequest> input = msg->mRequest->request;
-      /*we need to put the update on new thread for now this is last
-       node thread which hasupdated this info do not prpogare
-       furthure on this same thread , lets stop here and put loadf
-       on new thread which is of pipeline or session
-       */
-      if (plPipeline->pSesionCallBackHandler) {
-        plPipeline->pSesionCallBackHandler(plPipeline->pSessionCtx, input);
-      }
-      plPipeline->mProcessedFrames++;
     }
-  }
-  /*kick next node */
-  break;
+  } break;
+  case AlgoBase::AlgoMessageType::ProcessDone: {
+    /**last node  */
+    std::shared_ptr<AlgoRequest> Output = msg->mRequest->request;
+    if (Output) {
+      if (Output->mProcessCnt != plPipeline->mAlgos.size()) {
+        LOG(ERROR, ALGOPIPELINE, "Output is not complete");
+      }
+    }
+
+    LOG(VERBOSE, ALGOPIPELINE, "[%p][%6ld]Processing Completed", plPipeline,
+        plPipeline->mProcessedFrames);
+    if (plPipeline->pSesionCallBackHandler) {
+      plPipeline->pSesionCallBackHandler(plPipeline->pSessionCtx, Output);
+    }
+    plPipeline->mProcessedFrames++;
+  } break;
   case AlgoBase::AlgoMessageType::ProcessingFailed:
     LOG(ERROR, ALGOPIPELINE, "Processing Failed");
     plPipeline->mState = AlgoPipelineState::FailedToProcess;
@@ -234,3 +242,27 @@ void AlgoPipeline::WaitForQueueCompetion() {
  * @return size_t
  */
 size_t AlgoPipeline::GetProcessedFrames() const { return mProcessedFrames; }
+
+/**
+ * @brief Dump pipline info in Log
+ *
+ */
+void AlgoPipeline::Dump() {
+  if (mAlgos.size() == 0) {
+    LOG(VERBOSE, ALGOPIPELINE, "No algos to dump");
+    return;
+  }
+
+  LOG(VERBOSE, ALGOPIPELINE, "--------AlgoPipeline Dump[%p]--------", this);
+  LOG(VERBOSE, ALGOPIPELINE, "Number of Algos: %ld", mAlgos.size());
+  for (auto algo : mAlgos) {
+    LOG(VERBOSE, ALGOPIPELINE, "Algo ID: %x", (unsigned int)algo->GetAlgoId());
+    LOG(VERBOSE, ALGOPIPELINE, "Algo Name: %s",
+        algo->GetAlgorithmName().c_str());
+    LOG(VERBOSE, ALGOPIPELINE, "Algo State: %s",
+        algo->GetStatusString().c_str());
+  }
+  LOG(VERBOSE, ALGOPIPELINE, "Processed Frames: %ld", mProcessedFrames);
+  LOG(VERBOSE, ALGOPIPELINE, "--------Pipeline State: %d--------",
+      (int)GetState());
+}

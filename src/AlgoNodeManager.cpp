@@ -63,6 +63,7 @@ AlgoNodeManager::AlgoNodeManager() {
  *
  */
 AlgoNodeManager::~AlgoNodeManager() {
+  mIdLoaderMap.clear();
   mIdToAlgoNameMap.clear();
   mSharedLibrariesPath.clear();
   mIdLoaderMap.clear();

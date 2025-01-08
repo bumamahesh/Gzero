@@ -3,8 +3,8 @@
 
 #include "AlgoPipeline.h"
 #include <memory>
+#include <mutex>
 #include <vector>
-
 typedef void (*INTERFACECALLBACK)(void *pctx,
                                   std::shared_ptr<AlgoRequest> input);
 class AlgoSession {
@@ -26,6 +26,9 @@ public:
   std::shared_ptr<AlgoPipeline> SessionGetPipeline(size_t pipelineId);
   INTERFACECALLBACK pInterfaceCallBackHandler = nullptr;
   void *pInterfaceCtx = nullptr;
+  mutable std::mutex mCallbackMutex;
+
+  void Dump();
 
 private:
   std::vector<std::shared_ptr<AlgoPipeline>> mPipelines;

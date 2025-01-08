@@ -40,6 +40,9 @@ std::ostream &operator<<(std::ostream &os, const LogLevel &level) {
   case LogLevel::L_FATAL:
     os << "FATAL";
     break;
+  case LogLevel::L_VERBOSE:
+    os << "VERBOSE";
+    break;
   default:
     os << "UNKNOWN";
     break;
@@ -48,7 +51,7 @@ std::ostream &operator<<(std::ostream &os, const LogLevel &level) {
 }
 
 // Log class static member definition and implementation
-LogLevel Log::logLevel = LogLevel::L_WARNING; // Initialize static member
+LogLevel Log::logLevel = LogLevel::L_DEBUG; // Initialize static member
 
 void Log::SetLevel(LogLevel level) { logLevel = level; }
 

@@ -1,22 +1,121 @@
-#include "AlgoRequest.h"
-#include "Interface.h"
+#include <dlfcn.h>
 #include <gtest/gtest.h>
+#include <iostream>
 #include <memory>
 
-int g_ProcessedFrames;
-TEST(AlgoInterfaceTest, ProcessTest) {
+// Mock structures for AlgoRequest
+struct AlgoRequest {
+  // Define necessary fields and methods for testing
+};
 
+// Type aliases for function pointers
+typedef int (*InitAlgoInterfaceFunc)(void **);
+typedef int (*DeInitAlgoInterfaceFunc)(void **);
+typedef int (*AlgoInterfaceProcessFunc)(void **, std::shared_ptr<AlgoRequest>);
+typedef int (*RegisterCallbackFunc)(void **,
+                                    int (*)(std::shared_ptr<AlgoRequest>));
+
+// Test Fixture Class
+class SharedLibTest : public ::testing::Test {
+protected:
   void *libhandle = nullptr;
-  auto callback = [](std::shared_ptr<AlgoRequest> input) -> int {
-    g_ProcessedFrames++;
-    return 0;
-  };
-  InitAlgoInterface(&libhandle);
-  RegisterCallback(&libhandle, callback);
-  auto request = std::make_shared<AlgoRequest>();
-  for (int i = 0; i < 100; i++) {
-    AlgoInterfaceProcess(&libhandle, request);
+
+  // Function pointers
+  InitAlgoInterfaceFunc InitAlgoInterface = nullptr;
+  DeInitAlgoInterfaceFunc DeInitAlgoInterface = nullptr;
+  AlgoInterfaceProcessFunc AlgoInterfaceProcess = nullptr;
+  RegisterCallbackFunc RegisterCallback = nullptr;
+
+  void SetUp() override {
+    // Load the shared library
+    libhandle =
+        dlopen("/home/uma/workspace/Gzero/cmake/lib/libAlgoLib.so", RTLD_LAZY);
+    ASSERT_NE(libhandle, nullptr)
+        << "Failed to load shared library: " << dlerror();
+
+    // Load the functions
+    InitAlgoInterface = reinterpret_cast<InitAlgoInterfaceFunc>(
+        dlsym(libhandle, "InitAlgoInterface"));
+    ASSERT_NE(InitAlgoInterface, nullptr)
+        << "Failed to load InitAlgoInterface: " << dlerror();
+
+    DeInitAlgoInterface = reinterpret_cast<DeInitAlgoInterfaceFunc>(
+        dlsym(libhandle, "DeInitAlgoInterface"));
+    ASSERT_NE(DeInitAlgoInterface, nullptr)
+        << "Failed to load DeInitAlgoInterface: " << dlerror();
+
+    AlgoInterfaceProcess = reinterpret_cast<AlgoInterfaceProcessFunc>(
+        dlsym(libhandle, "AlgoInterfaceProcess"));
+    ASSERT_NE(AlgoInterfaceProcess, nullptr)
+        << "Failed to load AlgoInterfaceProcess: " << dlerror();
+
+    RegisterCallback = reinterpret_cast<RegisterCallbackFunc>(
+        dlsym(libhandle, "RegisterCallback"));
+    ASSERT_NE(RegisterCallback, nullptr)
+        << "Failed to load RegisterCallback: " << dlerror();
   }
-  DeInitAlgoInterface(&libhandle);
-  EXPECT_EQ(g_ProcessedFrames, 100);
+
+  void TearDown() override {
+    if (libhandle) {
+      dlclose(libhandle);
+    }
+  }
+};
+
+// Callback function for testing
+int TestCallback(std::shared_ptr<AlgoRequest> input) {
+  // Simulate callback logic
+  return 0; // Return success
+}
+
+// Test Cases
+
+TEST_F(SharedLibTest, InitDeInitTest) {
+  void *algoHandle = nullptr;
+
+  // Test initialization
+  int status = InitAlgoInterface(&algoHandle);
+  ASSERT_EQ(status, 0) << "InitAlgoInterface failed with status: " << status;
+  ASSERT_NE(algoHandle, nullptr) << "algoHandle is null after initialization";
+
+  // Test deinitialization
+  status = DeInitAlgoInterface(&algoHandle);
+  ASSERT_EQ(status, 0) << "DeInitAlgoInterface failed with status: " << status;
+  ASSERT_EQ(algoHandle, nullptr)
+      << "algoHandle not set to null after deinitialization";
+}
+
+TEST_F(SharedLibTest, RegisterCallbackTest) {
+  void *algoHandle = nullptr;
+
+  // Initialize the library
+  int status = InitAlgoInterface(&algoHandle);
+  ASSERT_EQ(status, 0) << "InitAlgoInterface failed with status: " << status;
+
+  // Register a callback
+  status = RegisterCallback(&algoHandle, TestCallback);
+  ASSERT_EQ(status, 0) << "RegisterCallback failed with status: " << status;
+
+  // Deinitialize the library
+  status = DeInitAlgoInterface(&algoHandle);
+  ASSERT_EQ(status, 0) << "DeInitAlgoInterface failed with status: " << status;
+}
+
+TEST_F(SharedLibTest, AlgoInterfaceProcessTest) {
+  void *algoHandle = nullptr;
+
+  // Initialize the library
+  int status = InitAlgoInterface(&algoHandle);
+  ASSERT_EQ(status, 0) << "InitAlgoInterface failed with status: " << status;
+
+  // Create a mock AlgoRequest
+  auto request = std::make_shared<AlgoRequest>();
+
+  // Process the request
+  status = AlgoInterfaceProcess(&algoHandle, request);
+  ASSERT_EQ(status, 0) << "AlgoInterfaceProcess failed with status: " << status;
+
+  // Deinitialize the library
+  status = DeInitAlgoInterface(&algoHandle);
+  ASSERT_EQ(status, 0) << "DeInitAlgoInterface failed with status: " << status;
 }

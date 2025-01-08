@@ -29,8 +29,9 @@ public:
     ProcessingCompleted, // A generic processing completion
     ProcessingFailed,    // Processing failed
     ProcessingTimeout,   // Processing timed out
-    ProcessingPartial    // An intermediate processing step completed (not the
+    ProcessingPartial,   // An intermediate processing step completed (not the
                          // last)
+    ProcessDone          // All nodes are done Processing
   };
 
   typedef struct AlgoCallbackMessage {
@@ -70,6 +71,7 @@ public:
   void SetNextAlgo(std::weak_ptr<AlgoBase>);
   std::weak_ptr<AlgoBase> GetNextAlgo();
   void SetEvent(std::shared_ptr<AlgoCallbackMessage> msg);
+  bool bIslastNode = false;
 
 protected:
   AlgorithmOperations mAlgoOperations;

@@ -6,6 +6,7 @@
  *
  */
 AlgoInterface::AlgoInterface() {
+  Log::SetLevel(LogLevel::L_VERBOSE);
   mSession = std::make_shared<AlgoSession>(
       AlgoInterface::SessionCallbackHandler, this);
 }
@@ -27,6 +28,7 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request) {
 
   if (mSession) {
     mSession->SessionProcess(request);
+    mSession->Dump();
   } else {
     LOG(ERROR, ALGOINTERFACE, "mSession is nullptr");
   }

@@ -27,17 +27,29 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
   if (pCtx && pCtx->pEventHandlerThread) {
     AlgoMessageType msgType;
     AlgoStatus algoStatus = pCtx->GetAlgoStatus();
+    if (task->request) {
+      /*we have done processing the request on node so increment count*/
+      task->request->mProcessCnt++;
+    }
     if (pCtx->GetAlgoStatus() == AlgoBase::AlgoStatus::SUCCESS) {
       msgType = AlgoMessageType::ProcessingCompleted;
+      if (pCtx->bIslastNode) {
+        msgType = AlgoMessageType::ProcessDone;
+      }
     } else if (pCtx->GetAlgoStatus() == AlgoBase::AlgoStatus::TIMEOUT) {
       msgType = AlgoMessageType::ProcessingTimeout;
     } else {
       msgType = AlgoMessageType::ProcessingFailed;
     }
 
+    if ((msgType != AlgoMessageType::ProcessingCompleted) &&
+        (msgType != AlgoMessageType::ProcessDone)) {
+      LOG(ERROR, ALGOBASE, "Somerthing Worong in Node::%s",
+          pCtx->GetStatusString().c_str());
+    }
+
     pCtx->SetEvent(std::make_shared<AlgoBase::AlgoCallbackMessage>(
         msgType, algoStatus, task, pCtx->GetAlgoId()));
-
   } else {
     LOG(ERROR, ALGOBASE, "  pEventHandlerThread is nullptr");
   }

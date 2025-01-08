@@ -44,6 +44,8 @@ public:
   SESSIONCALLBACK pSesionCallBackHandler = nullptr;
   void *pSessionCtx = nullptr;
 
+  void Dump();
+
 private:
   AlgoNodeManager *mAlgoNodeMgr = nullptr;
   std::vector<std::shared_ptr<AlgoBase>> mAlgos;

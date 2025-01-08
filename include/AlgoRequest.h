@@ -44,6 +44,10 @@ public:
 
   // Destructor
   ~AlgoRequest() = default;
+
+  size_t mProcessCnt = 0;
+
+private:
 };
 
 #endif // ALGO_REQUEST_H

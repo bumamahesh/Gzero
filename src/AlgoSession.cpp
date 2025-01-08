@@ -206,11 +206,24 @@ AlgoSession::SessionGetPipeline(size_t pipelineId) {
  */
 void AlgoSession::PiplineCallBackHandler(void *pctx,
                                          std::shared_ptr<AlgoRequest> input) {
-  /**multiple pipline can call this so handle with mutex */
   AlgoSession *pSession = static_cast<AlgoSession *>(pctx);
   if (pSession) {
     if (pSession && pSession->pInterfaceCallBackHandler) {
+      std::lock_guard<std::mutex> lock(pSession->mCallbackMutex);
       pSession->pInterfaceCallBackHandler(pSession->pInterfaceCtx, input);
     }
+  }
+}
+
+/**
+ * @brief Dump Session Info in logs
+ *
+ */
+void AlgoSession::Dump() {
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession Dump");
+  LOG(VERBOSE, ALGOSESSION, "Number of Pipelines: %ld", mPipelines.size());
+  for (size_t i = 0; i < mPipelines.size(); ++i) {
+    LOG(VERBOSE, ALGOSESSION, "Pipeline ID: %ld::%p", i, mPipelines[i].get());
+    mPipelines[i]->Dump();
   }
 }
