@@ -64,8 +64,8 @@ std::vector<AlgoId> AlgoPipeline::GetAlgoListId() const { return mAlgoListId; }
 AlgoPipelineState
 AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
 
-  LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld",
-      algoList.size());
+  // LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld",
+  //     algoList.size());
 
   if (GetState() == AlgoPipelineState::Initialised) {
     if (algoList.size() == 0) {
@@ -160,7 +160,19 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
       GetState() == AlgoPipelineState::ConfiguredWithId) {
     std::shared_ptr<Task_t> task = std::make_shared<Task_t>();
     task->request = input;
+    {
+      std::lock_guard<std::mutex> lock(mRequesteMapMutex);
+      if (mRequesteMap.find(input->mRequestId) == mRequesteMap.end()) {
+        LOG(VERBOSE, ALGOPIPELINE, "Added for Processing  Request ID: %d::%p",
+            input->mRequestId, input.get());
+        mRequesteMap.insert({input->mRequestId, input});
+      } else {
+        LOG(ERROR, ALGOPIPELINE, "Error Duplicate Request ID: %d::%p",
+            input->mRequestId, input.get());
+      }
+    }
     mAlgos[0]->EnqueueRequest(task);
+
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Process");
   }
@@ -184,9 +196,14 @@ void AlgoPipeline::NodeEventHandler(
   assert(plPipeline->mAlgoMap.find(msg->mAlgoId) != plPipeline->mAlgoMap.end());
   auto algo = plPipeline->mAlgoMap.at(msg->mAlgoId);
   assert(algo != nullptr);
+  LOG(VERBOSE, ALGOPIPELINE, "NodeEventHandler:: [%d][%ld::%ld] Event:: %d",
+      msg->mRequest->request->mRequestId, msg->mRequest->request->mProcessCnt,
+      plPipeline->mAlgoMap.size(), (int)msg->mType);
   switch (msg->mType) {
   case AlgoBase::AlgoMessageType::ProcessingCompleted: {
     /*some node */
+    // LOG(VERBOSE, ALGOPIPELINE, "Node Processing Completed:: %d by node %s",
+    //    msg->mRequest->request->mRequestId, algo->GetAlgorithmName().c_str());
     std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
     if (NextAlgo) {
       NextAlgo->EnqueueRequest(msg->mRequest);
@@ -201,8 +218,25 @@ void AlgoPipeline::NodeEventHandler(
       }
     }
 
-    LOG(VERBOSE, ALGOPIPELINE, "[%p][%6ld]Processing Completed", plPipeline,
-        plPipeline->mProcessedFrames);
+    {
+      /*request is processed remove from request Quew*/
+      std::lock_guard<std::mutex> lock(plPipeline->mRequesteMapMutex);
+      auto callbackRequestId = msg->mRequest->request->mRequestId;
+      if (plPipeline->mRequesteMap.find(callbackRequestId) !=
+          plPipeline->mRequesteMap.end()) {
+        LOG(VERBOSE, ALGOPIPELINE,
+            "[%p][%6ld]Processing Completed for Request ID: %d::%p ",
+            plPipeline, plPipeline->mProcessedFrames, callbackRequestId,
+            Output.get());
+        // Remove processed request
+        plPipeline->mRequesteMap.erase(callbackRequestId);
+      } else {
+        LOG(ERROR, ALGOPIPELINE, "Request not present is Q Fatal ::%d",
+            callbackRequestId);
+      }
+      plPipeline->mCondition.notify_all(); // Notify waiting threads
+    }
+
     if (plPipeline->pSesionCallBackHandler) {
       plPipeline->pSesionCallBackHandler(plPipeline->pSessionCtx, Output);
     }
@@ -231,9 +265,34 @@ void AlgoPipeline::NodeEventHandler(
  */
 void AlgoPipeline::WaitForQueueCompetion() {
 
-  for (auto &algo : mAlgos) {
-    algo->WaitForQueueCompetion();
+  const std::chrono::milliseconds timeoutDuration(100);
+  int statsTimeout = 0;
+  std::unique_lock<std::mutex> lock(mRequesteMapMutex);
+
+  while (!mRequesteMap.empty()) {
+    if (mCondition.wait_for(lock, timeoutDuration,
+                            [this]() { return mRequesteMap.empty(); })) {
+      break;
+    }
+    statsTimeout++;
+    if (statsTimeout > 10) {
+      for (auto req : mRequesteMap) {
+        LOG(ERROR, ALGOPIPELINE,
+            " [%ld]Pending Request ID::%d Node Completed::%ld", mAlgoMap.size(),
+            req.first, req.second->mProcessCnt);
+      }
+      statsTimeout = 0;
+    }
+    std::cout << "Waiting... " << mRequesteMap.size()
+              << " requests still pending.\n";
   }
+
+  /*
+    for (auto &algo : mAlgos) {
+
+      algo->WaitForQueueCompetion();
+    }
+    */
 }
 
 /**

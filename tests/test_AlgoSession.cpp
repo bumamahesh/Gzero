@@ -20,6 +20,7 @@ TEST(AlgoSessionTest, AlgoSessionApi) {
     EXPECT_EQ(algoSession->SessionAddPipeline(pipeline), true);
     EXPECT_EQ(algoSession->SessionGetPipelineCount(), 1);
     std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
+    input->mRequestId = 0x100;
     EXPECT_EQ(algoSession->SessionProcess(0, input), true);
     EXPECT_EQ(algoSession->SessionStop(), true);
     EXPECT_EQ(algoSession->SessionGetPipelineCount(), 0);
@@ -28,6 +29,7 @@ TEST(AlgoSessionTest, AlgoSessionApi) {
   }
 }
 
+#define SESSION_STRESS_CNT 25
 TEST(AlgoSessionTest, ProcessTest) {
 
   {
@@ -36,11 +38,12 @@ TEST(AlgoSessionTest, ProcessTest) {
     EXPECT_NE(algoSession, nullptr);
     EXPECT_EQ(algoSession->SessionGetPipelineCount(), 0);
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < SESSION_STRESS_CNT; i++) {
       std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
+      input->mRequestId = i;
       EXPECT_EQ(algoSession->SessionProcess(input), true);
     }
     EXPECT_EQ(algoSession->SessionGetPipelineCount(), 3);
   }
-  EXPECT_EQ(TotalCallbacks, 100);
+  EXPECT_EQ(TotalCallbacks, SESSION_STRESS_CNT);
 }

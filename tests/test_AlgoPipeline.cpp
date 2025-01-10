@@ -1,6 +1,7 @@
 #include "AlgoPipeline.h" // Include the header file for your class
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <mutex>
 #define STRESS_CNT 10000
 
 // Test fixture
@@ -34,6 +35,8 @@ TEST_F(AlgoPipelineTest, Processtest) {
   std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
 
   auto pipelineCallback = [](void *ctx, std::shared_ptr<AlgoRequest> input) {
+    static std::mutex cbmux;
+    std::lock_guard<std::mutex> lock(cbmux);
     ProcessedFrame++;
   };
   ProcessedFrame = 0;
@@ -45,6 +48,7 @@ TEST_F(AlgoPipelineTest, Processtest) {
 
   for (int i = 0; i < STRESS_CNT; i++) {
     std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
+    input->mRequestId = i;
     algoPipeline->Process(input);
   }
 
@@ -66,6 +70,7 @@ TEST_F(AlgoPipelineTest, ProcesstestFail) {
   EXPECT_EQ(algoPipeline->GetState(), AlgoPipelineState::FailedToConfigure);
 
   std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
+  input->mRequestId = 0x100;
   algoPipeline->Process(input);
 
   algoPipeline->WaitForQueueCompetion();

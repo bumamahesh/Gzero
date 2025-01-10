@@ -46,6 +46,7 @@ public:
   ~AlgoRequest() = default;
 
   size_t mProcessCnt = 0;
+  int mRequestId; /*request id assoisiated*/
 
 private:
 };

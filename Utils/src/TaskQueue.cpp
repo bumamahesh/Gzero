@@ -120,7 +120,7 @@ void TaskQueue::WaitForQueueCompetion() {
   std::unique_lock<std::mutex> lock(mTaskQMux);
   while (!mTaskQueue.empty() || bIsRunning.load()) {
     // Wait with a timeout
-    if (mConditionVar.wait_for(lock, std::chrono::milliseconds(100), [&]() {
+    if (mConditionVar.wait_for(lock, std::chrono::milliseconds(200), [&]() {
           return mTaskQueue.empty() && bIsRunning.load();
         })) {
       // If the condition is satisfied, exit the loop

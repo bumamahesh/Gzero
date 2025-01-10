@@ -46,6 +46,11 @@ public:
 
   void Dump();
 
+  size_t mProcessedFrames = 0;
+  std::mutex mRequesteMapMutex;
+  std::condition_variable mCondition;
+  std::unordered_map<int, std::shared_ptr<AlgoRequest>> mRequesteMap;
+
 private:
   AlgoNodeManager *mAlgoNodeMgr = nullptr;
   std::vector<std::shared_ptr<AlgoBase>> mAlgos;
@@ -54,7 +59,6 @@ private:
   std::vector<std::string> mAlgoListName;
   std::unordered_map<AlgoId, std::shared_ptr<AlgoBase>> mAlgoMap;
 
-  size_t mProcessedFrames = 0;
   AlgoPipelineState mState = AlgoPipelineState::NotInitialised;
   std::shared_ptr<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>
       pEventHandlerThread;
