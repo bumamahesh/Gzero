@@ -6,7 +6,7 @@
  *
  */
 AlgoInterface::AlgoInterface() {
-  Log::SetLevel(LogLevel::L_INFO);
+  Log::SetLevel(LogLevel::L_DEBUG);
   mSession = std::make_shared<AlgoSession>(
       AlgoInterface::SessionCallbackHandler, this);
 }

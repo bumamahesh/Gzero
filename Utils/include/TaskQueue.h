@@ -39,6 +39,11 @@ public:
   // Stop the worker thread
   void StopWorkerThread();
 
+  /*for tracking/debug */
+  size_t mEnQRequestSize = 0;
+  size_t mProcessSize = 0;
+  size_t mCallbackSize = 0;
+
 private:
   // Internal worker thread function
   static void *WorkerThreadFuction(void *arg);

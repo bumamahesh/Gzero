@@ -9,7 +9,7 @@
 void *TaskQueue::WorkerThreadFuction(void *arg) {
 
   TaskQueue *pTaskQObj = static_cast<TaskQueue *>(arg);
-  LOG(INFO, TASKQUEUE, "Worker thread Launched .....");
+  LOG(VERBOSE, TASKQUEUE, "Worker thread Launched .....");
   assert(pTaskQObj != nullptr);
   assert(pTaskQObj->pExecute != nullptr);
   pTaskQObj->bIsRunning = true;
@@ -26,6 +26,11 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
 
       if (!pTaskQObj->bIsRunning.load()) {
         // Exit the thread if the stop signal is received
+        if (!pTaskQObj->mTaskQueue.empty()) {
+          LOG(ERROR, TASKQUEUE,
+              "TaskQueue has  %ld task pending But still Exiting ...",
+              pTaskQObj->mTaskQueue.size());
+        }
         break;
       }
       //  Get the next task from the queue
@@ -39,12 +44,19 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
     /*Process is here */
     if (pTaskQObj->pExecute) {
       pTaskQObj->pExecute(pTaskQObj->pTaskCtx, task);
+      pTaskQObj->mProcessSize++;
+    } else {
+      LOG(ERROR, TASKQUEUE, "pExecute is nullptr");
     }
     if (pTaskQObj->pCallback) {
       pTaskQObj->pCallback(pTaskQObj->pTaskCtx, task);
+      pTaskQObj->mCallbackSize++;
+    } else {
+      LOG(ERROR, TASKQUEUE, "pCallback is nullptr");
     }
   }
-  LOG(INFO, TASKQUEUE, "Worker thread exiting");
+  LOG(VERBOSE, TASKQUEUE, "Worker thread exiting %ld ",
+      pTaskQObj->mTaskQueue.size());
   return nullptr;
 }
 
@@ -105,6 +117,7 @@ void TaskQueue::Enqueue(std::shared_ptr<Task_t> payload) {
     std::unique_lock<std::mutex> lock(mTaskQMux);
     // Lock acquired, add the payload
     mTaskQueue.push(payload);
+    mEnQRequestSize++;
   }
 
   // Notify the worker thread that a new task is available
@@ -121,12 +134,16 @@ void TaskQueue::WaitForQueueCompetion() {
   while (!mTaskQueue.empty() || bIsRunning.load()) {
     // Wait with a timeout
     if (mConditionVar.wait_for(lock, std::chrono::milliseconds(200), [&]() {
-          return mTaskQueue.empty() && bIsRunning.load();
+          // return mTaskQueue.empty() && bIsRunning.load();
+          return (mEnQRequestSize == mProcessSize) && bIsRunning.load();
         })) {
       // If the condition is satisfied, exit the loop
       break;
     }
   }
+  LOG(VERBOSE, TASKQUEUE, "mTaskQueue size ::%ld %ld %ld %ld %d",
+      mTaskQueue.size(), mEnQRequestSize, mProcessSize, mCallbackSize,
+      (int)bIsRunning.load());
 }
 
 /**
