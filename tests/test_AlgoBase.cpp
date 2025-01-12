@@ -30,7 +30,7 @@ public:
    * @brief Process the algorithm, simulating input validation.
    * @return Status of the operation.
    */
-  AlgoStatus Process() override {
+  AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
     // usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::SUCCESS);
     return GetAlgoStatus();
@@ -140,7 +140,7 @@ public:
    * @brief Process the algorithm, simulating input validation.
    * @return Status of the operation.
    */
-  AlgoStatus Process() override {
+  AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
 
     // usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::INTERNAL_ERROR);

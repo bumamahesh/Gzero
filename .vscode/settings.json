@@ -65,6 +65,9 @@
         "future": "cpp",
         "bitset": "cpp",
         "codecvt": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "complex": "cpp",
+        "fstream": "cpp",
+        "filesystem": "cpp"
     }
 }

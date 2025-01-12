@@ -3,6 +3,8 @@
 
 #include "AlgoBase.h"
 
+const char *BOKEH_NAME = "BokehAlgorithm";
+
 /**
  * @brief BokehAlgorithm class derived from AlgoBase to perform BOKEH-specific
  * operations.
@@ -30,7 +32,7 @@ public:
    * @brief Process the BOKEH algorithm, simulating BOKEH computation.
    * @return Status of the operation.
    */
-  AlgoStatus Process() override;
+  AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override;
 
   /**
    * @brief Close the BOKEH algorithm, simulating cleanup.

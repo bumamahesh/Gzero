@@ -46,15 +46,20 @@ AlgoNodeManager::AlgoNodeManager() {
     LOG(ERROR, ALGOMANAGER, "Error initializing AlgoNodeManager: %s", e.what());
   }
 
+  mIdLoaderMap.clear();
+  mIdToAlgoNameMap.clear();
   /* retrive algo id and name and save , algo objects are not created here */
   for (auto &lib : mSharedLibrariesPath) {
-    auto pAlgoLoader = std::make_shared<AlgoLibraryLoader>(lib);
-    if (pAlgoLoader) {
+    // LOG(VERBOSE, ALGOMANAGER, "E Loading library: %s", lib.c_str());
+    std::shared_ptr<AlgoLibraryLoader> pAlgoLoader =
+        std::make_shared<AlgoLibraryLoader>(lib);
+    if (pAlgoLoader.get() != nullptr) {
       auto algo = pAlgoLoader->GetAlgoMethod();
       mIdToAlgoNameMap[pAlgoLoader->GetAlgoId()] =
           pAlgoLoader->GetAlgorithmName();
       mIdLoaderMap[pAlgoLoader->GetAlgoId()] = pAlgoLoader;
     }
+    // LOG(VERBOSE, ALGOMANAGER, "X Loading library: %s", lib.c_str());
   }
 }
 
@@ -63,10 +68,18 @@ AlgoNodeManager::AlgoNodeManager() {
  *
  */
 AlgoNodeManager::~AlgoNodeManager() {
-  mIdLoaderMap.clear();
-  mIdToAlgoNameMap.clear();
+  // LOG(ERROR, ALGOMANAGER, "~AlgoNodeManager");
+
+  // Clear other containers
+  mAlgoMap.clear();
   mSharedLibrariesPath.clear();
-  mIdLoaderMap.clear();
+  mIdToAlgoNameMap.clear();
+
+  // Explicitly clear and release resources before destruction
+  for (auto &entry : mIdLoaderMap) {
+    entry.second.reset(); // Reset shared pointers to ensure proper cleanup
+  }
+  mIdLoaderMap.clear(); // Clear the map after releasing resources
 }
 
 /**

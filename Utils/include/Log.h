@@ -35,12 +35,11 @@ enum class LogLevel {
 #define ALGOINTERFACE "ALGOINTERFACE"
 #define ALGOTIMER "ALGOTIMER"
 #define WATCHDOG "WATCHDOG"
+#define KPI "KPI"
 
 // Function declarations
 std::string getCurrentTime();
 std::string getCurrentThreadId();
-int getCurrentLineNumber();
-
 // Macro to log message with log component, log level, and variable parameters
 #define LOG(level, component, fmt, ...)                                        \
   do {                                                                         \
@@ -50,7 +49,8 @@ int getCurrentLineNumber();
       std::stringstream ss;                                                    \
       ss << "[" << getCurrentTime() << "]"                                     \
          << "[" << component << "]"                                            \
-         << "[" << getCurrentLineNumber() << "]"                               \
+         << "[" << __func__ << "]"                                             \
+         << "[" << __LINE__ << "]"                                             \
          << "[" << getCurrentThreadId() << "] " << buffer << std::endl;        \
       std::cerr << ss.str();                                                   \
     }                                                                          \

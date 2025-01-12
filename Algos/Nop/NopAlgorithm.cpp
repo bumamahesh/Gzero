@@ -28,13 +28,12 @@ AlgoBase::AlgoStatus NopAlgorithm::Open() {
   return GetAlgoStatus();
 }
 
-// static int i = 0;
 /**
  * @brief Process the Nop algorithm, simulating input validation and Nop
  * computation.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus NopAlgorithm::Process() {
+AlgoBase::AlgoStatus NopAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -70,4 +69,4 @@ extern "C" AlgoId GetAlgoId() { return ALGO_NOP; }
 @brief Get the algorithm name.
  *
  */
-extern "C" std::string GetAlgorithmName() { return NOP_NAME; }
+extern "C" const char *GetAlgorithmName() { return NOP_NAME; }

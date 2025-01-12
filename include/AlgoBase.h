@@ -2,7 +2,9 @@
 #define ALGO_BASE_H
 
 #include "AlgoDefs.h"
+#include "AlgoRequest.h"
 #include "EventHandlerThread.h"
+#include "KpiMonitor.h"
 #include "TaskQueue.h"
 #include <memory>
 #include <pthread.h>
@@ -22,7 +24,8 @@ public:
     OUT_OF_MEMORY = 8,
     PERMISSION_DENIED = 9,
     NOT_SUPPORTED = 10,
-    INTERNAL_ERROR = 11
+    INTERNAL_ERROR = 11,
+    FAILURE
   };
 
   enum class AlgoMessageType {
@@ -51,12 +54,12 @@ public:
   // Constructors
   AlgoBase();
   // Constructor
-  explicit AlgoBase(const std::string &);
+  explicit AlgoBase(const char *name);
   // Destructor
   virtual ~AlgoBase();
   // Public member functions
   virtual AlgoStatus Open() = 0;
-  virtual AlgoStatus Process() = 0;
+  virtual AlgoStatus Process(std::shared_ptr<AlgoRequest> req) = 0;
   virtual AlgoStatus Close() = 0;
   void StopAlgoThread();
   AlgoStatus GetAlgoStatus() const;

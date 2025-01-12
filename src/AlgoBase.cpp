@@ -10,7 +10,8 @@ void AlgoBase::ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task) {
   assert(task != nullptr);
   assert(Ctx != nullptr);
   auto pCtx = static_cast<AlgoBase *>(Ctx);
-  AlgoBase::AlgoStatus rc = pCtx->Process();
+  std::shared_ptr<AlgoRequest> req = task->request;
+  AlgoBase::AlgoStatus rc = pCtx->Process(req);
   pCtx->SetStatus(rc);
 }
 
@@ -27,9 +28,14 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
   if (pCtx && pCtx->pEventHandlerThread) {
     AlgoMessageType msgType;
     AlgoStatus algoStatus = pCtx->GetAlgoStatus();
-    if (task->request) {
-      /*we have done processing the request on node so increment count*/
-      task->request->mProcessCnt++;
+    try {
+      if (task->request) {
+        task->request->mProcessCnt++;
+      }
+    } catch (const std::exception &e) {
+      LOG(ERROR, ALGOBASE, "Exception while accessing mProcessCnt: %s",
+          e.what());
+      return;
     }
     if (pCtx->GetAlgoStatus() == AlgoBase::AlgoStatus::SUCCESS) {
       msgType = AlgoMessageType::ProcessingCompleted;
@@ -42,11 +48,11 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
       msgType = AlgoMessageType::ProcessingFailed;
     }
 
-    if ((msgType != AlgoMessageType::ProcessingCompleted) &&
-        (msgType != AlgoMessageType::ProcessDone)) {
-      LOG(ERROR, ALGOBASE, "Somerthing Worong in Node::%s",
-          pCtx->GetStatusString().c_str());
-    }
+    /* if ((msgType != AlgoMessageType::ProcessingCompleted) &&
+         (msgType != AlgoMessageType::ProcessDone)) {
+       LOG(DEBUG, ALGOBASE, "Somerthing Worong in Node::%s",
+           pCtx->GetStatusString().c_str());
+     }*/
 
     pCtx->SetEvent(std::make_shared<AlgoBase::AlgoCallbackMessage>(
         msgType, algoStatus, task, pCtx->GetAlgoId()));
@@ -70,8 +76,9 @@ AlgoBase::AlgoBase() {
  *
  * @param name
  */
-AlgoBase::AlgoBase(const std::string &name)
-    : mAlgoOperations{name, nullptr}, mCurrentStatus{AlgoStatus::SUCCESS} {
+AlgoBase::AlgoBase(const char *name)
+    : mAlgoOperations{std::string(name), nullptr}, mCurrentStatus{
+                                                       AlgoStatus::SUCCESS} {
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction,
                                             &AlgoBase::ThreadCallback, this);
   mAlgoThread->SetThread(name);
@@ -114,7 +121,8 @@ std::string AlgoBase::GetStatusString() const {
       {AlgoStatus::OUT_OF_MEMORY, "OUT_OF_MEMORY"},
       {AlgoStatus::PERMISSION_DENIED, "PERMISSION_DENIED"},
       {AlgoStatus::NOT_SUPPORTED, "NOT_SUPPORTED"},
-      {AlgoStatus::INTERNAL_ERROR, "INTERNAL_ERROR"}};
+      {AlgoStatus::INTERNAL_ERROR, "INTERNAL_ERROR"},
+      {AlgoStatus::FAILURE, "FAILURE"}};
 
   auto it = status_map.find(mCurrentStatus);
   return (it != status_map.end()) ? it->second : "UNKNOWN_STATUS";

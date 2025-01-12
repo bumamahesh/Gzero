@@ -19,7 +19,7 @@ TEST_F(AlgoLibraryLoaderTest, LoadValidLibrary) {
     auto loader = std::make_shared<AlgoLibraryLoader>(validLibraryPath);
     ASSERT_NE(loader, nullptr);
     ASSERT_EQ(loader->GetAlgoId(), ALGO_HDR);
-    ASSERT_EQ(loader->GetAlgorithmName(), std::string(HDR_NAME));
+    ASSERT_EQ(loader->GetAlgorithmName(), std::string("HDRAlgorithm"));
 
     auto algo = loader->GetAlgoMethod();
 
@@ -40,7 +40,7 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   // Here, we test the interaction with the returned AlgoBase method.
   AlgoLibraryLoader loader(validLibraryPath);
   ASSERT_EQ(loader.GetAlgoId(), ALGO_HDR);
-  ASSERT_EQ(loader.GetAlgorithmName(), std::string(HDR_NAME));
+  ASSERT_EQ(loader.GetAlgorithmName(), std::string("HDRAlgorithm"));
 
   std::shared_ptr<AlgoBase> algo = loader.GetAlgoMethod();
   ASSERT_NE(algo, nullptr);
@@ -70,7 +70,7 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
 
   // Call the Open method
   ASSERT_NE(algo->GetAlgorithmName(), "");
-  ASSERT_EQ(algo->GetAlgorithmName(), HDR_NAME);
+  ASSERT_EQ(algo->GetAlgorithmName(), "HDRAlgorithm");
   ASSERT_EQ(algo->Open(), AlgoBase::AlgoStatus::SUCCESS);
   ASSERT_EQ(algo->GetAlgoStatus(), AlgoBase::AlgoStatus::SUCCESS);
 

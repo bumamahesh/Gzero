@@ -10,11 +10,14 @@
  */
 AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
   // Attempt to load the shared library
-  plibHandle = dlopen(libraryPath.c_str(), RTLD_LAZY);
+  plibHandle = dlopen(libraryPath.c_str(), RTLD_NOW | RTLD_NODELETE);
   if (!plibHandle) {
     LOG(ERROR, ALGOLIBLOADER, "Failed to load library: %s", dlerror());
     assert(!plibHandle);
-  }
+  } /*else {
+    LOG(VERBOSE, ALGOLIBLOADER, "Loaded library: %s ::%p", libraryPath.c_str(),
+        plibHandle);
+  }*/
 
   mGetAlgoId = reinterpret_cast<GetAlgoIdFunc>(dlsym(plibHandle, "GetAlgoId"));
   if (!mGetAlgoId) {
@@ -42,10 +45,13 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
  *
  */
 AlgoLibraryLoader::~AlgoLibraryLoader() {
-  LOG(VERBOSE, ALGOLIBLOADER, "%s::[%p]Total Algo Instances %ld",
-      GetAlgorithmName().c_str(), this, mTotalAlgoInstances);
+  LOG(VERBOSE, ALGOLIBLOADER,
+      "%s::[%p]Total Algo Instances %ld plibHandle:: %p",
+      GetAlgorithmName().c_str(), this, mTotalAlgoInstances, plibHandle);
   if (plibHandle) {
+    mTotalAlgoInstances = 0;
     dlclose(plibHandle);
+    plibHandle = nullptr;
   }
 }
 
@@ -64,7 +70,7 @@ std::shared_ptr<AlgoBase> AlgoLibraryLoader::GetAlgoMethod() {
  * @return std::string
  */
 std::string AlgoLibraryLoader::GetAlgorithmName() const {
-  return mGetAlgoName();
+  return std::string(mGetAlgoName());
 }
 
 /**

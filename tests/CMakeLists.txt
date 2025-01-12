@@ -10,11 +10,9 @@ include_directories(${GTEST_INCLUDE_DIRS}  ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_
 file(GLOB TEST_SOURCES "test_*.cpp")
 
 file(GLOB CORE_SOURCES
-    ${CMAKE_SOURCE_DIR}/tests/src/TaskProcessor.cpp
+    #${CMAKE_SOURCE_DIR}/tests/src/TaskProcessor.cpp
     ${CMAKE_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/AlgoRequest.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/*.cpp
 )
 
 # Source files
@@ -35,6 +33,8 @@ if(ENABLE_ASAN)
     target_compile_options(test_algo_base PRIVATE -g -ggdb -Wall -fPIC)
 
 endif()
+
+target_compile_options(test_algo_base PRIVATE  -O1 -g )
 
 # Link libraries
 target_link_libraries(test_algo_base ${GTEST_LIBRARIES} pthread gtest gmock)

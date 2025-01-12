@@ -1,21 +1,29 @@
 
 #include "AlgoNodeManager.h"
+#include "ImageUtils.h"
+#include "Log.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
 // Test fixture
+
+constexpr size_t NumAlgos = (int)(ALGOID::ALGO_MAX - ALGOID::ALGO_HDR);
 class AlgoNodeManagerTest : public ::testing::Test {
 protected:
 };
+TEST_F(AlgoNodeManagerTest, CtorDtor) {
+
+  auto algoNodeManager = &AlgoNodeManager ::Getinstance();
+  EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), NumAlgos);
+}
 
 TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 
   try {
-    std::string HdralgoName(HDR_NAME);
+    std::string HdralgoName("HDRAlgorithm");
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 4);
+    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), NumAlgos);
 
     // Check algo available by Id
     EXPECT_EQ(algoNodeManager.IsAlgoAvailable(ALGO_HDR), true);
@@ -29,12 +37,12 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 }
 
 TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
-  std::string HdralgoName(HDR_NAME);
+  std::string HdralgoName("HDRAlgorithm");
   try {
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 4);
+    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), NumAlgos);
 
     // Check algo available by name
     EXPECT_EQ(algoNodeManager.IsAlgoAvailable(HdralgoName), true);
@@ -60,7 +68,7 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectById) {
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), 4);
+    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), NumAlgos);
 
     // Check algo available by Id
     EXPECT_EQ(algoNodeManager.IsAlgoAvailable(ALGO_HDR), true);
@@ -77,4 +85,55 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectById) {
   } catch (const std::exception &e) {
     FAIL() << "Exception thrown: " << e.what();
   }
+}
+
+TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
+
+  auto callback = [](void *ctx,
+                     std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+    assert(msg != nullptr);
+    switch (msg->mType) {
+    case AlgoBase::AlgoMessageType::ProcessingCompleted: {
+      auto rawData = msg->mRequest->request->GetImage(0)->data;
+      static int i = 0;
+      std::string outfile = "output" + std::to_string(i++) + ".raw";
+      SaveRawDataToFile(outfile, rawData);
+    } break;
+    default:
+      assert(false);
+      break;
+    }
+  };
+  // Get algo and process
+  auto algoNodeManager = &AlgoNodeManager::Getinstance();
+  // Get algo
+  auto algo = algoNodeManager->CreateAlgo(ALGO_MANDELBROTSET);
+  EXPECT_NE(algo, nullptr);
+
+  auto eventHandler =
+      std::make_shared<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>(
+          callback, nullptr);
+  algo->SetEventThread(eventHandler);
+
+  // Process
+  // LOG(ERROR, ALGOTIMER, "Start processing");
+  for (int i = 0; i < 1; i++) {
+    // Create image buffer and add to task
+    int width = 320;
+    int height = 240;
+    std::vector<unsigned char> rawData(width * height * 3);
+
+    EXPECT_EQ(rawData.size(), width * height * 3 * sizeof(unsigned char));
+    auto image = std::make_shared<AlgoRequest>();
+    image->AddImage(ImageFormat::YUV420, width, height, rawData);
+
+    auto request = std::make_shared<Task_t>();
+    EXPECT_NE(request, nullptr);
+    request->request = image;
+
+    algo->EnqueueRequest(request);
+  }
+  // LOG(ERROR, ALGOTIMER, "Processing completed");
+  algo->WaitForQueueCompetion();
+  eventHandler->stop();
 }

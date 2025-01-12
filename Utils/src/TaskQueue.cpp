@@ -9,7 +9,7 @@
 void *TaskQueue::WorkerThreadFuction(void *arg) {
 
   TaskQueue *pTaskQObj = static_cast<TaskQueue *>(arg);
-  LOG(VERBOSE, TASKQUEUE, "Worker thread Launched .....");
+  // LOG(VERBOSE, TASKQUEUE, "Worker thread Launched .....");
   assert(pTaskQObj != nullptr);
   assert(pTaskQObj->pExecute != nullptr);
   pTaskQObj->bIsRunning = true;
@@ -55,8 +55,8 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
       LOG(ERROR, TASKQUEUE, "pCallback is nullptr");
     }
   }
-  LOG(VERBOSE, TASKQUEUE, "Worker thread exiting %ld ",
-      pTaskQObj->mTaskQueue.size());
+  /*LOG(VERBOSE, TASKQUEUE, "Worker thread exiting %ld ",
+      pTaskQObj->mTaskQueue.size());*/
   return nullptr;
 }
 
@@ -141,9 +141,9 @@ void TaskQueue::WaitForQueueCompetion() {
       break;
     }
   }
-  LOG(VERBOSE, TASKQUEUE, "mTaskQueue size ::%ld %ld %ld %ld %d",
+  /*LOG(VERBOSE, TASKQUEUE, "mTaskQueue size ::%ld %ld %ld %ld %d",
       mTaskQueue.size(), mEnQRequestSize, mProcessSize, mCallbackSize,
-      (int)bIsRunning.load());
+      (int)bIsRunning.load());*/
 }
 
 /**

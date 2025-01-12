@@ -2,7 +2,7 @@
 #define FILTER_ALGORITHM_H
 
 #include "AlgoBase.h"
-
+const char *FILTER_NAME = "FilterAlgorithm";
 /**
  * @brief FilterAlgorithm class derived from AlgoBase to perform Filter-specific
  * operations.
@@ -30,7 +30,7 @@ public:
    * @brief Process the Filter algorithm, simulating Filter computation.
    * @return Status of the operation.
    */
-  AlgoStatus Process() override;
+  AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override;
 
   /**
    * @brief Close the Filter algorithm, simulating cleanup.

@@ -2,6 +2,7 @@
 #define NOP_ALGORITHM_H
 
 #include "AlgoBase.h"
+const char *NOP_NAME = "NopAlgorithm";
 
 /**
  * @brief NopAlgorithm class derived from AlgoBase to perform NOP-specific
@@ -30,7 +31,7 @@ public:
    * @brief Process the NOP algorithm, simulating NOP computation.
    * @return Status of the operation.
    */
-  AlgoStatus Process() override;
+  AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override;
 
   /**
    * @brief Close the NOP algorithm, simulating cleanup.

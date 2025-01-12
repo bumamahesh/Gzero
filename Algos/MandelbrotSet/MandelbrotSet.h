@@ -2,24 +2,31 @@
 #define HDR_ALGORITHM_H
 
 #include "AlgoBase.h"
-const char *HDR_NAME = "HDRAlgorithm";
+const char *MANDELBROTSET_NAME = "MandelbrotSetAlgorithm";
+
+// Constants for Mandelbrot calculation
+constexpr int MAX_ITER = 500; // Maximum iterations for escape condition
+constexpr double INITIAL_ZOOM = 1.0;
+constexpr double ZOOM_FACTOR = 1.2;
+constexpr double CENTER_X = -0.75;
+constexpr double CENTER_Y = 0.0;
 
 /**
- * @brief HDRAlgorithm class derived from AlgoBase to perform HDR-specific
+ * @brief MandelbrotSet class derived from AlgoBase to perform HDR-specific
  * operations.
  */
-class HDRAlgorithm : public AlgoBase {
+class MandelbrotSet : public AlgoBase {
 public:
   /**
-   * @brief Constructor for HDRAlgorithm.
+   * @brief Constructor for MandelbrotSet.
    *
    */
-  HDRAlgorithm();
+  MandelbrotSet();
 
   /**
-   * @brief Destructor for HDRAlgorithm.
+   * @brief Destructor for MandelbrotSet.
    */
-  ~HDRAlgorithm() override;
+  ~MandelbrotSet() override;
 
   /**
    * @brief Open the HDR algorithm, simulating resource checks.
@@ -42,11 +49,14 @@ public:
 
 private:
   mutable std::mutex mutex_; // Mutex to protect the shared state
+  double zoomLevel;
+  double offsetX;
+  double offsetY;
 };
 
 /**
- * @brief Factory function to expose HDRAlgorithm via shared library.
- * @return A pointer to the HDRAlgorithm instance.
+ * @brief Factory function to expose MandelbrotSet via shared library.
+ * @return A pointer to the MandelbrotSet instance.
  */
 extern "C" AlgoBase *GetAlgoMethod();
 

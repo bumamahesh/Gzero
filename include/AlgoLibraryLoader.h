@@ -6,7 +6,7 @@
 
 // All exposed api of libs
 typedef AlgoBase *(*GetAlgoMethodFunc)();
-typedef std::string (*GetAlgorithmNameFunc)();
+typedef const char *(*GetAlgorithmNameFunc)();
 typedef AlgoId (*GetAlgoIdFunc)();
 
 class AlgoLibraryLoader {

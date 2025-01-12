@@ -28,13 +28,12 @@ AlgoBase::AlgoStatus BokehAlgorithm::Open() {
   return GetAlgoStatus();
 }
 
-// static int i = 0;
 /**
  * @brief Process the BOKEH algorithm, simulating input validation and BOKEH
  * computation.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus BokehAlgorithm::Process() {
+AlgoBase::AlgoStatus BokehAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -70,4 +69,4 @@ extern "C" AlgoId GetAlgoId() { return ALGO_BOKEH; }
 @brief Get the algorithm name.
  *
  */
-extern "C" std::string GetAlgorithmName() { return BOKEH_NAME; }
+extern "C" const char *GetAlgorithmName() { return BOKEH_NAME; }

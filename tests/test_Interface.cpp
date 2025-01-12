@@ -1,12 +1,8 @@
+#include "AlgoRequest.h"
 #include <dlfcn.h>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <memory>
-
-// Mock structures for AlgoRequest
-struct AlgoRequest {
-  // Define necessary fields and methods for testing
-};
 
 // Type aliases for function pointers
 typedef int (*InitAlgoInterfaceFunc)(void **);
@@ -63,8 +59,10 @@ protected:
 };
 
 // Callback function for testing
+int g_cbs = 0;
 int TestCallback(std::shared_ptr<AlgoRequest> input) {
   // Simulate callback logic
+  g_cbs++;
   return 0; // Return success
 }
 
@@ -108,6 +106,11 @@ TEST_F(SharedLibTest, AlgoInterfaceProcessTest) {
   int status = InitAlgoInterface(&algoHandle);
   ASSERT_EQ(status, 0) << "InitAlgoInterface failed with status: " << status;
 
+  // Register a callback
+  status = RegisterCallback(&algoHandle, TestCallback);
+  ASSERT_EQ(status, 0) << "RegisterCallback failed with status: " << status;
+
+  g_cbs = 0;
   // Create a mock AlgoRequest
   auto request = std::make_shared<AlgoRequest>();
 
@@ -115,7 +118,11 @@ TEST_F(SharedLibTest, AlgoInterfaceProcessTest) {
   status = AlgoInterfaceProcess(&algoHandle, request);
   ASSERT_EQ(status, 0) << "AlgoInterfaceProcess failed with status: " << status;
 
+  while (g_cbs == 0) {
+    usleep(50);
+  }
   // Deinitialize the library
   status = DeInitAlgoInterface(&algoHandle);
+
   ASSERT_EQ(status, 0) << "DeInitAlgoInterface failed with status: " << status;
 }

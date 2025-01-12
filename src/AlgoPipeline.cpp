@@ -85,7 +85,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
       }
       algo->SetEventThread(pEventHandlerThread);
       mAlgos.push_back(algo);
-      mAlgoListName.push_back(algo->GetAlgorithmName());
+      mAlgoListName.push_back(std::string(algo->GetAlgorithmName()));
       if (previousAlgo) {
         previousAlgo->SetNextAlgo(algo);
       }
@@ -163,8 +163,8 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
     {
       std::lock_guard<std::mutex> lock(mRequesteMapMutex);
       if (mRequesteMap.find(input->mRequestId) == mRequesteMap.end()) {
-        LOG(VERBOSE, ALGOPIPELINE, "Added for Processing  Request ID: %d::%p",
-            input->mRequestId, input.get());
+        /* LOG(VERBOSE, ALGOPIPELINE, "Added for Processing  Request ID:
+           %d::%p", input->mRequestId, input.get());*/
         mRequesteMap.insert({input->mRequestId, input});
       } else {
         LOG(ERROR, ALGOPIPELINE, "Error Duplicate Request ID: %d::%p",
@@ -196,9 +196,9 @@ void AlgoPipeline::NodeEventHandler(
   assert(plPipeline->mAlgoMap.find(msg->mAlgoId) != plPipeline->mAlgoMap.end());
   auto algo = plPipeline->mAlgoMap.at(msg->mAlgoId);
   assert(algo != nullptr);
-  LOG(VERBOSE, ALGOPIPELINE, "NodeEventHandler:: [%d][%ld::%ld] Event:: %d",
+  /*LOG(VERBOSE, ALGOPIPELINE, "NodeEventHandler:: [%d][%ld::%ld] Event:: %d",
       msg->mRequest->request->mRequestId, msg->mRequest->request->mProcessCnt,
-      plPipeline->mAlgoMap.size(), (int)msg->mType);
+      plPipeline->mAlgoMap.size(), (int)msg->mType);*/
   switch (msg->mType) {
   case AlgoBase::AlgoMessageType::ProcessingCompleted: {
     /*some node */
@@ -212,9 +212,11 @@ void AlgoPipeline::NodeEventHandler(
   case AlgoBase::AlgoMessageType::ProcessDone: {
     /**last node  */
     std::shared_ptr<AlgoRequest> Output = msg->mRequest->request;
+
     if (Output) {
       if (Output->mProcessCnt != plPipeline->mAlgos.size()) {
-        LOG(ERROR, ALGOPIPELINE, "Output is not complete");
+        LOG(ERROR, ALGOPIPELINE, "Output is not complete  %ld ,%ld",
+            Output->mProcessCnt, plPipeline->mAlgos.size());
       }
     }
 
@@ -224,10 +226,10 @@ void AlgoPipeline::NodeEventHandler(
       auto callbackRequestId = msg->mRequest->request->mRequestId;
       if (plPipeline->mRequesteMap.find(callbackRequestId) !=
           plPipeline->mRequesteMap.end()) {
-        LOG(VERBOSE, ALGOPIPELINE,
+        /*LOG(VERBOSE, ALGOPIPELINE,
             "[%p][%6ld]Processing Completed for Request ID: %d::%p ",
             plPipeline, plPipeline->mProcessedFrames, callbackRequestId,
-            Output.get());
+            Output.get());*/
         // Remove processed request
         plPipeline->mRequesteMap.erase(callbackRequestId);
       } else {
@@ -265,7 +267,7 @@ void AlgoPipeline::NodeEventHandler(
  */
 void AlgoPipeline::WaitForQueueCompetion() {
 
-  const std::chrono::milliseconds timeoutDuration(100);
+  const std::chrono::milliseconds timeoutDuration(500);
   int statsTimeout = 0;
   std::unique_lock<std::mutex> lock(mRequesteMapMutex);
 

@@ -21,11 +21,6 @@ std::string getCurrentThreadId() {
   return ss.str();
 }
 
-// Function to get current line number
-int getCurrentLineNumber() {
-  return __LINE__; // Note: __LINE__ expands to the line number where it's used
-}
-
 // Overload the << operator for LogLevel enum class
 std::ostream &operator<<(std::ostream &os, const LogLevel &level) {
   switch (level) {

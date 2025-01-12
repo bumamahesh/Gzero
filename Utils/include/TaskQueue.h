@@ -10,7 +10,8 @@
 #include <queue>
 
 typedef struct Task_t {
-  std::shared_ptr<AlgoRequest> request;
+  std::shared_ptr<AlgoRequest> request = nullptr;
+  void *extras = nullptr;
 } Task_t;
 
 typedef void (*TASKFUNC)(void *Ctx, std::shared_ptr<Task_t> task);

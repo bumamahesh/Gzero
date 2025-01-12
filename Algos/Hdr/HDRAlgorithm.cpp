@@ -30,13 +30,12 @@ AlgoBase::AlgoStatus HDRAlgorithm::Open() {
   return GetAlgoStatus();
 }
 
-// static int i = 0;
 /**
  * @brief Process the HDR algorithm, simulating input validation and HDR
  * computation.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus HDRAlgorithm::Process() {
+AlgoBase::AlgoStatus HDRAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   SetStatus(AlgoStatus::SUCCESS);
@@ -73,4 +72,4 @@ extern "C" AlgoId GetAlgoId() { return ALGO_HDR; }
 @brief Get the algorithm name.
  *
  */
-extern "C" std::string GetAlgorithmName() { return HDR_NAME; }
+extern "C" const char *GetAlgorithmName() { return HDR_NAME; }
