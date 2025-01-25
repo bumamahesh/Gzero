@@ -50,6 +50,13 @@ AlgoBase::AlgoStatus NopAlgorithm::Close() {
   return GetAlgoStatus();
 }
 
+/**
+ * @brief max time taken by algo to process a request
+ *
+ * @return int
+ */
+int NopAlgorithm::GetTimeout() { return 1000; }
+
 // Public Exposed API for Nop
 /**
  * @brief Factory function to expose NopAlgorithm via shared library.

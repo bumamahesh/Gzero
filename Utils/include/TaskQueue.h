@@ -2,17 +2,14 @@
 #define TASK_QUEUE_H
 #pragma once
 #include "AlgoRequest.h"
+#include "RequestMonitor.h"
+#include "Task.h"
 #include <atomic>
 #include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <pthread.h>
 #include <queue>
-
-typedef struct Task_t {
-  std::shared_ptr<AlgoRequest> request = nullptr;
-  void *extras = nullptr;
-} Task_t;
 
 typedef void (*TASKFUNC)(void *Ctx, std::shared_ptr<Task_t> task);
 class TaskQueue {
@@ -44,6 +41,7 @@ public:
   size_t mEnQRequestSize = 0;
   size_t mProcessSize = 0;
   size_t mCallbackSize = 0;
+  std::shared_ptr<RequestMonitor> monitor;
 
 private:
   // Internal worker thread function

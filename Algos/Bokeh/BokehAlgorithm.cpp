@@ -50,6 +50,13 @@ AlgoBase::AlgoStatus BokehAlgorithm::Close() {
   return GetAlgoStatus();
 }
 
+/**
+ * @brief max time taken by algo to process a request
+ *
+ * @return int
+ */
+int BokehAlgorithm::GetTimeout() { return 1000; }
+
 // Public Exposed API for BOKEH
 /**
  * @brief Factory function to expose BokehAlgorithm via shared library.

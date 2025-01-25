@@ -29,3 +29,28 @@ TEST(TaskQueueTest, StopWorkerThread) {
   }
   queue.StopWorkerThread();
 }
+
+/**test timout callback with long processing time and short timeout register */
+auto longTask = [](void *ctx, std::shared_ptr<Task_t> task) {
+  std::cout << "starting task" << std::endl;
+  usleep(30 * 1000); // wait for 30 ms
+  std::cout << "Completed task" << std::endl;
+};
+bool bTimeoutCallback = false;
+auto timeoutCallback = [](void *, std::shared_ptr<Task_t> task) {
+  bTimeoutCallback = true;
+};
+
+TEST(TaskQueueTest, TestTimeoutCallback) {
+  bTimeoutCallback = false;
+  TaskQueue queue(longTask, funcCb, this);
+  queue.monitor->SetCallback(timeoutCallback, this);
+  // prepare a request
+  auto task = std::make_shared<Task_t>();
+  task->timeoutMs = 10;
+  task->request = std::make_shared<AlgoRequest>();
+  task->request->mRequestId = 1;
+  queue.Enqueue(task);
+  queue.WaitForQueueCompetion();
+  EXPECT_EQ(bTimeoutCallback, true);
+}

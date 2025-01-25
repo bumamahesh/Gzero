@@ -35,6 +35,7 @@ enum class LogLevel {
 #define ALGOINTERFACE "ALGOINTERFACE"
 #define ALGOTIMER "ALGOTIMER"
 #define WATCHDOG "WATCHDOG"
+#define REQUESTMONITOR "REQUESTMONITOR"
 #define KPI "KPI"
 
 // Function declarations

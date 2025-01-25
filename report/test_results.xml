@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="35" failures="0" disabled="0" errors="0" time="30.422" timestamp="2025-01-26T11:06:39.709" name="AllTests">
+  <testsuite name="AlgoBaseTest" tests="4" failures="0" disabled="0" skipped="0" errors="0" time="10.616" timestamp="2025-01-26T11:06:39.709">
+    <testcase name="AlgorithmNameRetrieval" status="run" result="completed" time="0.003" timestamp="2025-01-26T11:06:39.709" classname="AlgoBaseTest" />
+    <testcase name="CallBackTest" status="run" result="completed" time="0.202" timestamp="2025-01-26T11:06:39.713" classname="AlgoBaseTest" />
+    <testcase name="CallBackTestFail" status="run" result="completed" time="0.202" timestamp="2025-01-26T11:06:39.916" classname="AlgoBaseTest" />
+    <testcase name="AlgoTimeOutCallback" status="run" result="completed" time="10.207" timestamp="2025-01-26T11:06:40.118" classname="AlgoBaseTest" />
+  </testsuite>
+  <testsuite name="AlgoLibraryLoaderTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.206" timestamp="2025-01-26T11:06:50.326">
+    <testcase name="LoadValidLibrary" status="run" result="completed" time="0.002" timestamp="2025-01-26T11:06:50.326" classname="AlgoLibraryLoaderTest" />
+    <testcase name="RetrieveAlgoMethod" status="run" result="completed" time="0.203" timestamp="2025-01-26T11:06:50.329" classname="AlgoLibraryLoaderTest" />
+  </testsuite>
+  <testsuite name="AlgoPipelineTest" tests="4" failures="0" disabled="0" skipped="0" errors="0" time="0.11" timestamp="2025-01-26T11:06:50.532">
+    <testcase name="CtorDtorID" status="run" result="completed" time="0.017" timestamp="2025-01-26T11:06:50.532" classname="AlgoPipelineTest" />
+    <testcase name="CtorDtorName" status="run" result="completed" time="0.003" timestamp="2025-01-26T11:06:50.550" classname="AlgoPipelineTest" />
+    <testcase name="Processtest" status="run" result="completed" time="0.088" timestamp="2025-01-26T11:06:50.553" classname="AlgoPipelineTest" />
+    <testcase name="ProcesstestFail" status="run" result="completed" time="0" timestamp="2025-01-26T11:06:50.642" classname="AlgoPipelineTest" />
+  </testsuite>
+  <testsuite name="AlgoRequestTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="0" timestamp="2025-01-26T11:06:50.643">
+    <testcase name="AlgoRequestTest" status="run" result="completed" time="0" timestamp="2025-01-26T11:06:50.643" classname="AlgoRequestTest" />
+  </testsuite>
+  <testsuite name="AlgoSessionTest" tests="2" failures="0" disabled="0" skipped="0" errors="0" time="0.009" timestamp="2025-01-26T11:06:50.643">
+    <testcase name="AlgoSessionApi" status="run" result="completed" time="0.003" timestamp="2025-01-26T11:06:50.643" classname="AlgoSessionTest" />
+    <testcase name="ProcessTest" status="run" result="completed" time="0.006" timestamp="2025-01-26T11:06:50.646" classname="AlgoSessionTest" />
+  </testsuite>
+  <testsuite name="AlgoNodeManagerTest" tests="5" failures="0" disabled="0" skipped="0" errors="0" time="0.804" timestamp="2025-01-26T11:06:50.652">
+    <testcase name="CtorDtor" status="run" result="completed" time="0" timestamp="2025-01-26T11:06:50.652" classname="AlgoNodeManagerTest" />
+    <testcase name="AlgoNodeManagerApi" status="run" result="completed" time="0" timestamp="2025-01-26T11:06:50.652" classname="AlgoNodeManagerTest" />
+    <testcase name="GetAlgoObjectByName" status="run" result="completed" time="0.001" timestamp="2025-01-26T11:06:50.653" classname="AlgoNodeManagerTest" />
+    <testcase name="GetAlgoObjectById" status="run" result="completed" time="0.001" timestamp="2025-01-26T11:06:50.654" classname="AlgoNodeManagerTest" />
+    <testcase name="TryMandelbrotSetProcess" status="run" result="completed" time="0.802" timestamp="2025-01-26T11:06:50.655" classname="AlgoNodeManagerTest" />
+  </testsuite>
+  <testsuite name="EventHandlerThreadTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="0" timestamp="2025-01-26T11:06:51.457">
+    <testcase name="BasicTest" status="run" result="completed" time="0" timestamp="2025-01-26T11:06:51.457" classname="EventHandlerThreadTest" />
+  </testsuite>
+  <testsuite name="SharedLibTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0.01" timestamp="2025-01-26T11:06:51.458">
+    <testcase name="InitDeInitTest" status="run" result="completed" time="0" timestamp="2025-01-26T11:06:51.458" classname="SharedLibTest" />
+    <testcase name="RegisterCallbackTest" status="run" result="completed" time="0" timestamp="2025-01-26T11:06:51.458" classname="SharedLibTest" />
+    <testcase name="AlgoInterfaceProcessTest" status="run" result="completed" time="0.01" timestamp="2025-01-26T11:06:51.458" classname="SharedLibTest" />
+  </testsuite>
+  <testsuite name="RequestMonitorTest" tests="6" failures="0" disabled="0" skipped="0" errors="0" time="15.006" timestamp="2025-01-26T11:06:51.469">
+    <testcase name="StartStopRequest" status="run" result="completed" time="0" timestamp="2025-01-26T11:06:51.469" classname="RequestMonitorTest" />
+    <testcase name="TimeoutExceedsTolerance" status="run" result="completed" time="3" timestamp="2025-01-26T11:06:51.469" classname="RequestMonitorTest" />
+    <testcase name="RequestCompleteWithinTolerance" status="run" result="completed" time="1.001" timestamp="2025-01-26T11:06:54.470" classname="RequestMonitorTest" />
+    <testcase name="RequestExceedsTimeoutWithoutStop" status="run" result="completed" time="4" timestamp="2025-01-26T11:06:55.471" classname="RequestMonitorTest" />
+    <testcase name="MultipleRequests" status="run" result="completed" time="2" timestamp="2025-01-26T11:06:59.472" classname="RequestMonitorTest" />
+    <testcase name="RequestTimeoutNoStop" status="run" result="completed" time="5.001" timestamp="2025-01-26T11:07:01.473" classname="RequestMonitorTest" />
+  </testsuite>
+  <testsuite name="RequestMonitorStressTest" tests="1" failures="0" disabled="0" skipped="0" errors="0" time="2.039" timestamp="2025-01-26T11:07:07.211">
+    <testcase name="NoCallbackForProcessingWithinTolerance" status="run" result="completed" time="2.039" timestamp="2025-01-26T11:07:07.211" classname="RequestMonitorStressTest" />
+  </testsuite>
+  <testsuite name="TaskQueueTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="1.415" timestamp="2025-01-26T11:07:09.251">
+    <testcase name="WaitForQueueCompletion" status="run" result="completed" time="1.203" timestamp="2025-01-26T11:07:09.251" classname="TaskQueueTest" />
+    <testcase name="StopWorkerThread" status="run" result="completed" time="0.011" timestamp="2025-01-26T11:07:10.454" classname="TaskQueueTest" />
+    <testcase name="TestTimeoutCallback" status="run" result="completed" time="0.2" timestamp="2025-01-26T11:07:10.465" classname="TaskQueueTest" />
+  </testsuite>
+  <testsuite name="WatchdogTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0.2" timestamp="2025-01-26T11:07:10.666">
+    <testcase name="BarkTest" status="run" result="completed" time="0.11" timestamp="2025-01-26T11:07:10.666" classname="WatchdogTest" />
+    <testcase name="ShouldNotBiteTest" status="run" result="completed" time="0.09" timestamp="2025-01-26T11:07:10.776" classname="WatchdogTest" />
+    <testcase name="StressTest" status="run" result="completed" time="0" timestamp="2025-01-26T11:07:10.867" classname="WatchdogTest" />
+  </testsuite>
+</testsuites>

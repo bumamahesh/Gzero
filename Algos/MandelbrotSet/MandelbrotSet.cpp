@@ -148,6 +148,13 @@ AlgoBase::AlgoStatus MandelbrotSet::Close() {
 }
 
 /**
+ * @brief max time taken by algo to process a request
+ *
+ * @return int
+ */
+int MandelbrotSet::GetTimeout() { return 1000; }
+
+/**
  * @brief Factory function to expose MandelbrotSet via shared library.
  * @return A pointer to the MandelbrotSet instance.
  */

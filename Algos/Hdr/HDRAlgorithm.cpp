@@ -53,6 +53,13 @@ AlgoBase::AlgoStatus HDRAlgorithm::Close() {
   return GetAlgoStatus();
 }
 
+/**
+ * @brief max time taken by algo to process a request
+ *
+ * @return int
+ */
+int HDRAlgorithm::GetTimeout() { return 1000; }
+
 // Public Exposed API for HDR
 /**
  * @brief Factory function to expose HDRAlgorithm via shared library.

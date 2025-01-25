@@ -46,7 +46,8 @@ public:
   ~AlgoRequest() = default;
 
   size_t mProcessCnt = 0;
-  int mRequestId; /*request id assoisiated*/
+  int mRequestId;
+      /*request id assoisiated*/ // make this conts in contruction  @todo
 
 private:
 };

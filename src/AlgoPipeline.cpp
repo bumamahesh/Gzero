@@ -171,6 +171,7 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
             input->mRequestId, input.get());
       }
     }
+    task->timeoutMs = mAlgos[0]->GetTimeout();
     mAlgos[0]->EnqueueRequest(task);
 
   } else {
@@ -206,6 +207,8 @@ void AlgoPipeline::NodeEventHandler(
     //    msg->mRequest->request->mRequestId, algo->GetAlgorithmName().c_str());
     std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
     if (NextAlgo) {
+      /**fecth and update timeout for processing this request on Next algo */
+      msg->mRequest->timeoutMs = NextAlgo->GetTimeout();
       NextAlgo->EnqueueRequest(msg->mRequest);
     }
   } break;

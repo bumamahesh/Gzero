@@ -62,6 +62,23 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
 }
 
 /**
+@brief Process Timeout Callback object
+ *
+ * @param Ctx
+ * @param taskId
+*/
+void AlgoBase::ProcessTimeoutCallback(void *Ctx, std::shared_ptr<Task_t> task) {
+  assert(Ctx != nullptr);
+  assert(task != nullptr);
+  auto pCtx = static_cast<AlgoBase *>(Ctx);
+  // incomple implementaion WIP @todo
+  // find task  from taskId
+  pCtx->SetEvent(std::make_shared<AlgoBase::AlgoCallbackMessage>(
+      AlgoMessageType::ProcessingTimeout, AlgoStatus::TIMEOUT, task,
+      pCtx->GetAlgoId()));
+}
+
+/**
 @brief Construct a new Algo Base:: Algo Base object
  *
  */
@@ -69,6 +86,7 @@ AlgoBase::AlgoBase() {
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction,
                                             &AlgoBase::ThreadCallback, this);
   mAlgoThread->SetThread("AlgoBaseDefaultThread");
+  mAlgoThread->monitor->SetCallback(&AlgoBase::ProcessTimeoutCallback, this);
 }
 
 /**
@@ -81,6 +99,7 @@ AlgoBase::AlgoBase(const char *name)
                                                        AlgoStatus::SUCCESS} {
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction,
                                             &AlgoBase::ThreadCallback, this);
+  mAlgoThread->monitor->SetCallback(&AlgoBase::ProcessTimeoutCallback, this);
   mAlgoThread->SetThread(name);
 }
 

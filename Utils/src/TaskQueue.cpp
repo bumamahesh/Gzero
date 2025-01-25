@@ -1,8 +1,9 @@
 #include "../include/TaskQueue.h"
 #include "../include/Log.h"
+
 #include <cassert>
 #include <stdexcept>
-#include <unistd.h> //sleep
+#include <unistd.h> //sleepv
 /***
  * @brief Worker thread function that processes tasks from the queue
  */
@@ -13,6 +14,7 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
   assert(pTaskQObj != nullptr);
   assert(pTaskQObj->pExecute != nullptr);
   pTaskQObj->bIsRunning = true;
+  bool bShouldMonitor = false;
   while (true) {
     std::shared_ptr<Task_t> task = nullptr;
     // Lock the queue and wait until a task is available
@@ -43,7 +45,22 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
 
     /*Process is here */
     if (pTaskQObj->pExecute) {
+      bShouldMonitor = false;
+      if ((pTaskQObj->monitor.get() != nullptr) && (task.get() != nullptr) &&
+          (task->request.get() != nullptr)) {
+        bShouldMonitor = true;
+      } else {
+        LOG(ERROR, TASKQUEUE, "task is not monitored");
+      }
+
+      if (bShouldMonitor) {
+        pTaskQObj->monitor->StartRequestMonitoring(task, task->timeoutMs);
+      }
       pTaskQObj->pExecute(pTaskQObj->pTaskCtx, task);
+
+      if (bShouldMonitor) {
+        pTaskQObj->monitor->StopRequestMonitoring(task);
+      }
       pTaskQObj->mProcessSize++;
     } else {
       LOG(ERROR, TASKQUEUE, "pExecute is nullptr");
@@ -86,6 +103,8 @@ TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx) {
   while (!bIsRunning.load()) {
     usleep(100);
   };
+
+  this->monitor = std::make_shared<RequestMonitor>();
 }
 /**
 @brief Destroy the Task Queue:: Task Queue object

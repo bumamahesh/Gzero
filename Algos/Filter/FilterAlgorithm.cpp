@@ -51,6 +51,13 @@ AlgoBase::AlgoStatus FilterAlgorithm::Close() {
   return GetAlgoStatus();
 }
 
+/**
+ * @brief max time taken by algo to process a request
+ *
+ * @return int
+ */
+int FilterAlgorithm::GetTimeout() { return 1000; }
+
 // Public Exposed API for Nop
 /**
  * @brief Factory function to expose FilterAlgorithm via shared library.

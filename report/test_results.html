@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test_results.xml</title>
+    <style type="text/css">
+        body {
+    background-color: white;
+    padding-bottom: 20em;
+    margin: 0;
+    min-height: 15cm;
+}
+
+h1, h2, h3, h4, h5, h6, h7 {
+    font-family: sans-serif;
+}
+
+h1 {
+    background-color: #007acc;
+    color: white;
+    padding: 3mm;
+    margin-top: 0;
+    margin-bottom: 1mm;
+}
+
+.footer {
+    font-style: italic;
+    font-size: small;
+    text-align: right;
+    padding: 1em;
+}
+
+.testsuite {
+    padding-bottom: 2em;
+    margin-left: 1em;
+}
+
+.proplist {
+    width: 100%;
+    margin-bottom: 2em;
+    border-collapse: collapse;
+    border: 1px solid grey;
+}
+
+.proplist th {
+    background-color: silver;
+    width: 5em;
+    padding: 2px;
+    padding-right: 1em;
+    text-align: left;
+}
+
+.proplist td {
+    padding: 2px;
+    word-break: break-all;
+}
+
+.index-table {
+    width: 90%;
+    margin-left: 1em;
+}
+
+.index-table td {
+    vertical-align: top;
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+.failure-index {
+
+}
+
+.toc {
+    margin-bottom: 2em;
+    font-family: monospace;
+}
+
+.stdio, pre {
+    min-height: 1em;
+    background-color: #1e1e1e;
+    color: silver;
+    padding: 0.5em;
+}
+.tdpre {
+    background-color: #1e1e1e;
+}
+
+.test {
+    margin-left: 0.5cm;
+}
+
+.toc {
+    list-style: none;
+}
+
+.toc li.outcome {
+    list-style: none;
+}
+
+.toc li.outcome::before {
+    content: "\2022";
+    color: black;
+    font-weight: bold;
+    display: inline-block;
+    width: 1.27em;
+    margin-left: -1.27em;
+    font-size: 1.2em;
+}
+
+.toc li.outcome-failed {
+    background-color: lightcoral;
+}
+
+.toc li.outcome-failed::before {
+    color: red;
+}
+
+.toc li.outcome-passed::before {
+    color: green;
+}
+
+.toc li.outcome-skipped::before {
+    color: orange;
+}
+
+.testcases .outcome {
+    border-left: 1em;
+    padding: 2px;
+}
+
+.testcases .outcome-failed {
+    border-left: 1em solid lightcoral;
+}
+
+
+.outcome-passed {
+    border-left: 1em solid lightgreen;
+}
+
+.outcome-skipped {
+    border-left: 1em dotted silver;
+}
+
+.testcases .outcome-passed {
+    border-left: 1em solid lightgreen;
+}
+
+.testcases .outcome-skipped {
+    border-left: 1em solid #FED8B1;
+}
+
+.stats-table {
+}
+
+.stats-table td {
+    min-width: 4em;
+    text-align: right;
+}
+
+.stats-table .failed {
+    background-color: lightcoral;
+}
+
+.stats-table .passed {
+    background-color: lightgreen;
+}
+
+.matrix-table {
+    table-layout: fixed;
+    border-spacing: 0;
+    width: available;
+    margin-left: 1em;
+}
+
+.matrix-table td {
+    vertical-align: center;
+}
+
+.matrix-table td:last-child {
+    width: 0;
+}
+
+.matrix-table tr:hover {
+    background-color: yellow;
+}
+
+.matrix-axis-name {
+    white-space: nowrap;
+    padding-right: 0.5em;
+    border-left: 1px solid black;
+    border-top: 1px solid black;
+    text-align: right;
+}
+
+.matrix-axis-line {
+    border-left: 1px solid black;
+    width: 0.5em;
+}
+
+.matrix-classname {
+    text-align: left;
+    width: 100%;
+    border-top: 2px solid grey;
+    border-bottom: 1px solid silver;
+}
+
+.matrix-casename {
+    text-align: left;
+    font-weight: normal;
+    font-style: italic;
+    padding-left: 1em;
+    border-bottom: 1px solid silver;
+}
+
+.matrix-result {
+    display: block;
+    width: 1em;
+    text-align: center;
+    padding: 1mm;
+    margin: 0;
+}
+
+.matrix-result-combined {
+    white-space: nowrap;
+    padding-right: 0.2em;
+    text-align: right;
+}
+
+.matrix-result-failed {
+    background-color: lightcoral;
+}
+
+.matrix-result-passed {
+    background-color: lightgreen;
+}
+
+.matrix-result-skipped {
+    background-color: lightyellow;
+}
+
+.matrix-even {
+    background-color: lightgray;
+}
+    </style>
+</head>
+<body>
+    
+<h1>
+    Test Report : test_results.xml
+</h1>
+
+
+<a id="toc"></a>
+<table class="index-table">
+    <tr>
+        <td>
+            <ul class="toc">
+            
+                
+                <li>AlgoBaseTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#00532b6b-0c82-43b5-b5ad-5fdb6fca69ea">AlgorithmNameRetrieval</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#daae7c7b-0d4d-4718-9504-5eb64acfc5e7">CallBackTest</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#025fdfdf-e160-49c9-97fe-779628889e90">CallBackTestFail</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#d4eefa06-8347-42ff-8ffb-45bb345079da">AlgoTimeOutCallback</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>AlgoLibraryLoaderTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#aeff7fd2-a5ce-4e29-9357-1f06adf7a131">LoadValidLibrary</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#605a4bff-d657-4d90-9a9a-9937a44117eb">RetrieveAlgoMethod</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>AlgoPipelineTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#110be390-c837-4645-a6b9-3b64e59fc79b">CtorDtorID</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#723db301-4dbc-49ea-9f19-b65426971539">CtorDtorName</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#1a5fb5af-dd2d-4aed-b737-b0a3c9ee3a5f">Processtest</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#866a9189-748c-4d3a-8cde-ebd55e018b51">ProcesstestFail</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>AlgoRequestTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#6e0551a3-758e-4856-818a-eb8ea6f067e1">AlgoRequestTest</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>AlgoSessionTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#96ebea74-8d1a-4ccd-b9af-00e072a4ecc2">AlgoSessionApi</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#b2a8f8d5-df82-408a-85dd-e3ffa2798249">ProcessTest</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>AlgoNodeManagerTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#282ff957-0663-43a7-ae56-17de089829dc">CtorDtor</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#04c93ce9-f25e-4716-8117-7def8fab4a6c">AlgoNodeManagerApi</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#813f1f30-334b-4fd7-bc8e-10dd475896ca">GetAlgoObjectByName</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#72ecd064-0cb2-4fe4-942e-4529a3ecbe9c">GetAlgoObjectById</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#7b1ded5a-7fc7-4352-880e-b36c08988c33">TryMandelbrotSetProcess</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>EventHandlerThreadTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#17d06ca7-e535-4823-b35f-44956c1b1f3e">BasicTest</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>SharedLibTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#adc472ff-cccc-4f97-a259-69b233c6444f">InitDeInitTest</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#44c0c2ae-7293-4d17-8e06-34c83c33ea57">RegisterCallbackTest</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#3a959e7f-a30e-4fbe-9824-4c3300aba7b5">AlgoInterfaceProcessTest</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>RequestMonitorTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#3fe1c1f5-7736-4719-b2a6-f18576d321fa">StartStopRequest</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#d18b276f-8478-4647-918a-26038e307587">TimeoutExceedsTolerance</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#42ddd023-3bdf-4b12-bfc9-964f815463e8">RequestCompleteWithinTolerance</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#278419f5-223e-4a70-8cfb-32194dd13d89">RequestExceedsTimeoutWithoutStop</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#e9af5371-3b16-4190-989d-35e0d0a8f350">MultipleRequests</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#0ea7177e-e0c7-4765-bc31-3c2fe3e64531">RequestTimeoutNoStop</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>RequestMonitorStressTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#1253b84a-083e-49c7-8a82-17ab5f1a6591">NoCallbackForProcessingWithinTolerance</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>TaskQueueTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#c8fc22dd-e4e1-4564-b90b-67e44e151868">WaitForQueueCompletion</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#c9627fc7-9839-4694-854a-1eea77c6308b">StopWorkerThread</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#eb1825f9-b411-4d08-98df-489ea44c03ba">TestTimeoutCallback</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+                
+                <li>WatchdogTest
+                <ul>
+                    
+                    <li class="outcome outcome-passed"><a href="#455e7382-7e2a-45d6-8a73-67d52d542dc2">BarkTest</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#9b0b6796-75bb-4968-99a0-792954e2885c">ShouldNotBiteTest</a></li>
+                    
+                    <li class="outcome outcome-passed"><a href="#4e265d2c-d610-4179-9c7d-d29836af1129">StressTest</a></li>
+                    
+                </ul>
+                </li>
+                
+            
+            </ul>
+        </td>
+        <td class="failure-index">
+            <ul class="toc">
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+                
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                
+            
+            </ul>
+        </td>
+    </tr>
+</table>
+
+
+
+    <div class="testsuite">
+        <h2>Test Suite: AlgoBaseTest</h2>
+        <a id="0901b056-1c46-4691-888c-142740cf9c54"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>10.616 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>4</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>AlgoBaseTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="00532b6b-0c82-43b5-b5ad-5fdb6fca69ea"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>AlgorithmNameRetrieval</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.003 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="daae7c7b-0d4d-4718-9504-5eb64acfc5e7"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>CallBackTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.202 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="025fdfdf-e160-49c9-97fe-779628889e90"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>CallBackTestFail</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.202 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="d4eefa06-8347-42ff-8ffb-45bb345079da"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>AlgoTimeOutCallback</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>10.207 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: AlgoLibraryLoaderTest</h2>
+        <a id="77d90e31-b509-42e5-84e6-54ff44797ea1"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.206 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>2</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>AlgoLibraryLoaderTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="aeff7fd2-a5ce-4e29-9357-1f06adf7a131"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>LoadValidLibrary</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.002 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="605a4bff-d657-4d90-9a9a-9937a44117eb"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>RetrieveAlgoMethod</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.203 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: AlgoPipelineTest</h2>
+        <a id="dad18c24-ecd3-41f8-a607-703bedb89705"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.11 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>4</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>AlgoPipelineTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="110be390-c837-4645-a6b9-3b64e59fc79b"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>CtorDtorID</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.017 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="723db301-4dbc-49ea-9f19-b65426971539"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>CtorDtorName</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.003 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="1a5fb5af-dd2d-4aed-b737-b0a3c9ee3a5f"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>Processtest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.088 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="866a9189-748c-4d3a-8cde-ebd55e018b51"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>ProcesstestFail</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: AlgoRequestTest</h2>
+        <a id="3db018da-16fe-43e7-87f8-10506ac953eb"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.0 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>1</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>AlgoRequestTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="6e0551a3-758e-4856-818a-eb8ea6f067e1"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>AlgoRequestTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: AlgoSessionTest</h2>
+        <a id="4409d824-ee57-4c1d-960a-f1f8f53dd7f2"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.009 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>2</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>AlgoSessionTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="96ebea74-8d1a-4ccd-b9af-00e072a4ecc2"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>AlgoSessionApi</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.003 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="b2a8f8d5-df82-408a-85dd-e3ffa2798249"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>ProcessTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.006 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: AlgoNodeManagerTest</h2>
+        <a id="32da63d2-11e7-4067-bf51-1054058dcfe1"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.804 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>5</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>AlgoNodeManagerTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="282ff957-0663-43a7-ae56-17de089829dc"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>CtorDtor</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="04c93ce9-f25e-4716-8117-7def8fab4a6c"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>AlgoNodeManagerApi</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="813f1f30-334b-4fd7-bc8e-10dd475896ca"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>GetAlgoObjectByName</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.001 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="72ecd064-0cb2-4fe4-942e-4529a3ecbe9c"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>GetAlgoObjectById</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.001 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="7b1ded5a-7fc7-4352-880e-b36c08988c33"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>TryMandelbrotSetProcess</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.802 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: EventHandlerThreadTest</h2>
+        <a id="77e341af-90f2-4dbe-a2b2-f07d5d886f43"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.0 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>1</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>EventHandlerThreadTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="17d06ca7-e535-4823-b35f-44956c1b1f3e"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>BasicTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: SharedLibTest</h2>
+        <a id="3fe6f2ed-5f82-40cb-9af2-2f80094b7401"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.01 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>3</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>SharedLibTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="adc472ff-cccc-4f97-a259-69b233c6444f"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>InitDeInitTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="44c0c2ae-7293-4d17-8e06-34c83c33ea57"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>RegisterCallbackTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="3a959e7f-a30e-4fbe-9824-4c3300aba7b5"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>AlgoInterfaceProcessTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.01 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: RequestMonitorTest</h2>
+        <a id="eab130d3-5826-4711-a7ed-a796b5a78b0f"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>15.006 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>6</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>RequestMonitorTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="3fe1c1f5-7736-4719-b2a6-f18576d321fa"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>StartStopRequest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="d18b276f-8478-4647-918a-26038e307587"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>TimeoutExceedsTolerance</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>3.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="42ddd023-3bdf-4b12-bfc9-964f815463e8"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>RequestCompleteWithinTolerance</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>1.001 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="278419f5-223e-4a70-8cfb-32194dd13d89"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>RequestExceedsTimeoutWithoutStop</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>4.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="e9af5371-3b16-4190-989d-35e0d0a8f350"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>MultipleRequests</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>2.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="0ea7177e-e0c7-4765-bc31-3c2fe3e64531"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>RequestTimeoutNoStop</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>5.001 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: RequestMonitorStressTest</h2>
+        <a id="181c0f00-c334-4fb4-9e11-6def94f1386e"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>2.039 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>1</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>RequestMonitorStressTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="1253b84a-083e-49c7-8a82-17ab5f1a6591"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>NoCallbackForProcessingWithinTolerance</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>2.039 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: TaskQueueTest</h2>
+        <a id="1349492b-2a3d-4e51-8298-ba29eb30ba90"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>1.415 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>3</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>TaskQueueTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="c8fc22dd-e4e1-4564-b90b-67e44e151868"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>WaitForQueueCompletion</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>1.203 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="c9627fc7-9839-4694-854a-1eea77c6308b"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>StopWorkerThread</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.011 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="eb1825f9-b411-4d08-98df-489ea44c03ba"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>TestTimeoutCallback</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.2 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+    <div class="testsuite">
+        <h2>Test Suite: WatchdogTest</h2>
+        <a id="8303c31c-01d0-423b-b710-db6a0f60b8ed"></a>
+        
+        
+        <h3>Results</h3>
+        <table class="proplist">
+            <tr>
+                <th>Duration</th><td>0.2 sec</td>
+            </tr>
+            <tr>
+                <th>Tests</th><td>3</td>
+            </tr>
+            <tr>
+                <th>Failures</th><td>0</td>
+            </tr>
+        </table>
+
+        <div class="testclasses">
+            <h3>Tests</h3>
+            
+            <div class="testclass">
+                <h4>WatchdogTest</h4>
+                <div class="testcases">
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="455e7382-7e2a-45d6-8a73-67d52d542dc2"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>BarkTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.11 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="9b0b6796-75bb-4968-99a0-792954e2885c"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>ShouldNotBiteTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.09 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                    <div class="test outcome outcome-passed">
+                        <a id="4e265d2c-d610-4179-9c7d-d29836af1129"></a>
+                        <table class="proplist">
+                            <tr><th>Test case:</th><td><b>StressTest</b></td></tr>
+                            <tr><th>Outcome:</th><td>Passed</td></tr>
+                            <tr><th>Duration:</th><td>0.0 sec</td></tr>
+                        
+                        
+                        </table>
+
+                        
+                        
+
+                        
+                        
+                        
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+
+
+
+<p class="footer">
+    Generated by junit2html
+</p>
+</body>
+</html>

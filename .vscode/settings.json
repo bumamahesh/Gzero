@@ -68,6 +68,7 @@
         "regex": "cpp",
         "complex": "cpp",
         "fstream": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "cfenv": "cpp"
     }
 }

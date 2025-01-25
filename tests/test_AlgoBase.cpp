@@ -46,6 +46,13 @@ public:
     return GetAlgoStatus();
   }
 
+  /**
+   * @brief Get the Timeout object
+   *
+   * @return int
+   */
+  int GetTimeout() override { return 1000; }
+
 private:
 };
 
@@ -157,6 +164,13 @@ public:
     return GetAlgoStatus();
   }
 
+  /**
+   * @brief Get the Timeout object
+   *
+   * @return int
+   */
+  int GetTimeout() override { return 1000; }
+
 private:
 };
 
@@ -192,6 +206,104 @@ TEST(AlgoBaseTest, CallBackTestFail) {
   }
   node->WaitForQueueCompetion();
   EXPECT_EQ(g_Failcallbacks, 500);
+}
+
+/**
+ * @class MockDerivedAlgoFail
+ * @brief Mock implementation of AlgoBase for testing purposes.
+ */
+class MockDerivedAlgoTimeOutCallback : public AlgoBase {
+public:
+  /**
+   * @brief Constructor for MockDerivedAlgo.
+   * @param name Name of the algorithm.
+   */
+  explicit MockDerivedAlgoTimeOutCallback(const char *name) : AlgoBase(name) {}
+
+  /**
+   * @brief Destructor for MockDerivedAlgoFail.
+   */
+  ~MockDerivedAlgoTimeOutCallback() override = default;
+
+  /**
+   * @brief Open the algorithm, simulating resource availability checks.
+   * @return Status of the operation.
+   */
+  AlgoStatus Open() override {
+
+    SetStatus(AlgoStatus::SUCCESS);
+    return GetAlgoStatus();
+  }
+
+  /**
+   * @brief Process the algorithm, simulating input validation.
+   * @return Status of the operation.
+   */
+  AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
+
+    // usleep(5 * 1000); // Simulate processing time 20ms
+    SetStatus(AlgoStatus::INTERNAL_ERROR);
+    usleep(100 * 1000); // 100 ms
+
+    return GetAlgoStatus();
+  }
+
+  /**
+   * @brief Close the algorithm, simulating cleanup operations.
+   * @return Status of the operation.
+   */
+  AlgoStatus Close() override {
+
+    SetStatus(AlgoStatus::SUCCESS);
+    return GetAlgoStatus();
+  }
+
+  /**
+   * @brief Get the Timeout object
+   *
+   * @return int
+   */
+  int GetTimeout() override { return 50; }
+
+private:
+};
+
+size_t g_Timeoutcallbacks = 0;
+TEST(AlgoBaseTest, AlgoTimeOutCallback) {
+  {
+    std::shared_ptr<MockDerivedAlgoTimeOutCallback> node =
+        std::make_shared<MockDerivedAlgoTimeOutCallback>(
+            "MockDerivedAlgoTimeOutCallback");
+
+    EXPECT_EQ(node->GetAlgorithmName(), "MockDerivedAlgoTimeOutCallback");
+    g_Timeoutcallbacks = 0;
+    auto callback = [](void *ctx,
+                       std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+      assert(msg != nullptr);
+      switch (msg->mType) {
+      case AlgoBase::AlgoMessageType::ProcessingTimeout:
+        g_Timeoutcallbacks++;
+        break;
+      default:
+        assert(true);
+        break;
+      }
+    };
+    auto eventHandler =
+        std::make_shared<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>(
+            callback, nullptr);
+    node->SetEventThread(eventHandler);
+
+    for (int i = 0; i < 100; i++) {
+      auto task = std::make_shared<Task_t>();
+      task->timeoutMs = node->GetTimeout();
+      task->request = std::make_shared<AlgoRequest>();
+      task->request->mRequestId = i;
+      node->EnqueueRequest(task);
+    }
+    node->WaitForQueueCompetion();
+  }
+  EXPECT_EQ(g_Timeoutcallbacks, 100);
 }
 
 /**

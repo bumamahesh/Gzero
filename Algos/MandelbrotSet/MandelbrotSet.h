@@ -47,6 +47,13 @@ public:
   // cppcheck-suppress virtualCallInConstructor
   AlgoStatus Close() override;
 
+  /**
+   * @brief Get the Timeout object
+   *
+   * @return int
+   */
+  int GetTimeout() override;
+
 private:
   mutable std::mutex mutex_; // Mutex to protect the shared state
   double zoomLevel;

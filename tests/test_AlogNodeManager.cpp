@@ -1,7 +1,6 @@
 
 #include "AlgoNodeManager.h"
 #include "ImageUtils.h"
-#include "Log.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 // Test fixture

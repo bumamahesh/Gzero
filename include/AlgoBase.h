@@ -61,6 +61,7 @@ public:
   virtual AlgoStatus Open() = 0;
   virtual AlgoStatus Process(std::shared_ptr<AlgoRequest> req) = 0;
   virtual AlgoStatus Close() = 0;
+  virtual int GetTimeout() = 0;
   void StopAlgoThread();
   AlgoStatus GetAlgoStatus() const;
   std::string GetStatusString() const;
@@ -91,6 +92,7 @@ protected:
 private:
   static void ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task);
   static void ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task);
+  static void ProcessTimeoutCallback(void *Ctx, std::shared_ptr<Task_t> task);
 };
 
 #endif // ALGO_BASE_H
