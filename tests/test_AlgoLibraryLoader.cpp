@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include "../Utils/include/EventHandlerThread.h"
 #include "../include/AlgoLibraryLoader.h" // Include the header file for your class
-#include "EventHandlerThread.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

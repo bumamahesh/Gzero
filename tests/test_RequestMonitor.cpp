@@ -19,13 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "RequestMonitor.h"
+#include "../include/RequestMonitor.h"
 #include "Task.h"
-#include <chrono>
 #include <future>
 #include <gtest/gtest.h>
 #include <thread>
-#include <vector>
 
 class RequestMonitorTest : public ::testing::Test {
 protected:

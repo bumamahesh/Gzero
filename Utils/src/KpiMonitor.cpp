@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "KpiMonitor.h"
-#include "Log.h"
+#include "../include/KpiMonitor.h"
+#include "../include/Log.h"
 
 /**
  * @brief Construct a new Kpi Monitor:: Kpi Monitor object

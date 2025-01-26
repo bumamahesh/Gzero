@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "AlgoSession.h"
+#include "../include/AlgoSession.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

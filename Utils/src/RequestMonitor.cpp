@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "RequestMonitor.h"
-#include "Log.h"
+#include "../include/RequestMonitor.h"
+#include "../include/Log.h"
 #include <cassert>
 #include <chrono>
 #include <unistd.h>
@@ -38,7 +38,7 @@ RequestMonitor::RequestMonitor() : running_(true) {
   while (!bThreadStarted) {
     usleep(50);
   }
-  // LOG(ERROR, REQUESTMONITOR, " Request Monitor Created ");
+  LOG(VERBOSE, REQUESTMONITOR, " Request Monitor Created ");
 }
 
 /**
@@ -71,7 +71,7 @@ void RequestMonitor::StartRequestMonitoring(std::shared_ptr<Task_t> task,
   pthread_mutex_lock(&mutex_);
 
   if (requests_.find(task) != requests_.end()) {
-    LOG(ERROR, REQUESTMONITOR, "Request %p is already being monitored.",
+    LOG(VERBOSE, REQUESTMONITOR, "Request %p is already being monitored.",
         task.get());
     pthread_mutex_unlock(&mutex_);
     return;
@@ -80,7 +80,7 @@ void RequestMonitor::StartRequestMonitoring(std::shared_ptr<Task_t> task,
   requests_[task].start = std::chrono::high_resolution_clock::now();
   requests_[task].timeout = std::chrono::milliseconds(timeoutMs);
   requests_[task].isStopped = false;
-  // LOG(ERROR, REQUESTMONITOR, "Started monitoring request %p", task.get());
+  LOG(VERBOSE, REQUESTMONITOR, "Started monitoring request %p", task.get());
 
   pthread_mutex_unlock(&mutex_);
 }
@@ -94,8 +94,8 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
   pthread_mutex_lock(&mutex_);
   auto it = requests_.find(task);
   if (it == requests_.end()) {
-    // LOG(VERBOSE, REQUESTMONITOR, "Request %d was not being monitored.",
-    //     requestId);
+    LOG(VERBOSE, REQUESTMONITOR, "task %p was not being monitored.",
+        task.get());
     pthread_mutex_unlock(&mutex_);
     return;
   }
@@ -113,7 +113,7 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
 void *RequestMonitor::monitorTimeouts(void *arg) {
   RequestMonitor *monitor = static_cast<RequestMonitor *>(arg);
 
-  // LOG(ERROR, REQUESTMONITOR, "Entering Monitor Thread");
+  LOG(VERBOSE, REQUESTMONITOR, "Entering Monitor Thread");
   monitor->bThreadStarted = true;
 
   while (monitor->running_) {
@@ -131,9 +131,9 @@ void *RequestMonitor::monitorTimeouts(void *arg) {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
             now - request.start);
         if (elapsed > request.timeout) {
-          /*LOG(ERROR, REQUESTMONITOR,
+          LOG(VERBOSE, REQUESTMONITOR,
               "Req exceeded timeout! elapsed=%ld ms reqtimeout=%ld ms",
-              elapsed.count(), request.timeout.count());*/
+              elapsed.count(), request.timeout.count());
           if (monitor->pCallback) {
             monitor->pCallback(monitor->pcontext,
                                it->first); // Trigger the callback
@@ -148,6 +148,6 @@ void *RequestMonitor::monitorTimeouts(void *arg) {
     }
     pthread_mutex_unlock(&monitor->mutex_);
   }
-  // LOG(ERROR, REQUESTMONITOR, "Exiting Monitor Thread");
+  LOG(VERBOSE, REQUESTMONITOR, "Exiting Monitor Thread");
   return nullptr;
 }

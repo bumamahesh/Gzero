@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "AlgoRequest.h"
+#include "../include/AlgoRequest.h"
 #include <gtest/gtest.h>
 
 TEST(AlgoRequestTest, AlgoRequestTest) {
