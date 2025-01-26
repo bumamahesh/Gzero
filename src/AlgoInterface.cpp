@@ -28,6 +28,7 @@
  */
 AlgoInterface::AlgoInterface() {
   Log::SetLevel(LogLevel::L_INFO);
+  LOG(INFO, ALGOINTERFACE, "AlgoInterface::AlgoInterface");
   mSession = std::make_shared<AlgoSession>(
       AlgoInterface::SessionCallbackHandler, this);
 }
@@ -36,7 +37,9 @@ AlgoInterface::AlgoInterface() {
  * @brief Destroy the Algo Interface:: Algo Interface object
  *
  */
-AlgoInterface::~AlgoInterface() {}
+AlgoInterface::~AlgoInterface() {
+  LOG(INFO, ALGOINTERFACE, "AlgoInterface::~AlgoInterface");
+}
 
 /**
  * @brief
@@ -47,6 +50,7 @@ AlgoInterface::~AlgoInterface() {}
  */
 bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request) {
 
+  LOG(INFO, ALGOINTERFACE, "AlgoInterface::Process");
   if (mSession) {
     mSession->SessionProcess(request);
     mSession->Dump();

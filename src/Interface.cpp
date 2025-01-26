@@ -33,6 +33,7 @@ SHARED_LIB_EXPORT int InitAlgoInterface(void **libhandle) {
   if (algoInterface == nullptr) {
     return -1;
   }
+  LOG(INFO, ALGOINTERFACE, "InitAlgoInterface");
   *libhandle = algoInterface;
   LOG(ERROR, ALGOINTERFACE, "ALGO VERSION 0.1.2");
   return 0;
@@ -49,6 +50,7 @@ SHARED_LIB_EXPORT int DeInitAlgoInterface(void **libhandle) {
   if (*libhandle == nullptr) {
     return -1;
   }
+  LOG(INFO, ALGOINTERFACE, "DeInitAlgoInterface");
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(*libhandle);
   delete algoInterface;
   *libhandle = nullptr;
@@ -67,6 +69,7 @@ SHARED_LIB_EXPORT int AlgoInterfaceProcess(void **libhandle,
   if (*libhandle == nullptr) {
     return -1;
   }
+  LOG(INFO, ALGOINTERFACE, "AlgoInterfaceProcess");
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(*libhandle);
   algoInterface->Process(input);
   return 0;
@@ -86,6 +89,7 @@ RegisterCallback(void **libhandle,
   if (*libhandle == nullptr) {
     return -1;
   }
+  LOG(INFO, ALGOINTERFACE, "RegisterCallback");
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(*libhandle);
   algoInterface->pIntfCallback = Callback;
   return 0;

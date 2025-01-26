@@ -46,12 +46,14 @@ AlgoSession::~AlgoSession() { SessionStop(); }
  * @return false
  */
 bool AlgoSession::SessionStop() {
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionStop E");
   for (auto &pipeline : mPipelines) {
     pipeline->WaitForQueueCompetion();
   }
   mPipelines.clear();
   mPipelineMap.clear();
   mNextPipelineId = 0;
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionStop X");
   return true;
 }
 
@@ -63,12 +65,14 @@ bool AlgoSession::SessionStop() {
  * @return false
  */
 bool AlgoSession::SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline) {
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionAddPipeline E");
   if (pipeline == nullptr) {
     return false;
   }
   size_t pipelineId = mNextPipelineId++;
   mPipelines.push_back(pipeline);
   mPipelineMap[pipelineId] = pipeline;
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionAddPipeline X");
   return true;
 }
 
@@ -102,6 +106,7 @@ bool AlgoSession::SessionRemovePipeline(size_t pipelineId) {
  * @return false
  */
 bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionProcess E");
   std::vector<AlgoId> algoList = SessionGetAlgoList();
   int pipelineId = SessionGetpipelineId(algoList);
   if (pipelineId == -1) {
@@ -117,7 +122,7 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
   }
 
   SessionProcess(pipelineId, input);
-
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionProcess X");
   return true;
 }
 
@@ -131,11 +136,14 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
  */
 bool AlgoSession::SessionProcess(size_t pipelineId,
                                  std::shared_ptr<AlgoRequest> input) {
+
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionProcess E");
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
     return false;
   }
   it->second->Process(input);
+  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionProcess X");
   return true;
 }
 

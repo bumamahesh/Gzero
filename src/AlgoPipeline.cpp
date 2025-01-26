@@ -28,6 +28,7 @@
  * @param algoList
  */
 AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::AlgoPipeline E");
   mProcessedFrames = 0;
   mState = AlgoPipelineState::Initialised;
   this->pSesionCallBackHandler = pSesionCallBackHandler;
@@ -35,6 +36,7 @@ AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
   pEventHandlerThread =
       std::make_shared<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>(
           AlgoPipeline::NodeEventHandler, this);
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::AlgoPipeline X");
 }
 
 /**
@@ -42,6 +44,7 @@ AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
  *
  */
 AlgoPipeline::~AlgoPipeline() {
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::~AlgoPipeline E");
   for (auto &algo : mAlgos) {
     algo->WaitForQueueCompetion();
   }
@@ -49,6 +52,7 @@ AlgoPipeline::~AlgoPipeline() {
   mAlgos.clear();
   mAlgoListId.clear();
   mAlgoListName.clear();
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::~AlgoPipeline X");
 }
 
 /**
@@ -85,8 +89,8 @@ std::vector<AlgoId> AlgoPipeline::GetAlgoListId() const { return mAlgoListId; }
 AlgoPipelineState
 AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
 
-  // LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld",
-  //     algoList.size());
+  LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld ",
+      algoList.size());
 
   if (GetState() == AlgoPipelineState::Initialised) {
     if (algoList.size() == 0) {
@@ -119,6 +123,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
     LOG(ERROR, ALGOPIPELINE,
         "AlgoPipeline is not Currect State to Configure ::%d", (int)GetState());
   }
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::ConfigureAlgoPipeline X");
   return GetState();
 }
 
@@ -131,7 +136,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
 AlgoPipelineState
 AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
 
-  LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld",
+  LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld ",
       algoList.size());
   if (GetState() == AlgoPipelineState::Initialised) {
     if (algoList.size() == 0) {
@@ -163,6 +168,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Configure");
   }
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::ConfigureAlgoPipeline X");
   return GetState();
 }
 
@@ -172,7 +178,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
  * @param input
  */
 void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
-
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::Process E");
   if (mAlgos.size() == 0) {
     // LOG(ERROR, ALGOPIPELINE, "No algos to process");
     return;
@@ -198,6 +204,7 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Process");
   }
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::Process X");
 }
 
 /**
@@ -290,7 +297,7 @@ void AlgoPipeline::NodeEventHandler(
  *
  */
 void AlgoPipeline::WaitForQueueCompetion() {
-
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::WaitForQueueCompetion E");
   const std::chrono::milliseconds timeoutDuration(500);
   int statsTimeout = 0;
   std::unique_lock<std::mutex> lock(mRequesteMapMutex);
@@ -319,6 +326,7 @@ void AlgoPipeline::WaitForQueueCompetion() {
       algo->WaitForQueueCompetion();
     }
     */
+  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::WaitForQueueCompetion X");
 }
 
 /**

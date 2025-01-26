@@ -41,7 +41,7 @@ AlgoNodeManager &AlgoNodeManager::Getinstance() {
  * @param libraryPath
  */
 AlgoNodeManager::AlgoNodeManager() {
-
+  LOG(VERBOSE, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager E");
   mLibraryPath =
       "/home/uma/workspace/Gzero/cmake/lib/"; // "@todo get from xml later
   /*open path and prepeare a list of shared librbary of format com.Algo.*.so*/
@@ -73,7 +73,7 @@ AlgoNodeManager::AlgoNodeManager() {
   mIdToAlgoNameMap.clear();
   /* retrive algo id and name and save , algo objects are not created here */
   for (auto &lib : mSharedLibrariesPath) {
-    // LOG(VERBOSE, ALGOMANAGER, "E Loading library: %s", lib.c_str());
+    LOG(VERBOSE, ALGOMANAGER, "E Loading library: %s", lib.c_str());
     std::shared_ptr<AlgoLibraryLoader> pAlgoLoader = nullptr;
 
     try {
@@ -88,8 +88,9 @@ AlgoNodeManager::AlgoNodeManager() {
       assert(pAlgoLoader);
     }
 
-    // LOG(VERBOSE, ALGOMANAGER, "X Loading library: %s", lib.c_str());
+    LOG(VERBOSE, ALGOMANAGER, "X Loading library: %s", lib.c_str());
   }
+  LOG(VERBOSE, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager X");
 }
 
 /**
@@ -97,7 +98,7 @@ AlgoNodeManager::AlgoNodeManager() {
  *
  */
 AlgoNodeManager::~AlgoNodeManager() {
-  // LOG(ERROR, ALGOMANAGER, "~AlgoNodeManager");
+  LOG(VERBOSE, ALGOMANAGER, "~AlgoNodeManager E");
 
   // Clear other containers
   mAlgoMap.clear();
@@ -109,6 +110,7 @@ AlgoNodeManager::~AlgoNodeManager() {
     entry.second.reset(); // Reset shared pointers to ensure proper cleanup
   }
   mIdLoaderMap.clear(); // Clear the map after releasing resources
+  LOG(VERBOSE, ALGOMANAGER, "~AlgoNodeManager X");
 }
 
 /**
@@ -145,7 +147,7 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(AlgoId algoId) {
   if (IsAlgoAvailable(algoId)) {
     return mIdLoaderMap[algoId]->GetAlgoMethod();
   }
-  LOG(DEBUG, ALGOMANAGER, "Algo not available");
+  LOG(ERROR, ALGOMANAGER, "Algo not available");
   return nullptr;
 }
 
@@ -165,7 +167,7 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string &algoName) {
   }
 
   // If no match is found, log and return nullptr
-  LOG(DEBUG, ALGOMANAGER, "Algo not available");
+  LOG(ERROR, ALGOMANAGER, "Algo not available");
   return nullptr;
 }
 /**

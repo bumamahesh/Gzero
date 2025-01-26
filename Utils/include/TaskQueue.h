@@ -36,7 +36,7 @@ typedef void (*TASKFUNC)(void *Ctx, std::shared_ptr<Task_t> task);
 class TaskQueue {
 public:
   // Constructor
-  explicit TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *TaskCtx);
+  explicit TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx);
 
   // Destructor
   ~TaskQueue();

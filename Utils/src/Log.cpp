@@ -22,7 +22,8 @@
 #include "../include/Log.h"
 #include <chrono>
 #include <iomanip>
-#include <thread>
+//#include <thread>
+#include <pthread.h>
 // Function to get current time
 std::string getCurrentTime() {
   auto now = std::chrono::system_clock::now();
@@ -40,7 +41,7 @@ std::string getCurrentTime() {
 // Function to get current thread id
 std::string getCurrentThreadId() {
   std::stringstream ss;
-  ss << std::this_thread::get_id();
+  ss << pthread_self();
   return ss.str();
 }
 
@@ -98,7 +99,7 @@ std::string getLogLevelAbbreviation(LogLevel level) {
 }
 
 // Log class static member definition and implementation
-LogLevel Log::logLevel = LogLevel::L_DEBUG; // Initialize static member
+LogLevel Log::logLevel = LogLevel::L_INFO; // Initialize static member
 
 void Log::SetLevel(LogLevel level) { logLevel = level; }
 
