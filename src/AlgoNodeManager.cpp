@@ -1,6 +1,8 @@
 #include "AlgoNodeManager.h"
 #include "AlgoLibraryLoader.h"
 #include "Log.h"
+#include <algorithm>
+#include <cassert>
 #include <filesystem>
 #include <regex>
 #include <string>
@@ -51,14 +53,20 @@ AlgoNodeManager::AlgoNodeManager() {
   /* retrive algo id and name and save , algo objects are not created here */
   for (auto &lib : mSharedLibrariesPath) {
     // LOG(VERBOSE, ALGOMANAGER, "E Loading library: %s", lib.c_str());
-    std::shared_ptr<AlgoLibraryLoader> pAlgoLoader =
-        std::make_shared<AlgoLibraryLoader>(lib);
-    if (pAlgoLoader.get() != nullptr) {
+    std::shared_ptr<AlgoLibraryLoader> pAlgoLoader = nullptr;
+
+    try {
+      pAlgoLoader = std::make_shared<AlgoLibraryLoader>(lib);
       auto algo = pAlgoLoader->GetAlgoMethod();
       mIdToAlgoNameMap[pAlgoLoader->GetAlgoId()] =
           pAlgoLoader->GetAlgorithmName();
       mIdLoaderMap[pAlgoLoader->GetAlgoId()] = pAlgoLoader;
+    } catch (const std::bad_alloc &e) {
+      LOG(ERROR, ALGOMANAGER,
+          "Failed to allocate memory for AlgoLibraryLoader");
+      assert(pAlgoLoader);
     }
+
     // LOG(VERBOSE, ALGOMANAGER, "X Loading library: %s", lib.c_str());
   }
 }
@@ -101,12 +109,9 @@ bool AlgoNodeManager::IsAlgoAvailable(AlgoId algoId) const {
  * @return false
  */
 bool AlgoNodeManager::IsAlgoAvailable(std::string &algoName) const {
-  for (const auto &algo : mIdToAlgoNameMap) {
-    if (algo.second == algoName) {
-      return true;
-    }
-  }
-  return false;
+  return std::any_of(
+      mIdToAlgoNameMap.begin(), mIdToAlgoNameMap.end(),
+      [&algoName](const auto &algo) { return algo.second == algoName; });
 }
 
 /**
@@ -130,11 +135,15 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(AlgoId algoId) {
  * @return std::shared_ptr<AlgoBase>
  */
 std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string &algoName) {
-  for (const auto &algo : mIdToAlgoNameMap) {
-    if (algo.second == algoName) {
-      return mIdLoaderMap[algo.first]->GetAlgoMethod();
-    }
+  auto it = std::find_if(
+      mIdToAlgoNameMap.begin(), mIdToAlgoNameMap.end(),
+      [&algoName](const auto &algo) { return algo.second == algoName; });
+
+  if (it != mIdToAlgoNameMap.end()) {
+    return mIdLoaderMap[it->first]->GetAlgoMethod();
   }
+
+  // If no match is found, log and return nullptr
   LOG(DEBUG, ALGOMANAGER, "Algo not available");
   return nullptr;
 }

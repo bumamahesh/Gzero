@@ -208,7 +208,7 @@ void AlgoSession::PiplineCallBackHandler(void *pctx,
                                          std::shared_ptr<AlgoRequest> input) {
   AlgoSession *pSession = static_cast<AlgoSession *>(pctx);
   if (pSession) {
-    if (pSession && pSession->pInterfaceCallBackHandler) {
+    if (pSession->pInterfaceCallBackHandler) {
       std::lock_guard<std::mutex> lock(pSession->mCallbackMutex);
       pSession->pInterfaceCallBackHandler(pSession->pInterfaceCtx, input);
     }

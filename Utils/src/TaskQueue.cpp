@@ -30,7 +30,7 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
         // Exit the thread if the stop signal is received
         if (!pTaskQObj->mTaskQueue.empty()) {
           LOG(ERROR, TASKQUEUE,
-              "TaskQueue has  %ld task pending But still Exiting ...",
+              "TaskQueue has  %zu task pending But still Exiting ...",
               pTaskQObj->mTaskQueue.size());
         }
         break;

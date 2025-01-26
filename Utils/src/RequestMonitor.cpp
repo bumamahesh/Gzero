@@ -50,8 +50,8 @@ void RequestMonitor::StartRequestMonitoring(std::shared_ptr<Task_t> task,
   pthread_mutex_lock(&mutex_);
 
   if (requests_.find(task) != requests_.end()) {
-    std::cout << "Request " << task.get() << " is already being monitored."
-              << std::endl;
+    LOG(ERROR, REQUESTMONITOR, "Request %p is already being monitored.",
+        task.get());
     pthread_mutex_unlock(&mutex_);
     return;
   }

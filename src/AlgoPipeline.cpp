@@ -188,8 +188,8 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
 void AlgoPipeline::NodeEventHandler(
     void *ctx, std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
   // static lockguard
-  static std::mutex mCallbackMutex;
-  std::lock_guard<std::mutex> lock(mCallbackMutex);
+  // static std::mutex mCallbackMutex;
+  // std::lock_guard<std::mutex> lock(mCallbackMutex);
   assert(msg != nullptr);
   assert(ctx != nullptr);
   auto plPipeline = reinterpret_cast<AlgoPipeline *>(ctx);
@@ -288,8 +288,8 @@ void AlgoPipeline::WaitForQueueCompetion() {
       }
       statsTimeout = 0;
     }
-    std::cout << "Waiting... " << mRequesteMap.size()
-              << " requests still pending.\n";
+    LOG(ERROR, ALGOPIPELINE, "Waiting... %ld requests still pending.",
+        mRequesteMap.size());
   }
 
   /*

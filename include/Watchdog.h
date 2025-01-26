@@ -9,7 +9,7 @@
 
 class Watchdog {
 private:
-  int timeout_; // in millisecond
+  int timeout_ = 0; // in millisecond
   timer_t timer_;
   std::atomic<bool> timer_created_;
   void (*callback_)();

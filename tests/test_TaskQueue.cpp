@@ -32,9 +32,7 @@ TEST(TaskQueueTest, StopWorkerThread) {
 
 /**test timout callback with long processing time and short timeout register */
 auto longTask = [](void *ctx, std::shared_ptr<Task_t> task) {
-  std::cout << "starting task" << std::endl;
   usleep(30 * 1000); // wait for 30 ms
-  std::cout << "Completed task" << std::endl;
 };
 bool bTimeoutCallback = false;
 auto timeoutCallback = [](void *, std::shared_ptr<Task_t> task) {
