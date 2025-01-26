@@ -23,7 +23,7 @@
 #define LDC_ALGORITHM_H
 
 #include "AlgoBase.h"
-const char *LDC_NAME = "ldcAlgorithm";
+const char *LDC_NAME = "LdcAlgorithm";
 
 struct CameraIntrinsics {
   std::pair<double, double> focalLength;    // fx, fy
@@ -49,21 +49,21 @@ struct CalibrationData {
 };
 
 /**
- * @brief ldcAlgorithm class derived from AlgoBase to perform LDC-specific
+ * @brief LdcAlgorithm class derived from AlgoBase to perform LDC-specific
  * operations.
  */
-class ldcAlgorithm : public AlgoBase {
+class LdcAlgorithm : public AlgoBase {
 public:
   /**
-   * @brief Constructor for ldcAlgorithm.
+   * @brief Constructor for LdcAlgorithm.
    *
    */
-  ldcAlgorithm();
+  LdcAlgorithm();
 
   /**
-   * @brief Destructor for ldcAlgorithm.
+   * @brief Destructor for LdcAlgorithm.
    */
-  ~ldcAlgorithm() override;
+  ~LdcAlgorithm() override;
 
   /**
    * @brief Open the LDC algorithm, simulating resource checks.
@@ -110,8 +110,8 @@ private:
 };
 
 /**
- * @brief Factory function to expose ldcAlgorithm via shared library.
- * @return A pointer to the ldcAlgorithm instance.
+ * @brief Factory function to expose LdcAlgorithm via shared library.
+ * @return A pointer to the LdcAlgorithm instance.
  */
 extern "C" AlgoBase *GetAlgoMethod();
 

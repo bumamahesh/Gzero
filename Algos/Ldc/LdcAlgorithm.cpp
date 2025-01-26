@@ -21,17 +21,17 @@
  */
 #include "LdcAlgorithm.h"
 /**
- * @brief Constructor for ldcAlgorithm.
+ * @brief Constructor for LdcAlgorithm.
  * @param name Name of the ldc algorithm.
  */
-ldcAlgorithm::ldcAlgorithm() : AlgoBase(LDC_NAME) {
+LdcAlgorithm::LdcAlgorithm() : AlgoBase(LDC_NAME) {
   mAlgoId = ALGO_LDC; // Unique ID for ldc algorithm
 }
 
 /**
- * @brief Destructor for ldcAlgorithm.
+ * @brief Destructor for LdcAlgorithm.
  */
-ldcAlgorithm::~ldcAlgorithm() {
+LdcAlgorithm::~LdcAlgorithm() {
   StopAlgoThread();
   Close();
 };
@@ -40,7 +40,7 @@ ldcAlgorithm::~ldcAlgorithm() {
  * @brief Open the ldc algorithm, simulating resource checks.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus ldcAlgorithm::Open() {
+AlgoBase::AlgoStatus LdcAlgorithm::Open() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
@@ -52,7 +52,7 @@ AlgoBase::AlgoStatus ldcAlgorithm::Open() {
  * computation.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus ldcAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
+AlgoBase::AlgoStatus LdcAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
   // Perform calibration data calculation
   CalculateCalibrationData(req);
@@ -68,7 +68,7 @@ AlgoBase::AlgoStatus ldcAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
  * @brief Close the ldc algorithm, simulating cleanup.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus ldcAlgorithm::Close() {
+AlgoBase::AlgoStatus LdcAlgorithm::Close() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
@@ -80,9 +80,9 @@ AlgoBase::AlgoStatus ldcAlgorithm::Close() {
  *
  * @return int
  */
-int ldcAlgorithm::GetTimeout() { return 1000; }
+int LdcAlgorithm::GetTimeout() { return 1000; }
 
-CameraIntrinsics ldcAlgorithm::ComputeCameraIntrinsics(
+CameraIntrinsics LdcAlgorithm::ComputeCameraIntrinsics(
     const std::vector<std::shared_ptr<ImageData>> &yuvImages) {
   // Placeholder for actual camera intrinsics computation logic
   CameraIntrinsics intrinsics;
@@ -92,7 +92,7 @@ CameraIntrinsics ldcAlgorithm::ComputeCameraIntrinsics(
   return intrinsics;
 }
 
-CameraExtrinsics ldcAlgorithm::ComputeCameraExtrinsics(
+CameraExtrinsics LdcAlgorithm::ComputeCameraExtrinsics(
     const std::vector<std::shared_ptr<ImageData>> &yuvImages) {
   // Placeholder for actual camera extrinsics computation logic
   CameraExtrinsics extrinsics;
@@ -102,7 +102,7 @@ CameraExtrinsics ldcAlgorithm::ComputeCameraExtrinsics(
   return extrinsics;
 }
 
-void ldcAlgorithm::CalculateCalibrationData(std::shared_ptr<AlgoRequest> req) {
+void LdcAlgorithm::CalculateCalibrationData(std::shared_ptr<AlgoRequest> req) {
   // Ensure that there are images to process
   if (req->GetImageCount() == 0) {
     SetStatus(AlgoStatus::FAILURE);
@@ -130,11 +130,11 @@ void ldcAlgorithm::CalculateCalibrationData(std::shared_ptr<AlgoRequest> req) {
 
 // Public Exposed API for ldc
 /**
- * @brief Factory function to expose ldcAlgorithm via shared library.
- * @return A pointer to the ldcAlgorithm instance.
+ * @brief Factory function to expose LdcAlgorithm via shared library.
+ * @return A pointer to the LdcAlgorithm instance.
  */
 extern "C" AlgoBase *GetAlgoMethod() {
-  ldcAlgorithm *pInstance = new ldcAlgorithm();
+  LdcAlgorithm *pInstance = new LdcAlgorithm();
   return pInstance;
 }
 
