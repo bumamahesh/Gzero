@@ -45,9 +45,9 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
  *
  */
 AlgoLibraryLoader::~AlgoLibraryLoader() {
-  LOG(VERBOSE, ALGOLIBLOADER,
+  /*LOG(VERBOSE, ALGOLIBLOADER,
       "%s::[%p]Total Algo Instances %ld plibHandle:: %p",
-      GetAlgorithmName().c_str(), this, mTotalAlgoInstances, plibHandle);
+      GetAlgorithmName().c_str(), this, mTotalAlgoInstances, plibHandle);*/
   if (plibHandle) {
     mTotalAlgoInstances = 0;
     dlclose(plibHandle);

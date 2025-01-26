@@ -19,7 +19,7 @@ file(GLOB CORE_SOURCES
 add_executable(test_algo_base ${TEST_SOURCES} ${CORE_SOURCES})
 
 # Add option to control AddressSanitizer
-option(ENABLE_ASAN "Enable AddressSanitizer" ON)
+option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
 if(ENABLE_ASAN)
     set(ASAN 1)

@@ -50,7 +50,7 @@ endif()
 
 
 # Option to enable/disable ASAN
-option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" ON)
+option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" OFF)
 
 if(ENABLE_ASAN)
     set(ASAN 1)

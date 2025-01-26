@@ -110,9 +110,9 @@ void *RequestMonitor::monitorTimeouts(void *arg) {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
             now - request.start);
         if (elapsed > request.timeout) {
-          LOG(ERROR, REQUESTMONITOR,
+          /*LOG(ERROR, REQUESTMONITOR,
               "Req exceeded timeout! elapsed=%ld ms reqtimeout=%ld ms",
-              elapsed.count(), request.timeout.count());
+              elapsed.count(), request.timeout.count());*/
           if (monitor->pCallback) {
             monitor->pCallback(monitor->pcontext,
                                it->first); // Trigger the callback

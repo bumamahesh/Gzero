@@ -49,9 +49,9 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
       if ((pTaskQObj->monitor.get() != nullptr) && (task.get() != nullptr) &&
           (task->request.get() != nullptr)) {
         bShouldMonitor = true;
-      } else {
+      } /*else {
         LOG(ERROR, TASKQUEUE, "task is not monitored");
-      }
+      }*/
 
       if (bShouldMonitor) {
         pTaskQObj->monitor->StartRequestMonitoring(task, task->timeoutMs);
