@@ -23,29 +23,30 @@
 #define LOG_H
 #pragma once
 
-#include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <thread>
-
 // Logging levels
+// Updated LogLevel enum class with VERBOSE included
 enum class LogLevel {
-  L_DEBUG = 0,
-  L_INFO,
-  L_VERBOSE,
-  L_WARNING,
-  L_ERROR,
-  L_FATAL
+  L_TRACE = 0, // Logs even more detailed than DEBUG  //more logs
+  L_DEBUG,     // Debugging information
+  L_VERBOSE,   // More detailed logs than DEBUG, often for diagnostics
+  L_INFO,      // General informational messages
+  L_WARNING,   // Warnings about potentially harmful situations
+  L_ERROR,     // Errors during execution
+  L_FATAL      // Critical errors, often resulting in termination //less logs
 };
 
-#define DEBUG 0
-#define INFO 1
-#define VERBOSE 2
-#define WARNING 3
-#define ERROR 4
-#define FATAL 5
+// Updated macro definitions linked to LogLevel values
+#define TRACE static_cast<int>(LogLevel::L_TRACE)
+#define DEBUG static_cast<int>(LogLevel::L_DEBUG)
+#define VERBOSE static_cast<int>(LogLevel::L_VERBOSE)
+#define INFO static_cast<int>(LogLevel::L_INFO)
+#define WARNING static_cast<int>(LogLevel::L_WARNING)
+#define ERROR static_cast<int>(LogLevel::L_ERROR)
+#define FATAL static_cast<int>(LogLevel::L_FATAL)
 
 #define TASKQUEUE "TASKQUEUE"
 #define ALGOBASE "ALGOBASE"
@@ -62,15 +63,18 @@ enum class LogLevel {
 // Function declarations
 std::string getCurrentTime();
 std::string getCurrentThreadId();
+std::string getLogLevelAbbreviation(LogLevel level);
 // Macro to log message with log component, log level, and variable parameters
 #define LOG(level, component, fmt, ...)                                        \
   do {                                                                         \
-    if (Log::GetLevel() <= static_cast<LogLevel>(level)) {                     \
+    if (Log::GetLevel() >= static_cast<LogLevel>(level)) {                     \
       char buffer[1024];                                                       \
       std::snprintf(buffer, sizeof(buffer), fmt, ##__VA_ARGS__);               \
       std::stringstream ss;                                                    \
       ss << "[" << getCurrentTime() << "]"                                     \
-         << "[" << component << "]"                                            \
+         << "[" << std::left << std::setw(15) << component << "]"              \
+         << "[" << getLogLevelAbbreviation(static_cast<LogLevel>(level))       \
+         << "]"                                                                \
          << "[" << __func__ << "]"                                             \
          << "[" << __LINE__ << "]"                                             \
          << "[" << getCurrentThreadId() << "] " << buffer << std::endl;        \

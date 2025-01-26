@@ -21,6 +21,8 @@
  */
 #include "../include/Log.h"
 #include <chrono>
+#include <iomanip>
+#include <thread>
 // Function to get current time
 std::string getCurrentTime() {
   auto now = std::chrono::system_clock::now();
@@ -45,6 +47,9 @@ std::string getCurrentThreadId() {
 // Overload the << operator for LogLevel enum class
 std::ostream &operator<<(std::ostream &os, const LogLevel &level) {
   switch (level) {
+  case LogLevel::L_TRACE:
+    os << "TRACE";
+    break;
   case LogLevel::L_DEBUG:
     os << "DEBUG";
     break;
@@ -68,6 +73,28 @@ std::ostream &operator<<(std::ostream &os, const LogLevel &level) {
     break;
   }
   return os;
+}
+
+// Helper function to get log level abbreviation
+std::string getLogLevelAbbreviation(LogLevel level) {
+  switch (level) {
+  case LogLevel::L_TRACE:
+    return "T"; // Trace
+  case LogLevel::L_DEBUG:
+    return "D"; // Debug
+  case LogLevel::L_VERBOSE:
+    return "V"; // Verbose
+  case LogLevel::L_INFO:
+    return "I"; // Info
+  case LogLevel::L_WARNING:
+    return "W"; // Warning
+  case LogLevel::L_ERROR:
+    return "E"; // Error
+  case LogLevel::L_FATAL:
+    return "F"; // Fatal
+  default:
+    return "?"; // Unknown level
+  }
 }
 
 // Log class static member definition and implementation

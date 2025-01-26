@@ -118,6 +118,14 @@ TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
       std::string outfile = "output" + std::to_string(i++) + ".raw";
       SaveRawDataToFile(outfile, rawData);
     } break;
+    case AlgoBase::AlgoMessageType::ProcessingFailed:
+      break;
+    case AlgoBase::AlgoMessageType::ProcessingTimeout:
+      break;
+    case AlgoBase::AlgoMessageType::ProcessingPartial:
+      break;
+    case AlgoBase::AlgoMessageType::ProcessDone:
+      break;
     default:
       assert(false);
       break;
