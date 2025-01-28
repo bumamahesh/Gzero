@@ -48,11 +48,12 @@ AlgoInterface::~AlgoInterface() {
  * @return true
  * @return false
  */
-bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request) {
+bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
+                            std::vector<AlgoId> algoList) {
 
   LOG(INFO, ALGOINTERFACE, "AlgoInterface::Process");
   if (mSession) {
-    mSession->SessionProcess(request);
+    mSession->SessionProcess(request, algoList);
     // mSession->Dump();
   } else {
     LOG(ERROR, ALGOINTERFACE, "mSession is nullptr");

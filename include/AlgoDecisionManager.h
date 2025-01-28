@@ -19,45 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "AlgoInterface.h"
+
+#ifndef ALGODECISIONMANAGER_H
+#define ALGODECISIONMANAGER_H
+
+#include "AlgoDefs.h"
+#include "AlgoNodeManager.h"
 #include <memory>
-#define SHARED_LIB_EXPORT __attribute__((visibility("default")))
-// API declarations
-extern "C" {
+#include <string>
+#include <vector>
 
-/**
- * @brief  Initializes the shared library.
- *
- * @param libhandle
- * @return status
- */
-SHARED_LIB_EXPORT int InitAlgoInterface(void **libhandle);
+class AlgoDecisionManager {
+public:
+  AlgoDecisionManager();
+  ~AlgoDecisionManager();
 
-/**
- * @brief Deinitializes the shared library and releases resources.
- *
- * @param libhandle
- * @return status
- */
-SHARED_LIB_EXPORT int DeInitAlgoInterface(void **libhandle);
+private:
+};
 
-/**
- * @brief Processes capture data.
- *
- * @param input
- * @return status
- */
-SHARED_LIB_EXPORT int AlgoInterfaceProcess(void **libhandle,
-                                           std::shared_ptr<AlgoRequest> input,
-                                           std::vector<AlgoId> algoList);
-
-/**
- * @brief  Register callbacks
- *
- * @param Callback
- * @return status
- */
-SHARED_LIB_EXPORT int
-RegisterCallback(void **libhandle,
-                 int (*Callback)(std::shared_ptr<AlgoRequest> input));
-}
+#endif // ALGODECISIONMANAGER_H

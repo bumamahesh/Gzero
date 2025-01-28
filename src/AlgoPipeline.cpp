@@ -123,7 +123,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
     LOG(ERROR, ALGOPIPELINE,
         "AlgoPipeline is not Currect State to Configure ::%d", (int)GetState());
   }
-  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::ConfigureAlgoPipeline X");
+  LOG(INFO, ALGOPIPELINE, "AlgoPipeline::ConfigureAlgoPipeline X");
   return GetState();
 }
 

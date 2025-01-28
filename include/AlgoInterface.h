@@ -28,7 +28,8 @@ class AlgoInterface {
 public:
   AlgoInterface();
   ~AlgoInterface();
-  bool Process(std::shared_ptr<AlgoRequest> request);
+  bool Process(std::shared_ptr<AlgoRequest> request,
+               std::vector<AlgoId> algoList);
   int (*pIntfCallback)(std::shared_ptr<AlgoRequest> input) = nullptr;
 
 private:

@@ -19,15 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include "../include/AlgoDefs.h"
 #include "../include/AlgoRequest.h"
 #include <dlfcn.h>
 #include <gtest/gtest.h>
 #include <memory>
-
 // Type aliases for function pointers
 typedef int (*InitAlgoInterfaceFunc)(void **);
 typedef int (*DeInitAlgoInterfaceFunc)(void **);
-typedef int (*AlgoInterfaceProcessFunc)(void **, std::shared_ptr<AlgoRequest>);
+typedef int (*AlgoInterfaceProcessFunc)(void **, std::shared_ptr<AlgoRequest>,
+                                        std::vector<AlgoId>);
 typedef int (*RegisterCallbackFunc)(void **,
                                     int (*)(std::shared_ptr<AlgoRequest>));
 
@@ -125,7 +126,6 @@ TEST_F(SharedLibTest, RegisterCallbackTest) {
 int cb_cnt = 0;
 int ImageCallback(std::shared_ptr<AlgoRequest> input) {
   // Simulate callback logic
-  std::cout << "ImageCallback" << std::endl;
   cb_cnt++;
   return 0; // Return success
 }
@@ -148,7 +148,7 @@ TEST_F(SharedLibTest, AlgoInterfaceProcessTest) {
   request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, yuvData);
 
   // Process the request
-  status = AlgoInterfaceProcess(&algoHandle, request);
+  status = AlgoInterfaceProcess(&algoHandle, request, {ALGO_HDR});
   ASSERT_EQ(status, 0) << "AlgoInterfaceProcess failed with status: " << status;
 
   while (cb_cnt == 0) {

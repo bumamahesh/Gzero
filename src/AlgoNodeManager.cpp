@@ -73,7 +73,7 @@ AlgoNodeManager::AlgoNodeManager() {
   mIdToAlgoNameMap.clear();
   /* retrive algo id and name and save , algo objects are not created here */
   for (auto &lib : mSharedLibrariesPath) {
-    LOG(VERBOSE, ALGOMANAGER, "E Loading library: %s", lib.c_str());
+    LOG(INFO, ALGOMANAGER, "E Loading library: %s", lib.c_str());
     std::shared_ptr<AlgoLibraryLoader> pAlgoLoader = nullptr;
 
     try {
@@ -88,7 +88,7 @@ AlgoNodeManager::AlgoNodeManager() {
       assert(pAlgoLoader);
     }
 
-    LOG(VERBOSE, ALGOMANAGER, "X Loading library: %s", lib.c_str());
+    LOG(INFO, ALGOMANAGER, "X Loading library: %s", lib.c_str());
   }
   LOG(INFO, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager X");
 }

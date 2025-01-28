@@ -1,3 +1,4 @@
+#include "../include/AlgoDefs.h"
 #include "../include/AlgoRequest.h"
 #include <SDL2/SDL.h>
 #include <algorithm>
@@ -26,7 +27,8 @@ template <typename T> T clamp(T value, T min, T max) {
 
 using InitAlgoInterfaceFunc = int (*)(void **);
 using DeInitAlgoInterfaceFunc = int (*)(void **);
-using AlgoInterfaceProcessFunc = int (*)(void **, std::shared_ptr<AlgoRequest>);
+using AlgoInterfaceProcessFunc = int (*)(void **, std::shared_ptr<AlgoRequest>,
+                                         std::vector<AlgoId>);
 using RegisterCallbackFunc = int (*)(void **,
                                      int (*)(std::shared_ptr<AlgoRequest>));
 
@@ -209,7 +211,7 @@ void RenderLoop(SDL_Window *window, AlgoInterfaceProcessFunc processFunc,
         request->mRequestId = requestId++;
         request->AddImage(ImageFormat::RGB, WIDTH, HEIGHT, rgbBuffer);
 
-        int status = processFunc(&libraryHandle, request);
+        int status = processFunc(&libraryHandle, request, {ALGO_FILTER});
         if (status != 0) {
           std::cerr << "Failed to process algorithm request." << std::endl;
           quit = true;

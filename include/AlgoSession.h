@@ -36,12 +36,11 @@ public:
   bool SessionStop();
   bool SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline);
   bool SessionRemovePipeline(size_t pipelineId);
-  bool SessionProcess(std::shared_ptr<AlgoRequest> input);
+  bool SessionProcess(std::shared_ptr<AlgoRequest> input,
+                      std::vector<AlgoId> algoList);
   bool SessionProcess(size_t pipelineId, std::shared_ptr<AlgoRequest> input);
   size_t SessionGetPipelineCount() const;
   std::vector<size_t> SessionGetPipelineIds() const;
-
-  std::vector<AlgoId> SessionGetAlgoList();
 
   int SessionGetpipelineId(std::vector<AlgoId> algoList);
   std::shared_ptr<AlgoPipeline> SessionGetPipeline(size_t pipelineId);

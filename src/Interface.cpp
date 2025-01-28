@@ -65,13 +65,17 @@ SHARED_LIB_EXPORT int DeInitAlgoInterface(void **libhandle) {
  */
 
 SHARED_LIB_EXPORT int AlgoInterfaceProcess(void **libhandle,
-                                           std::shared_ptr<AlgoRequest> input) {
+                                           std::shared_ptr<AlgoRequest> input,
+                                           std::vector<AlgoId> algoList) {
   if (*libhandle == nullptr) {
     return -1;
   }
+  if (algoList.size() == 0) {
+    return -2;
+  }
   LOG(INFO, ALGOINTERFACE, "AlgoInterfaceProcess");
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(*libhandle);
-  algoInterface->Process(input);
+  algoInterface->Process(input, algoList);
   return 0;
 }
 

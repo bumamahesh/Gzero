@@ -51,6 +51,7 @@ TEST(AlgoSessionTest, AlgoSessionApi) {
 }
 
 #define SESSION_STRESS_CNT 25
+
 TEST(AlgoSessionTest, ProcessTest) {
 
   {
@@ -58,13 +59,13 @@ TEST(AlgoSessionTest, ProcessTest) {
     auto algoSession = std::make_shared<AlgoSession>(callback, nullptr);
     EXPECT_NE(algoSession, nullptr);
     EXPECT_EQ(algoSession->SessionGetPipelineCount(), 0);
-
+    std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
     for (int i = 0; i < SESSION_STRESS_CNT; i++) {
       std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
       input->mRequestId = i;
-      EXPECT_EQ(algoSession->SessionProcess(input), true);
+      EXPECT_EQ(algoSession->SessionProcess(input, algoList), true);
     }
-    EXPECT_EQ(algoSession->SessionGetPipelineCount(), 3);
+    EXPECT_EQ(algoSession->SessionGetPipelineCount(), 1);
   }
   EXPECT_EQ(TotalCallbacks, SESSION_STRESS_CNT);
 }

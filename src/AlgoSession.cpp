@@ -105,9 +105,9 @@ bool AlgoSession::SessionRemovePipeline(size_t pipelineId) {
  * @return true
  * @return false
  */
-bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
+bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input,
+                                 std::vector<AlgoId> algoList) {
   LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess E");
-  std::vector<AlgoId> algoList = SessionGetAlgoList();
   int pipelineId = SessionGetpipelineId(algoList);
   if (pipelineId == -1) {
     auto lPipeline = std::make_shared<AlgoPipeline>(
@@ -167,35 +167,6 @@ std::vector<size_t> AlgoSession::SessionGetPipelineIds() const {
     ids.push_back(pair.first);
   }
   return ids;
-}
-
-/**
- * @brief   Get Algo List form Decision list
- *
- * @return std::vector<size_t>
- */
-std::vector<AlgoId> AlgoSession::SessionGetAlgoList() {
-  // pAlgoInterface->GetAlgoList();
-  /**get object of Decisionmanager and get a algo list  */
-  static int count = 0;
-  std::vector<AlgoId> algoList;
-#if 0
-
-  // algoList.push_back(ALGO_MANDELBROTSET);
-  algoList.push_back(ALGO_FILTER);
-
-#else
-  if (count % 3 == 0) {
-    algoList.push_back(ALGO_HDR);
-    algoList.push_back(ALGO_BOKEH);
-  } else if (count % 3 == 1) {
-    algoList.push_back(ALGO_HDR);
-  } else {
-    algoList.push_back(ALGO_BOKEH);
-  }
-#endif
-  count++;
-  return algoList;
 }
 
 /**
