@@ -1,15 +1,28 @@
 #include "../include/AlgoRequest.h"
 #include <SDL2/SDL.h>
+#include <algorithm>
 #include <cstring>
 #include <dlfcn.h>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <unistd.h>
 #include <vector>
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 320
+#define HEIGHT 180
+
+//#define YUV_TEST_FILE "/home/uma/workspace/Gzero/testApp/lena.yuv" //352 X288
+#define YUV_TEST_FILE                                                          \
+  "/home/uma/workspace/Gzero/testApp/test_yuv420p_320x180.yuv"
+template <typename T> T clamp(T value, T min, T max) {
+  if (value < min)
+    return min;
+  if (value > max)
+    return max;
+  return value;
+}
 
 using InitAlgoInterfaceFunc = int (*)(void **);
 using DeInitAlgoInterfaceFunc = int (*)(void **);
@@ -135,8 +148,38 @@ bool LoadLibraryFunctions(void *&libraryHandle, InitAlgoInterfaceFunc &initFunc,
   return true;
 }
 
+void YUVtoRGB(const unsigned char *yuvBuffer, unsigned char *rgbBuffer) {
+  for (int i = 0; i < HEIGHT; ++i) {
+    for (int j = 0; j < WIDTH; ++j) {
+      int yIndex = i * WIDTH + j;
+      int uvIndex = (i / 2) * (WIDTH / 2) + (j / 2);
+
+      int Y = yuvBuffer[yIndex];
+      int U = yuvBuffer[WIDTH * HEIGHT + uvIndex] - 128;
+      int V = yuvBuffer[WIDTH * HEIGHT + (WIDTH * HEIGHT / 4) + uvIndex] - 128;
+
+      int R = Y + 1.402 * V;
+      int G = Y - 0.344136 * U - 0.714136 * V;
+      int B = Y + 1.772 * U;
+
+      rgbBuffer[(i * WIDTH + j) * 3 + 0] = clamp(R, 0, 255);
+      rgbBuffer[(i * WIDTH + j) * 3 + 1] = clamp(G, 0, 255);
+      rgbBuffer[(i * WIDTH + j) * 3 + 2] = clamp(B, 0, 255);
+    }
+  }
+}
+
 void RenderLoop(SDL_Window *window, AlgoInterfaceProcessFunc processFunc,
-                void *libraryHandle) {
+                void *libraryHandle, const std::string &inputFilePath) {
+  std::ifstream inputFile(inputFilePath, std::ios::binary);
+  if (!inputFile) {
+    std::cerr << "Failed to open input file: " << inputFilePath << std::endl;
+    return;
+  }
+
+  std::vector<unsigned char> yuvBuffer(WIDTH * HEIGHT * 3 / 2);
+  std::vector<unsigned char> rgbBuffer(WIDTH * HEIGHT * 3);
+
   int requestId = 0;
   SDL_Event event;
   bool quit = false;
@@ -158,21 +201,30 @@ void RenderLoop(SDL_Window *window, AlgoInterfaceProcessFunc processFunc,
     }
 
     if ((g_submittedCount - g_resultCount < 20) || (g_submittedCount < 30)) {
-      std::vector<unsigned char> rgbData(WIDTH * HEIGHT * 3);
-      auto request = std::make_shared<AlgoRequest>();
-      request->mRequestId = requestId++;
-      request->AddImage(ImageFormat::RGB, WIDTH, HEIGHT, rgbData);
+      if (inputFile.read(reinterpret_cast<char *>(yuvBuffer.data()),
+                         yuvBuffer.size())) {
+        YUVtoRGB(yuvBuffer.data(), rgbBuffer.data());
 
-      int status = processFunc(&libraryHandle, request);
-      if (status != 0) {
-        std::cerr << "Failed to process algorithm request." << std::endl;
-        quit = true;
+        auto request = std::make_shared<AlgoRequest>();
+        request->mRequestId = requestId++;
+        request->AddImage(ImageFormat::RGB, WIDTH, HEIGHT, rgbBuffer);
+
+        int status = processFunc(&libraryHandle, request);
+        if (status != 0) {
+          std::cerr << "Failed to process algorithm request." << std::endl;
+          quit = true;
+        }
+        ++g_submittedCount;
+      } else {
+        inputFile.clear();                 // Clear EOF flag
+        inputFile.seekg(0, std::ios::beg); // Seek back to the start of the file
       }
-      ++g_submittedCount;
     } else {
       usleep(50);
     }
   }
+
+  inputFile.close();
 }
 
 int main() {
@@ -205,7 +257,8 @@ int main() {
     return -1;
   }
 
-  RenderLoop(window, processFunc, libraryHandle);
+  const std::string inputFilePath = YUV_TEST_FILE;
+  RenderLoop(window, processFunc, libraryHandle, inputFilePath);
   Cleanup(window, libraryHandle, deinitFunc);
 
   return 0;

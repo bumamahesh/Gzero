@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 #include "FilterAlgorithm.h"
+#include "Log.h"
+#include <cmath>
+
 /**
  * @brief Constructor for FilterAlgorithm.
  * @param name Name of the Nop algorithm.
@@ -54,13 +57,76 @@ AlgoBase::AlgoStatus FilterAlgorithm::Open() {
  */
 AlgoBase::AlgoStatus
 FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  // KpiMonitor kpi("SobelFilter::Process");
+
+  if (!req || req->GetImageCount() == 0) {
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
+  }
+
+  auto inputImage = req->GetImage(0); // Assume the first image as input
+  if (!inputImage) {
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
+  }
+
+  const int width = inputImage->width;
+  const int height = inputImage->height;
+  const std::vector<unsigned char> &inputData =
+      inputImage->data; // RGB input assumed
+
+  if (inputData.size() != static_cast<size_t>(width * height * 3)) {
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
+  }
+
+  std::vector<unsigned char> outputData(width * height * 3, 0); // RGB output
+
+  // Sobel kernels for X and Y gradients
+  const int Gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+
+  const int Gy[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+
+  // Compute Sobel filter sequentially for each color channel
+  for (int y = 1; y < height - 1; ++y) {
+    for (int x = 1; x < width - 1; ++x) {
+      int gradientX[3] = {0, 0, 0};
+      int gradientY[3] = {0, 0, 0};
+
+      // Apply Sobel kernels for each color channel
+      for (int ky = -1; ky <= 1; ++ky) {
+        for (int kx = -1; kx <= 1; ++kx) {
+          int pixelIndex = ((y + ky) * width + (x + kx)) * 3;
+          for (int c = 0; c < 3; ++c) { // Iterate over R, G, B channels
+            int pixelValue = inputData[pixelIndex + c];
+            gradientX[c] += pixelValue * Gx[ky + 1][kx + 1];
+            gradientY[c] += pixelValue * Gy[ky + 1][kx + 1];
+          }
+        }
+      }
+
+      // Compute gradient magnitude for each channel and clamp to 255
+      int outputIndex = (y * width + x) * 3;
+      for (int c = 0; c < 3; ++c) {
+        int magnitude = static_cast<int>(std::sqrt(
+            gradientX[c] * gradientX[c] + gradientY[c] * gradientY[c]));
+        outputData[outputIndex + c] =
+            static_cast<unsigned char>(std::min(magnitude, 255));
+      }
+    }
+  }
+
+  // Replace input image with output image
+  req->ClearImages();
+  req->AddImage(ImageFormat::RGB, width, height, outputData);
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
 
 /**
- * @brief Close the Nop algorithm, simulating cleanup.
+ * @brief Close the Filter algorithm, simulating cleanup.
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus FilterAlgorithm::Close() {
@@ -69,13 +135,12 @@ AlgoBase::AlgoStatus FilterAlgorithm::Close() {
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
-
 /**
  * @brief max time taken by algo to process a request
  *
  * @return int
  */
-int FilterAlgorithm::GetTimeout() { return 1000; }
+int FilterAlgorithm::GetTimeout() { return 5000; }
 
 // Public Exposed API for Nop
 /**

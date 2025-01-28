@@ -41,7 +41,7 @@ AlgoNodeManager &AlgoNodeManager::Getinstance() {
  * @param libraryPath
  */
 AlgoNodeManager::AlgoNodeManager() {
-  LOG(VERBOSE, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager E");
+  LOG(INFO, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager E");
   mLibraryPath =
       "/home/uma/workspace/Gzero/cmake/lib/"; // "@todo get from xml later
   /*open path and prepeare a list of shared librbary of format com.Algo.*.so*/
@@ -90,7 +90,7 @@ AlgoNodeManager::AlgoNodeManager() {
 
     LOG(VERBOSE, ALGOMANAGER, "X Loading library: %s", lib.c_str());
   }
-  LOG(VERBOSE, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager X");
+  LOG(INFO, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager X");
 }
 
 /**
@@ -98,7 +98,7 @@ AlgoNodeManager::AlgoNodeManager() {
  *
  */
 AlgoNodeManager::~AlgoNodeManager() {
-  LOG(VERBOSE, ALGOMANAGER, "~AlgoNodeManager E");
+  LOG(INFO, ALGOMANAGER, "~AlgoNodeManager E");
 
   // Clear other containers
   mAlgoMap.clear();
@@ -110,7 +110,7 @@ AlgoNodeManager::~AlgoNodeManager() {
     entry.second.reset(); // Reset shared pointers to ensure proper cleanup
   }
   mIdLoaderMap.clear(); // Clear the map after releasing resources
-  LOG(VERBOSE, ALGOMANAGER, "~AlgoNodeManager X");
+  LOG(INFO, ALGOMANAGER, "~AlgoNodeManager X");
 }
 
 /**

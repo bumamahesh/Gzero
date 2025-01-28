@@ -99,7 +99,7 @@ std::string getLogLevelAbbreviation(LogLevel level) {
 }
 
 // Log class static member definition and implementation
-LogLevel Log::logLevel = LogLevel::L_INFO; // Initialize static member
+LogLevel Log::logLevel = LogLevel::L_VERBOSE; // Initialize static member
 
 void Log::SetLevel(LogLevel level) { logLevel = level; }
 

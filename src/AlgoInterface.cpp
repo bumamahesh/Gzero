@@ -27,7 +27,7 @@
  *
  */
 AlgoInterface::AlgoInterface() {
-  Log::SetLevel(LogLevel::L_INFO);
+  Log::SetLevel(LogLevel::L_VERBOSE);
   LOG(INFO, ALGOINTERFACE, "AlgoInterface::AlgoInterface");
   mSession = std::make_shared<AlgoSession>(
       AlgoInterface::SessionCallbackHandler, this);

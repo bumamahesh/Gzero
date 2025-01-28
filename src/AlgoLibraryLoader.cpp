@@ -30,7 +30,7 @@
  * @param libraryPath
  */
 AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
-  LOG(VERBOSE, ALGOLIBLOADER, "AlgoLibraryLoader::AlgoLibraryLoader E");
+  LOG(INFO, ALGOLIBLOADER, "AlgoLibraryLoader::AlgoLibraryLoader E");
   // Attempt to load the shared library
   plibHandle = dlopen(libraryPath.c_str(), RTLD_NOW | RTLD_NODELETE);
   if (!plibHandle) {
@@ -60,7 +60,7 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
     assert(!mGetAlgoName);
   }
   mTotalAlgoInstances = 0;
-  LOG(VERBOSE, ALGOLIBLOADER, "AlgoLibraryLoader::AlgoLibraryLoader X");
+  LOG(INFO, ALGOLIBLOADER, "AlgoLibraryLoader::AlgoLibraryLoader X");
 }
 
 /**
@@ -68,8 +68,7 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
  *
  */
 AlgoLibraryLoader::~AlgoLibraryLoader() {
-  LOG(VERBOSE, ALGOLIBLOADER,
-      "%s::[%p]Total Algo Instances %ld plibHandle:: %p",
+  LOG(INFO, ALGOLIBLOADER, "%s::[%p]Total Algo Instances %ld plibHandle:: %p",
       GetAlgorithmName().c_str(), this, mTotalAlgoInstances, plibHandle);
   if (plibHandle) {
     mTotalAlgoInstances = 0;

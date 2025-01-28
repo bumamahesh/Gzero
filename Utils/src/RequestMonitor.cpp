@@ -38,7 +38,7 @@ RequestMonitor::RequestMonitor() : running_(true) {
   while (!bThreadStarted) {
     usleep(50);
   }
-  LOG(VERBOSE, REQUESTMONITOR, " Request Monitor Created ");
+  LOG(INFO, REQUESTMONITOR, " Request Monitor Created ");
 }
 
 /**
@@ -80,7 +80,7 @@ void RequestMonitor::StartRequestMonitoring(std::shared_ptr<Task_t> task,
   requests_[task].start = std::chrono::high_resolution_clock::now();
   requests_[task].timeout = std::chrono::milliseconds(timeoutMs);
   requests_[task].isStopped = false;
-  LOG(VERBOSE, REQUESTMONITOR, "Started monitoring request %p", task.get());
+  LOG(INFO, REQUESTMONITOR, "Started monitoring request %p", task.get());
 
   pthread_mutex_unlock(&mutex_);
 }
@@ -94,7 +94,7 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
   pthread_mutex_lock(&mutex_);
   auto it = requests_.find(task);
   if (it == requests_.end()) {
-    LOG(VERBOSE, REQUESTMONITOR, "task %p was not being monitored.",
+    LOG(WARNING, REQUESTMONITOR, "task %p was not being monitored.",
         task.get());
     pthread_mutex_unlock(&mutex_);
     return;
@@ -113,7 +113,7 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
 void *RequestMonitor::monitorTimeouts(void *arg) {
   RequestMonitor *monitor = static_cast<RequestMonitor *>(arg);
 
-  LOG(VERBOSE, REQUESTMONITOR, "Entering Monitor Thread");
+  LOG(INFO, REQUESTMONITOR, "Entering Monitor Thread");
   monitor->bThreadStarted = true;
 
   while (monitor->running_) {
@@ -131,7 +131,7 @@ void *RequestMonitor::monitorTimeouts(void *arg) {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
             now - request.start);
         if (elapsed > request.timeout) {
-          LOG(VERBOSE, REQUESTMONITOR,
+          LOG(WARNING, REQUESTMONITOR,
               "Req exceeded timeout! elapsed=%ld ms reqtimeout=%ld ms",
               elapsed.count(), request.timeout.count());
           if (monitor->pCallback) {
@@ -148,6 +148,6 @@ void *RequestMonitor::monitorTimeouts(void *arg) {
     }
     pthread_mutex_unlock(&monitor->mutex_);
   }
-  LOG(VERBOSE, REQUESTMONITOR, "Exiting Monitor Thread");
+  LOG(INFO, REQUESTMONITOR, "Exiting Monitor Thread");
   return nullptr;
 }

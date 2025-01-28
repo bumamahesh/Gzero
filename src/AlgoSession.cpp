@@ -46,14 +46,14 @@ AlgoSession::~AlgoSession() { SessionStop(); }
  * @return false
  */
 bool AlgoSession::SessionStop() {
-  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionStop E");
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionStop E");
   for (auto &pipeline : mPipelines) {
     pipeline->WaitForQueueCompetion();
   }
   mPipelines.clear();
   mPipelineMap.clear();
   mNextPipelineId = 0;
-  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionStop X");
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionStop X");
   return true;
 }
 
@@ -106,7 +106,7 @@ bool AlgoSession::SessionRemovePipeline(size_t pipelineId) {
  * @return false
  */
 bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
-  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionProcess E");
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess E");
   std::vector<AlgoId> algoList = SessionGetAlgoList();
   int pipelineId = SessionGetpipelineId(algoList);
   if (pipelineId == -1) {
@@ -122,7 +122,7 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
   }
 
   SessionProcess(pipelineId, input);
-  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionProcess X");
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess X");
   return true;
 }
 
@@ -137,13 +137,13 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input) {
 bool AlgoSession::SessionProcess(size_t pipelineId,
                                  std::shared_ptr<AlgoRequest> input) {
 
-  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionProcess E");
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess E");
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
     return false;
   }
   it->second->Process(input);
-  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionProcess X");
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess X");
   return true;
 }
 
@@ -179,9 +179,11 @@ std::vector<AlgoId> AlgoSession::SessionGetAlgoList() {
   /**get object of Decisionmanager and get a algo list  */
   static int count = 0;
   std::vector<AlgoId> algoList;
-#if 1
+#if 0
 
-  algoList.push_back(ALGO_MANDELBROTSET);
+  // algoList.push_back(ALGO_MANDELBROTSET);
+  algoList.push_back(ALGO_FILTER);
+
 #else
   if (count % 3 == 0) {
     algoList.push_back(ALGO_HDR);

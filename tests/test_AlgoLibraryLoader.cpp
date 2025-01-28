@@ -31,6 +31,14 @@ protected:
   // library)
   const std::string validLibraryPath =
       "/home/uma/workspace/Gzero/cmake/lib/com.Algo.Hdr.so";
+  const std::map<ALGOID, std::string> IdAlgoNameMap = {
+      {ALGO_HDR, "com.Algo.Hdr.so"},
+      {ALGO_BOKEH, "com.Algo.Bokeh.so"},
+      {ALGO_NOP, "com.Algo.Nop.so"},
+      {ALGO_FILTER, "com.Algo.Filter.so"},
+      {ALGO_MANDELBROTSET, "com.Algo.MandelbrotSet.so"},
+      {ALGO_LDC, "com.Algo.ldc.so"},
+  };
 };
 
 // Test case for loading a valid shared library
@@ -108,4 +116,29 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   ASSERT_EQ(algo->GetAlgoStatus(), AlgoBase::AlgoStatus::SUCCESS);
   ASSERT_EQ(algo->Close(), AlgoBase::AlgoStatus::SUCCESS);
   ASSERT_EQ(algo->GetAlgoStatus(), AlgoBase::AlgoStatus::SUCCESS);
+}
+
+TEST_F(AlgoLibraryLoaderTest, VerifyAllAlgosInterface) {
+  try {
+    for (const auto &[AlgoId, libname] : IdAlgoNameMap) {
+      std::string lib = "/home/uma/workspace/Gzero/cmake/lib/";
+      lib = lib + libname;
+      auto loader = std::make_shared<AlgoLibraryLoader>(lib);
+      ASSERT_NE(loader, nullptr);
+      ASSERT_EQ(loader->GetAlgoId(), AlgoId);
+      // ASSERT_EQ(loader->GetAlgorithmName(), std::string("HDRAlgorithm"));
+
+      auto algo = loader->GetAlgoMethod();
+
+      ASSERT_NE(algo, nullptr);
+
+      ASSERT_EQ(algo->GetAlgoId(), loader->GetAlgoId());
+      ASSERT_EQ(algo->GetAlgorithmName(), loader->GetAlgorithmName());
+      // algo->WaitForQueueCompetion();
+      algo = nullptr;
+      loader = nullptr;
+    }
+  } catch (const std::exception &e) {
+    FAIL() << "Exception thrown: " << e.what();
+  }
 }
