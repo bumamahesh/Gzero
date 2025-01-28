@@ -211,7 +211,8 @@ void RenderLoop(SDL_Window *window, AlgoInterfaceProcessFunc processFunc,
         request->mRequestId = requestId++;
         request->AddImage(ImageFormat::RGB, WIDTH, HEIGHT, rgbBuffer);
 
-        int status = processFunc(&libraryHandle, request, {ALGO_FILTER});
+        int status =
+            processFunc(&libraryHandle, request, {/*ALGO_FILTER*/ ALGO_NOP});
         if (status != 0) {
           std::cerr << "Failed to process algorithm request." << std::endl;
           quit = true;

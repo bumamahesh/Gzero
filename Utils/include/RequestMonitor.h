@@ -76,6 +76,11 @@ private:
 
   bool bThreadStarted = false;
 
+  // fps monitor
+  std::chrono::duration<double, std::milli> mdeltas;
+  std::size_t mtotalRequest = 0;
+  double averagfps = 0;
+
   // Map to store requests being monitored
   std::unordered_map<std::shared_ptr<Task_t>, Request> requests_;
 };

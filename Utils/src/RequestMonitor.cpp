@@ -99,7 +99,14 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
     pthread_mutex_unlock(&mutex_);
     return;
   }
+  it->second.stop = std::chrono::high_resolution_clock::now();
+  it->second.isStopped = true;
+  mdeltas += (it->second.stop - it->second.start);
+  mtotalRequest++;
+  averagfps = mtotalRequest * 1000 / (mdeltas.count());
 
+  LOG(VERBOSE, REQUESTMONITOR, "AVERAGE FPS %f delta %ld", averagfps,
+      (it->second.stop - it->second.start).count());
   requests_.erase(task); // Remove request from tracking as it's completed
   pthread_mutex_unlock(&mutex_);
 }
