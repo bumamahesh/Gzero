@@ -179,6 +179,10 @@ std::vector<AlgoId> AlgoSession::SessionGetAlgoList() {
   /**get object of Decisionmanager and get a algo list  */
   static int count = 0;
   std::vector<AlgoId> algoList;
+#if 1
+
+  algoList.push_back(ALGO_MANDELBROTSET);
+#else
   if (count % 3 == 0) {
     algoList.push_back(ALGO_HDR);
     algoList.push_back(ALGO_BOKEH);
@@ -187,6 +191,7 @@ std::vector<AlgoId> AlgoSession::SessionGetAlgoList() {
   } else {
     algoList.push_back(ALGO_BOKEH);
   }
+#endif
   count++;
   return algoList;
 }

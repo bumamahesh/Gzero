@@ -119,6 +119,16 @@ TEST_F(SharedLibTest, RegisterCallbackTest) {
   ASSERT_EQ(status, 0) << "DeInitAlgoInterface failed with status: " << status;
 }
 
+#define WIDTH 640
+#define HEIGHT 480
+
+int cb_cnt = 0;
+int ImageCallback(std::shared_ptr<AlgoRequest> input) {
+  // Simulate callback logic
+  std::cout << "ImageCallback" << std::endl;
+  cb_cnt++;
+  return 0; // Return success
+}
 TEST_F(SharedLibTest, AlgoInterfaceProcessTest) {
   void *algoHandle = nullptr;
 
@@ -127,18 +137,21 @@ TEST_F(SharedLibTest, AlgoInterfaceProcessTest) {
   ASSERT_EQ(status, 0) << "InitAlgoInterface failed with status: " << status;
 
   // Register a callback
-  status = RegisterCallback(&algoHandle, TestCallback);
+  status = RegisterCallback(&algoHandle, ImageCallback);
   ASSERT_EQ(status, 0) << "RegisterCallback failed with status: " << status;
 
-  g_cbs = 0;
+  cb_cnt = 0;
   // Create a mock AlgoRequest
+  std::vector<unsigned char> yuvData(WIDTH * HEIGHT * 3 / 2); // YUV420 format
   auto request = std::make_shared<AlgoRequest>();
+  request->mRequestId = 123;
+  request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, yuvData);
 
   // Process the request
   status = AlgoInterfaceProcess(&algoHandle, request);
   ASSERT_EQ(status, 0) << "AlgoInterfaceProcess failed with status: " << status;
 
-  while (g_cbs == 0) {
+  while (cb_cnt == 0) {
     usleep(50);
   }
   // Deinitialize the library

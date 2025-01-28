@@ -1,0 +1,212 @@
+#include "../include/AlgoRequest.h"
+#include <SDL2/SDL.h>
+#include <cstring>
+#include <dlfcn.h>
+#include <iostream>
+#include <memory>
+#include <mutex>
+#include <unistd.h>
+#include <vector>
+
+#define WIDTH 640
+#define HEIGHT 480
+
+using InitAlgoInterfaceFunc = int (*)(void **);
+using DeInitAlgoInterfaceFunc = int (*)(void **);
+using AlgoInterfaceProcessFunc = int (*)(void **, std::shared_ptr<AlgoRequest>);
+using RegisterCallbackFunc = int (*)(void **,
+                                     int (*)(std::shared_ptr<AlgoRequest>));
+
+// Global Variables
+unsigned char *g_rgbBuffer = nullptr;
+volatile int g_dataReadyFlag = 0;
+SDL_Renderer *g_renderer = nullptr;
+SDL_Texture *g_texture = nullptr;
+std::mutex g_rgbBufferMutex;
+int g_submittedCount = 0;
+int g_resultCount = 0;
+
+// Callback Function
+int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
+  if (request) {
+    std::shared_ptr<ImageData> image = request->GetImage(0);
+    if (image) {
+      std::lock_guard<std::mutex> lock(g_rgbBufferMutex);
+      memcpy(g_rgbBuffer, image->data.data(), WIDTH * HEIGHT * 3);
+      g_dataReadyFlag = 1;
+      ++g_resultCount;
+    }
+  }
+  return 0;
+}
+
+void Cleanup(SDL_Window *window, void *libraryHandle,
+             DeInitAlgoInterfaceFunc deinitFunc) {
+  free(g_rgbBuffer);
+  SDL_DestroyTexture(g_texture);
+  SDL_DestroyRenderer(g_renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+  if (deinitFunc) {
+    deinitFunc(&libraryHandle);
+  }
+  if (libraryHandle) {
+    dlclose(libraryHandle);
+  }
+}
+
+bool InitializeSDL(SDL_Window *&window) {
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError()
+              << std::endl;
+    return false;
+  }
+
+  window = SDL_CreateWindow("YUV to RGB Display", SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT,
+                            SDL_WINDOW_SHOWN);
+  if (!window) {
+    std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError()
+              << std::endl;
+    SDL_Quit();
+    return false;
+  }
+
+  g_renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  if (!g_renderer) {
+    std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError()
+              << std::endl;
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return false;
+  }
+
+  g_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGB24,
+                                SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+  if (!g_texture) {
+    std::cerr << "Texture could not be created! SDL_Error: " << SDL_GetError()
+              << std::endl;
+    SDL_DestroyRenderer(g_renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return false;
+  }
+
+  g_rgbBuffer = static_cast<unsigned char *>(malloc(WIDTH * HEIGHT * 3));
+  if (!g_rgbBuffer) {
+    std::cerr << "Failed to allocate memory for RGB data." << std::endl;
+    SDL_DestroyTexture(g_texture);
+    SDL_DestroyRenderer(g_renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return false;
+  }
+
+  return true;
+}
+
+bool LoadLibraryFunctions(void *&libraryHandle, InitAlgoInterfaceFunc &initFunc,
+                          DeInitAlgoInterfaceFunc &deinitFunc,
+                          AlgoInterfaceProcessFunc &processFunc,
+                          RegisterCallbackFunc &registerCallbackFunc) {
+  libraryHandle =
+      dlopen("/home/uma/workspace/Gzero/cmake/lib/libAlgoLib.so", RTLD_LAZY);
+  if (!libraryHandle) {
+    std::cerr << "Failed to load library." << std::endl;
+    return false;
+  }
+
+  initFunc = reinterpret_cast<InitAlgoInterfaceFunc>(
+      dlsym(libraryHandle, "InitAlgoInterface"));
+  deinitFunc = reinterpret_cast<DeInitAlgoInterfaceFunc>(
+      dlsym(libraryHandle, "DeInitAlgoInterface"));
+  processFunc = reinterpret_cast<AlgoInterfaceProcessFunc>(
+      dlsym(libraryHandle, "AlgoInterfaceProcess"));
+  registerCallbackFunc = reinterpret_cast<RegisterCallbackFunc>(
+      dlsym(libraryHandle, "RegisterCallback"));
+
+  if (!initFunc || !deinitFunc || !processFunc || !registerCallbackFunc) {
+    std::cerr << "Failed to load one or more functions from the library."
+              << std::endl;
+    dlclose(libraryHandle);
+    return false;
+  }
+
+  return true;
+}
+
+void RenderLoop(SDL_Window *window, AlgoInterfaceProcessFunc processFunc,
+                void *libraryHandle) {
+  int requestId = 0;
+  SDL_Event event;
+  bool quit = false;
+
+  while (!quit) {
+    while (SDL_PollEvent(&event) != 0) {
+      if (event.type == SDL_QUIT) {
+        quit = true;
+      }
+    }
+
+    if (g_dataReadyFlag) {
+      std::lock_guard<std::mutex> lock(g_rgbBufferMutex);
+      SDL_UpdateTexture(g_texture, nullptr, g_rgbBuffer, WIDTH * 3);
+      SDL_RenderClear(g_renderer);
+      SDL_RenderCopy(g_renderer, g_texture, nullptr, nullptr);
+      SDL_RenderPresent(g_renderer);
+      g_dataReadyFlag = 0;
+    }
+
+    if ((g_submittedCount - g_resultCount < 20) || (g_submittedCount < 30)) {
+      std::vector<unsigned char> rgbData(WIDTH * HEIGHT * 3);
+      auto request = std::make_shared<AlgoRequest>();
+      request->mRequestId = requestId++;
+      request->AddImage(ImageFormat::RGB, WIDTH, HEIGHT, rgbData);
+
+      int status = processFunc(&libraryHandle, request);
+      if (status != 0) {
+        std::cerr << "Failed to process algorithm request." << std::endl;
+        quit = true;
+      }
+      ++g_submittedCount;
+    } else {
+      usleep(50);
+    }
+  }
+}
+
+int main() {
+  SDL_Window *window = nullptr;
+  void *libraryHandle = nullptr;
+  InitAlgoInterfaceFunc initFunc = nullptr;
+  DeInitAlgoInterfaceFunc deinitFunc = nullptr;
+  AlgoInterfaceProcessFunc processFunc = nullptr;
+  RegisterCallbackFunc registerCallbackFunc = nullptr;
+
+  if (!InitializeSDL(window)) {
+    return -1;
+  }
+
+  if (!LoadLibraryFunctions(libraryHandle, initFunc, deinitFunc, processFunc,
+                            registerCallbackFunc)) {
+    Cleanup(window, nullptr, nullptr);
+    return -1;
+  }
+
+  if (initFunc(&libraryHandle) != 0) {
+    std::cerr << "Failed to initialize algorithm interface." << std::endl;
+    Cleanup(window, libraryHandle, deinitFunc);
+    return -1;
+  }
+
+  if (registerCallbackFunc(&libraryHandle, ProcessCallback) != 0) {
+    std::cerr << "Failed to register callback." << std::endl;
+    Cleanup(window, libraryHandle, deinitFunc);
+    return -1;
+  }
+
+  RenderLoop(window, processFunc, libraryHandle);
+  Cleanup(window, libraryHandle, deinitFunc);
+
+  return 0;
+}

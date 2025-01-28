@@ -50,8 +50,10 @@ std::pair<double, double> MapToComplexPlane(int px, int py, int width,
  * @brief Constructor for MandelbrotSet.
  */
 MandelbrotSet::MandelbrotSet()
-    : AlgoBase(MANDELBROTSET_NAME), zoomLevel(INITIAL_ZOOM), offsetX(CENTER_X),
-      offsetY(CENTER_Y) {
+    : AlgoBase(MANDELBROTSET_NAME), zoomLevel(INITIAL_ZOOM) {
+  int modelIdx = (int)MandelbrotSetCentre::Seahorse_Valley;
+  offsetX = CentreCordinates[modelIdx][0];
+  offsetY = CentreCordinates[modelIdx][1];
   mAlgoId = ALGO_MANDELBROTSET; // Unique ID for HDR algorithm
 }
 
@@ -98,13 +100,8 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
   const int height = inputImage->height;
 
   // Preallocate combined YUV420 buffer for output
-  size_t ySize = width * height;
-  size_t uvSize = ySize / 4; // U and V are subsampled
-  std::vector<unsigned char> outputData(ySize + 2 * uvSize, 0);
 
-  unsigned char *yData = outputData.data();
-  unsigned char *uData = yData + ySize;
-  unsigned char *vData = uData + uvSize;
+  std::vector<unsigned char> outputData(width * height * 3, 0); // RGB format
 
   // Parallelized computation using OpenMP
   //#pragma omp parallel for schedule(dynamic)
@@ -130,20 +127,11 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
           static_cast<unsigned char>(8.5 * (1 - normalized) * (1 - normalized) *
                                      (1 - normalized) * normalized * 255);
 
-      // Convert RGB to YUV420
-      unsigned char y = (77 * r + 150 * g + 29 * b) >> 8;
-      unsigned char u = ((-43 * r - 85 * g + 128 * b) >> 8) + 128;
-      unsigned char v = ((128 * r - 107 * g - 21 * b) >> 8) + 128;
+      int pixelIndex = (py * width + px) * 3;
 
-      // Write to Y plane
-      yData[py * width + px] = y;
-
-      // Write to U and V planes (subsampled 2x2 for YUV420)
-      if ((py % 2 == 0) && (px % 2 == 0)) {
-        int uvIndex = (py / 2) * (width / 2) + (px / 2);
-        uData[uvIndex] = u;
-        vData[uvIndex] = v;
-      }
+      outputData[pixelIndex + 0] = r;
+      outputData[pixelIndex + 1] = g;
+      outputData[pixelIndex + 2] = b;
     }
   }
 
@@ -173,7 +161,7 @@ AlgoBase::AlgoStatus MandelbrotSet::Close() {
  *
  * @return int
  */
-int MandelbrotSet::GetTimeout() { return 1000; }
+int MandelbrotSet::GetTimeout() { return 5000; }
 
 /**
  * @brief Factory function to expose MandelbrotSet via shared library.

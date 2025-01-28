@@ -53,7 +53,7 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request) {
   LOG(INFO, ALGOINTERFACE, "AlgoInterface::Process");
   if (mSession) {
     mSession->SessionProcess(request);
-    mSession->Dump();
+    // mSession->Dump();
   } else {
     LOG(ERROR, ALGOINTERFACE, "mSession is nullptr");
   }

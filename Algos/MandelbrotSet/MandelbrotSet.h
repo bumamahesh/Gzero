@@ -26,12 +26,19 @@
 const char *MANDELBROTSET_NAME = "MandelbrotSetAlgorithm";
 
 // Constants for Mandelbrot calculation
-constexpr int MAX_ITER = 500; // Maximum iterations for escape condition
-constexpr double INITIAL_ZOOM = 1.0;
+constexpr int MAX_ITER = 100; // Maximum iterations for escape condition
+constexpr double INITIAL_ZOOM = 1.05;
 constexpr double ZOOM_FACTOR = 1.2;
-constexpr double CENTER_X = -0.75;
-constexpr double CENTER_Y = 0.0;
 
+const double CentreCordinates[3][2] = {{-0.74364388703, 0.13182590421},
+                                       {-0.74700000000, 0.10000000000},
+                                       {-0.75000000000, 0.00000000000}};
+
+enum MandelbrotSetCentre {
+  Seahorse_Valley = 0,
+  Spiral_formation,
+  Main,
+};
 /**
  * @brief MandelbrotSet class derived from AlgoBase to perform HDR-specific
  * operations.
