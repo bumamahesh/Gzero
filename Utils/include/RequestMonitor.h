@@ -47,6 +47,8 @@ public:
   // set callback and its conext
   void SetCallback(TASKCALLBACK Callback, void *context);
 
+  double GetAverageFPS() { return averagfps; }
+
 private:
   // Structure to store request start time, stop time, timeout and stopped
   // status
