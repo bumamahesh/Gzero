@@ -105,7 +105,7 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
   mtotalRequest++;
   averagfps = mtotalRequest * 1000 / (mdeltas.count());
 
-  LOG(VERBOSE, REQUESTMONITOR, "AVERAGE FPS %f delta %ld", averagfps,
+  LOG(INFO, REQUESTMONITOR, "AVERAGE FPS %f delta %ld", averagfps,
       (it->second.stop - it->second.start).count());
   requests_.erase(task); // Remove request from tracking as it's completed
   pthread_mutex_unlock(&mutex_);

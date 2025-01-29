@@ -12,6 +12,7 @@ find_package(SDL2 REQUIRED)
 set(SOURCES
     main.cpp
     ../src/AlgoRequest.cpp
+    ../src/AlgoDecisionManager.cpp
 )
 
 # Create an executable from the source files

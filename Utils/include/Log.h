@@ -59,6 +59,7 @@ enum class LogLevel {
 #define WATCHDOG "WATCHDOG"
 #define REQUESTMONITOR "REQUESTMONITOR"
 #define KPI "KPI"
+#define ALGODECISIONMANAGER "ALGODECISIONMANAGER"
 
 // Function declarations
 std::string getCurrentTime();

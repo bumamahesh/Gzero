@@ -24,17 +24,23 @@
 #define ALGODECISIONMANAGER_H
 
 #include "AlgoDefs.h"
-#include "AlgoNodeManager.h"
+#include "AlgoRequest.h"
 #include <memory>
-#include <string>
 #include <vector>
+
+#define ALGO_OFFSET(ALGO_IDX) (static_cast<int>(ALGO_IDX - ALGO_BASE_ID))
 
 class AlgoDecisionManager {
 public:
   AlgoDecisionManager();
   ~AlgoDecisionManager();
+  bool IsAlgoEnabled(AlgoId algoId);
+  uint32_t GetAlgoFlag() const;
+  uint32_t SetAlgoFlag(AlgoId algoId);
+  virtual std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req);
 
 private:
+  uint32_t mAlgoFlag = 0x00;
 };
 
 #endif // ALGODECISIONMANAGER_H

@@ -1,5 +1,6 @@
 #include "../include/AlgoDefs.h"
 #include "../include/AlgoRequest.h"
+#include "AlgoDecisionManager.h"
 #include <SDL2/SDL.h>
 #include <algorithm>
 #include <cstring>
@@ -31,6 +32,8 @@ using AlgoInterfaceProcessFunc = int (*)(void **, std::shared_ptr<AlgoRequest>,
                                          std::vector<AlgoId>);
 using RegisterCallbackFunc = int (*)(void **,
                                      int (*)(std::shared_ptr<AlgoRequest>));
+
+AlgoDecisionManager g_algoDecisionManager;
 
 // Global Variables
 unsigned char *g_rgbBuffer = nullptr;
@@ -211,8 +214,8 @@ void RenderLoop(SDL_Window *window, AlgoInterfaceProcessFunc processFunc,
         request->mRequestId = requestId++;
         request->AddImage(ImageFormat::RGB, WIDTH, HEIGHT, rgbBuffer);
 
-        int status =
-            processFunc(&libraryHandle, request, {/*ALGO_FILTER*/ ALGO_NOP});
+        int status = processFunc(&libraryHandle, request,
+                                 g_algoDecisionManager.ParseMetadata(request));
         if (status != 0) {
           std::cerr << "Failed to process algorithm request." << std::endl;
           quit = true;
