@@ -19,28 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef ALGO_INTERFACE_H
-#define ALGO_INTERFACE_H
+#include "Utils.h"
+#include <fstream>
+#include <iostream>
+#include <unistd.h>
+size_t GetMemoryUsage() {
+  std::ifstream file("/proc/self/statm");
+  size_t vmSize, resident;
 
-#include "AlgoSession.h"
-#include <atomic>
+  if (file >> vmSize >> resident) {
+    long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // Convert pages to KB
+    return resident * page_size_kb; // Resident Set Size (RSS) in KB
+  }
 
-#define MAX_HOLD_REQUESTS 20
-
-class AlgoInterface {
-public:
-  AlgoInterface();
-  ~AlgoInterface();
-  bool Process(std::shared_ptr<AlgoRequest> request,
-               std::vector<AlgoId> algoList);
-  int (*pIntfCallback)(std::shared_ptr<AlgoRequest> input) = nullptr;
-
-  std::atomic<int> mRequestCnt{0};
-  std::atomic<int> mResultCnt{0};
-
-private:
-  std::shared_ptr<AlgoSession> mSession;
-  static void SessionCallbackHandler(void *pctx,
-                                     std::shared_ptr<AlgoRequest> input);
-};
-#endif // ALGO_INTERFACE_H
+  return 0; // Failed to read memory usage
+}

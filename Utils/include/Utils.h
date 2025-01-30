@@ -19,28 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef ALGO_INTERFACE_H
-#define ALGO_INTERFACE_H
 
-#include "AlgoSession.h"
-#include <atomic>
+#ifndef UTILS_H
+#define UTILS_H
+#pragma once
 
-#define MAX_HOLD_REQUESTS 20
+#include <cstddef>
+#include <unistd.h>
 
-class AlgoInterface {
-public:
-  AlgoInterface();
-  ~AlgoInterface();
-  bool Process(std::shared_ptr<AlgoRequest> request,
-               std::vector<AlgoId> algoList);
-  int (*pIntfCallback)(std::shared_ptr<AlgoRequest> input) = nullptr;
-
-  std::atomic<int> mRequestCnt{0};
-  std::atomic<int> mResultCnt{0};
-
-private:
-  std::shared_ptr<AlgoSession> mSession;
-  static void SessionCallbackHandler(void *pctx,
-                                     std::shared_ptr<AlgoRequest> input);
-};
-#endif // ALGO_INTERFACE_H
+size_t GetMemoryUsage();
+#endif // UTILS_H

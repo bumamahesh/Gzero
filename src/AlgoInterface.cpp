@@ -21,6 +21,7 @@
  */
 #include "AlgoInterface.h"
 #include "Log.h"
+#include "Utils.h"
 #include <cassert>
 /**
  * @brief Construct a new Algo Interface:: Algo Interface object
@@ -52,12 +53,31 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
                             std::vector<AlgoId> algoList) {
 
   LOG(INFO, ALGOINTERFACE, "AlgoInterface::Process");
+
+  if (GetMemoryUsage() > 30000) {
+    while (GetMemoryUsage() > 30000) {
+      usleep(33 * 1000); // 33 ms assume 1 frame delay
+      LOG(VERBOSE, ALGOINTERFACE,
+          "AlgoInterface:: BLOCKED GetMemoryUsage() ::%ld KB",
+          GetMemoryUsage());
+    }
+  }
+  LOG(ERROR, ALGOINTERFACE, "AlgoInterface::GetMemoryUsage() ::%ld KB",
+      GetMemoryUsage());
+
+  if ((mRequestCnt - mResultCnt) > MAX_HOLD_REQUESTS) {
+    usleep(33 * 1000); // 33 ms assume 1 frame delay)
+    LOG(VERBOSE, ALGOINTERFACE, "[Req::%d Res::%d] processed[%d]",
+        mRequestCnt.load(), mResultCnt.load(),
+        (mRequestCnt.load() - mResultCnt.load()));
+  }
   if (mSession) {
     mSession->SessionProcess(request, algoList);
     // mSession->Dump();
   } else {
     LOG(ERROR, ALGOINTERFACE, "mSession is nullptr");
   }
+  mRequestCnt.fetch_add(1, std::memory_order_relaxed);
   return true;
 }
 
@@ -73,5 +93,6 @@ void AlgoInterface::SessionCallbackHandler(void *pctx,
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(pctx);
   if (algoInterface->pIntfCallback) {
     algoInterface->pIntfCallback(input);
+    algoInterface->mResultCnt.fetch_add(1, std::memory_order_relaxed);
   }
 }

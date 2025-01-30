@@ -87,6 +87,7 @@ private:
   double zoomLevel;
   double offsetX;
   double offsetY;
+  int modelIdx;
 };
 
 /**

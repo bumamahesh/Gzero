@@ -51,7 +51,7 @@ std::pair<double, double> MapToComplexPlane(int px, int py, int width,
  */
 MandelbrotSet::MandelbrotSet()
     : AlgoBase(MANDELBROTSET_NAME), zoomLevel(INITIAL_ZOOM) {
-  int modelIdx = (int)MandelbrotSetCentre::Seahorse_Valley;
+  modelIdx = (int)MandelbrotSetCentre::Seahorse_Valley;
   offsetX = CentreCordinates[modelIdx][0];
   offsetY = CentreCordinates[modelIdx][1];
   mAlgoId = ALGO_MANDELBROTSET; // Unique ID for HDR algorithm
@@ -88,6 +88,14 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
   if (!req || req->GetImageCount() == 0) {
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
+  }
+  if (req->mRequestId % 30 == 0) {
+    /* Reset offset and zoom level smoothly */
+    modelIdx++;
+    modelIdx = modelIdx % 3;
+    offsetX += (CentreCordinates[modelIdx][0] - offsetX) * 0.1;
+    offsetY += (CentreCordinates[modelIdx][1] - offsetY) * 0.1;
+    zoomLevel = INITIAL_ZOOM;
   }
 
   auto inputImage = req->GetImage(0); // Assume the first image as input
@@ -133,6 +141,7 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
       outputData[pixelIndex + 1] = g;
       outputData[pixelIndex + 2] = b;
     }
+    // LOG(VERBOSE, ALGOBASE, "Processed Frames::%d", req->mRequestId);
   }
 
   // Replace input image with output image

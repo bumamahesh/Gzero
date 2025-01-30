@@ -69,6 +69,7 @@
         "complex": "cpp",
         "fstream": "cpp",
         "filesystem": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "list": "cpp"
     }
 }
