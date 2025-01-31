@@ -47,6 +47,7 @@ public:
   int GetFd() const { return fd; }
   void SetData(const std::vector<unsigned char> &data) { this->data = data; }
   std::vector<unsigned char> &GetData() { return data; }
+  size_t GetDataSize() const { return data.size(); }
 
   // Destructor
   ~ImageData() = default;

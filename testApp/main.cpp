@@ -60,6 +60,21 @@ int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
   if (request) {
     std::shared_ptr<ImageData> image = request->GetImage(0);
     if (image) {
+      if (image->GetDataSize() == 0) {
+        return -1;
+      }
+      if (image->GetFormat() != ImageFormat::RGB) {
+        return -2;
+      }
+      if (g_rgbBuffer == nullptr) {
+        return -3;
+      }
+      // Check if the image data size is correct
+      if (image->GetData().size() < WIDTH * HEIGHT * 3) {
+        std::cerr << "Error: Image data size is smaller than expected."
+                  << std::endl;
+        return -4;
+      }
       std::lock_guard<std::mutex> lock(g_rgbBufferMutex);
       memcpy(g_rgbBuffer, image->GetData().data(), WIDTH * HEIGHT * 3);
       g_dataReadyFlag = 1;
@@ -72,6 +87,10 @@ int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
 void Cleanup(SDL_Window *window, void *libraryHandle,
              DeInitAlgoInterfaceFunc deinitFunc) {
   free(g_rgbBuffer);
+  g_rgbBuffer = nullptr;
+  g_dataReadyFlag = 0;
+  g_submittedCount = 0;
+  g_resultCount = 0;
   SDL_DestroyTexture(g_texture);
   SDL_DestroyRenderer(g_renderer);
   SDL_DestroyWindow(window);
