@@ -56,3 +56,12 @@ TEST(AlgoDecisionManagerTest, ParseMetadataTest) {
   auto algos = manager.ParseMetadata(req);
   ASSERT_EQ(algos.size(), 1);
 }
+
+TEST(AlgoDecisionManagerTest, DublicateIdinsetionTest) {
+  AlgoDecisionManager manager;
+  manager.SetAlgoFlag(ALGO_MANDELBROTSET);
+  manager.SetAlgoFlag(ALGO_MANDELBROTSET);
+  auto req = std::make_shared<AlgoRequest>();
+  auto algos = manager.ParseMetadata(req);
+  ASSERT_EQ(algos.size(), 1);
+}

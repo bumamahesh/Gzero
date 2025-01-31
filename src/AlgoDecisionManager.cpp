@@ -53,15 +53,17 @@ std::vector<AlgoId>
 AlgoDecisionManager::ParseMetadata(std::shared_ptr<AlgoRequest> req) {
   std::vector<AlgoId> algos;
 
-  /*parse request and decide algos*/
-  /*for now lets stick to test  mandlebrokset*/
-  SetAlgoFlag(ALGO_MANDELBROTSET);
   for (int i = (int)ALGO_BASE_ID; i <= (int)ALGO_MAX; ++i) {
     // LOG(DEBUG, ALGODECISIONMANAGER, "i =%d enable= %d", i,
     //     IsAlgoEnabled(static_cast<AlgoId>(i)));
     if (IsAlgoEnabled(static_cast<AlgoId>(i))) {
       algos.push_back(static_cast<AlgoId>(i));
     }
+  }
+
+  if (algos.size() == 0) {
+    SetAlgoFlag(ALGO_NOP);
+    algos.push_back(static_cast<AlgoId>(ALGO_NOP));
   }
 
   /*LOG(VERBOSE, ALGODECISIONMANAGER,

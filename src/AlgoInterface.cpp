@@ -54,8 +54,8 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
 
   LOG(INFO, ALGOINTERFACE, "AlgoInterface::Process");
 
-  if (GetMemoryUsage() > 30000) {
-    while (GetMemoryUsage() > 30000) {
+  if (GetMemoryUsage() > 500000) {
+    while (GetMemoryUsage() > 500000) {
       usleep(33 * 1000); // 33 ms assume 1 frame delay
       LOG(VERBOSE, ALGOINTERFACE,
           "AlgoInterface:: BLOCKED GetMemoryUsage() ::%ld KB",

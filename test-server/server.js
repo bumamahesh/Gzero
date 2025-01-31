@@ -9,7 +9,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Endpoint to list available tests
 app.get('/list-tests', (req, res) => {
-    const gtestBinary = path.resolve(__dirname, '/home/uma/workspace/Gzero/cmake/lib/test_algo_base');
+    const gtestBinary = path.resolve(__dirname, '/home/uma/workspace/Gzero/cmake/lib/GzeroUnitTest');
 
     // Execute the gtest binary to list all tests
     exec(`${gtestBinary} --gtest_list_tests`, (error, stdout, stderr) => {
@@ -27,7 +27,7 @@ app.get('/list-tests', (req, res) => {
 
 // Endpoint to run the selected test(s)
 app.get('/run-tests', (req, res) => {
-    const gtestBinary = path.resolve(__dirname, '/home/uma/workspace/Gzero/cmake/lib/test_algo_base');
+    const gtestBinary = path.resolve(__dirname, '/home/uma/workspace/Gzero/cmake/lib/GzeroUnitTest');
     const testToRun = req.query.test || '';  // Get the test name from the query (e.g. /run-tests?test=TestCase.Test)
 
     // Construct the command to run the selected test or all tests

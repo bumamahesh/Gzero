@@ -1,4 +1,5 @@
 project(TopG)
+enable_testing()
 
 # Minimum required CMake version
 cmake_minimum_required(VERSION 3.10)
@@ -40,4 +41,6 @@ add_subdirectory(Algos/Nop)
 add_subdirectory(Algos/Filter)
 add_subdirectory(Algos/MandelbrotSet)
 add_subdirectory(Algos/Ldc)
+add_subdirectory(Algos/WaterMark)
 add_subdirectory(tests)
+add_subdirectory(testApp)

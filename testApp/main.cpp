@@ -12,12 +12,14 @@
 #include <unistd.h>
 #include <vector>
 
-#define WIDTH 320
-#define HEIGHT 180
+#define WIDTH 1920
+#define HEIGHT 1080
 
 //#define YUV_TEST_FILE "/home/uma/workspace/Gzero/testApp/lena.yuv" //352 X288
-#define YUV_TEST_FILE                                                          \
-  "/home/uma/workspace/Gzero/testApp/test_yuv420p_320x180.yuv"
+//#define YUV_TEST_FILE
+//"/home/uma/workspace/Gzero/testApp/test_yuv420p_320x180.yuv" // 320 x180
+#define YUV_TEST_FILE "/home/uma/workspace/Gzero/testApp/1920x1080.yuv"
+
 template <typename T> T clamp(T value, T min, T max) {
   if (value < min)
     return min;
@@ -33,7 +35,16 @@ using AlgoInterfaceProcessFunc = int (*)(void **, std::shared_ptr<AlgoRequest>,
 using RegisterCallbackFunc = int (*)(void **,
                                      int (*)(std::shared_ptr<AlgoRequest>));
 
-AlgoDecisionManager g_algoDecisionManager;
+class DecisionManager : public AlgoDecisionManager {
+public:
+  DecisionManager() = default;
+  ~DecisionManager() = default;
+  std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req) override {
+    SetAlgoFlag(ALGO_FILTER);
+    SetAlgoFlag(ALGO_WATERMARK);
+    return AlgoDecisionManager::ParseMetadata(req);
+  }
+} g_algoDecisionManager;
 
 // Global Variables
 unsigned char *g_rgbBuffer = nullptr;
