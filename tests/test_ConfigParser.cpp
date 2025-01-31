@@ -13,7 +13,7 @@ protected:
     configFile << "key3=apple,banana,orange\n";
     configFile << "key4=[10,12,13]\n";
     configFile << "key5=[10.5,12.5,13.5]\n";
-    // configFile << "key6=[/" Alice / ",/" Bob / ",/" Charlie / "]\n";
+    configFile << "key6=[\"Alice\", \"Bob\", \"Charlie\"]\n";
     configFile.close();
   }
 
@@ -39,7 +39,7 @@ TEST_F(ConfigParserTest, TestLoadFile) {
   EXPECT_EQ(parser.getValue("key3"), "apple,banana,orange");
   EXPECT_EQ(parser.getValue("key4"), "10,12,13");
   EXPECT_EQ(parser.getValue("key5"), "10.5,12.5,13.5");
-  // EXPECT_EQ(parser.getValue("key6"), "Alice,Bob,Charlie");
+  EXPECT_EQ(parser.getValue("key6"), "Alice,Bob,Charlie");
 }
 
 // Test when retrieving a non-existing key
