@@ -10,6 +10,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
 file(GLOB CORE_SOURCES
     ${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
     ${CMAKE_SOURCE_DIR}/Utils/src/RequestMonitor.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/KpiMonitor.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/ConfigParser.cpp
     ${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoRequest.cpp
@@ -36,7 +38,7 @@ set_target_properties(Hdr PROPERTIES
 )
 
 # Option to enable/disable ASAN
-option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" OFF)
+option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" ON)
 
 if(ENABLE_ASAN)
     set(ASAN 1)

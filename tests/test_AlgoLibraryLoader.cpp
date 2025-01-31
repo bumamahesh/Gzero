@@ -123,6 +123,7 @@ TEST_F(AlgoLibraryLoaderTest, VerifyAllAlgosInterface) {
     for (const auto &[AlgoId, libname] : IdAlgoNameMap) {
       std::string lib = "/home/uma/workspace/Gzero/cmake/lib/";
       lib = lib + libname;
+      std::cout << lib << std::endl;
       auto loader = std::make_shared<AlgoLibraryLoader>(lib);
       ASSERT_NE(loader, nullptr);
       ASSERT_EQ(loader->GetAlgoId(), AlgoId);

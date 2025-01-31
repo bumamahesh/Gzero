@@ -20,12 +20,26 @@
  * THE SOFTWARE.
  */
 #include "LdcAlgorithm.h"
+#include "ConfigParser.h"
+#include "Log.h"
+
 /**
  * @brief Constructor for LdcAlgorithm.
  * @param name Name of the ldc algorithm.
  */
 LdcAlgorithm::LdcAlgorithm() : AlgoBase(LDC_NAME) {
   mAlgoId = ALGO_LDC; // Unique ID for ldc algorithm
+
+  SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
+  SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  SupportedFormatsMap.push_back(
+      {ImageFormat::GRAYSCALE, ImageFormat::GRAYSCALE});
+  ConfigParser parser;
+  parser.loadFile("/home/uma/workspace/Gzero/Config/LdcAlgorithm.config");
+  std::string Version = parser.getValue("Version");
+  if (parser.getErrorCode() == 0) {
+    LOG(VERBOSE, ALGOBASE, "Ldc Algo Version: %s", Version.c_str());
+  }
 }
 
 /**

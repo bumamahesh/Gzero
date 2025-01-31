@@ -76,3 +76,20 @@ TEST_F(ConfigParserTest, TestInvalidLineHandling) {
   EXPECT_FALSE(parser.loadFile("test_invalid_line.txt"));
   EXPECT_NE(parser.getErrorCode(), 0);
 }
+
+std::string ConfigList[] = {
+    "BokehAlgorithm.config",         "FilterAlgorithm.config",
+    "HDRAlgorithm.config",           "LdcAlgorithm.config",
+    "MandelbrotSetAlgorithm.config", "NopAlgorithm.config",
+    "WaterMarkAlgorithm.config"};
+
+TEST_F(ConfigParserTest, TestAllConfigFiles) {
+  for (auto config : ConfigList) {
+    ConfigParser parser;
+    std::string ConfigFileFullpath =
+        "/home/uma/workspace/Gzero/Config/" + std::string(config);
+    EXPECT_TRUE(parser.loadFile(ConfigFileFullpath.c_str()));
+    EXPECT_EQ(parser.getErrorCode(), 0);
+    EXPECT_EQ(parser.getValue("MAGIC_NUMBER"), "0XCAFEBABE");
+  }
+}

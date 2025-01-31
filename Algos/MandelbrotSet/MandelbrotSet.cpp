@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 #include "MandelbrotSet.h"
+#include "ConfigParser.h"
 #include "Log.h"
 #include <cmath>
 #include <complex>
@@ -55,8 +56,14 @@ MandelbrotSet::MandelbrotSet()
   offsetX = CentreCordinates[modelIdx][0];
   offsetY = CentreCordinates[modelIdx][1];
   mAlgoId = ALGO_MANDELBROTSET; // Unique ID for HDR algorithm
-  // SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
+  SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  ConfigParser parser;
+  parser.loadFile("/home/uma/workspace/Gzero/Config/MandelbrotSet.config");
+  std::string Version = parser.getValue("Version");
+  if (parser.getErrorCode() == 0) {
+    LOG(VERBOSE, ALGOBASE, "MandelbrotSet Algo Version: %s", Version.c_str());
+  }
 }
 
 /**

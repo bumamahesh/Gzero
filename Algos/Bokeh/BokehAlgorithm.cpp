@@ -20,12 +20,22 @@
  * THE SOFTWARE.
  */
 #include "BokehAlgorithm.h"
+#include "ConfigParser.h"
+#include "Log.h"
+
 /**
  * @brief Constructor for BokehAlgorithm.
  * @param name Name of the BOKEH algorithm.
  */
 BokehAlgorithm::BokehAlgorithm() : AlgoBase(BOKEH_NAME) {
   mAlgoId = ALGO_BOKEH; // Unique ID for BOKEH algorithm
+  SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  ConfigParser parser;
+  parser.loadFile("/home/uma/workspace/Gzero/Config/BokehAlgorithm.config");
+  std::string Version = parser.getValue("Version");
+  if (parser.getErrorCode() == 0) {
+    LOG(VERBOSE, ALGOBASE, "BOKEH Algo Version: %s", Version.c_str());
+  }
 }
 
 /**

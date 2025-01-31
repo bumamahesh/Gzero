@@ -20,6 +20,8 @@
  * THE SOFTWARE.
  */
 #include "NopAlgorithm.h"
+#include "ConfigParser.h"
+#include "Log.h"
 //#include <unistd.h>
 
 /**
@@ -28,6 +30,14 @@
  */
 NopAlgorithm::NopAlgorithm() : AlgoBase(NOP_NAME) {
   mAlgoId = ALGO_NOP; // Unique ID for Nop algorithm
+  /*
+  SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  ConfigParser parser;
+  parser.loadFile("/home/uma/workspace/Gzero/Config/NopAlgorithm.config");
+  std::string Version = parser.getValue("Version");
+  if (parser.getErrorCode() == 0) {
+    LOG(VERBOSE, ALGOBASE, "Nop Algo Version: %s", Version.c_str());
+  }*/
 }
 
 /**

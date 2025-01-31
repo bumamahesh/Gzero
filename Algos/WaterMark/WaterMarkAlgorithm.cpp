@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 #include "WaterMarkAlgorithm.h"
+#include "ConfigParser.h"
 #include "Log.h"
 //#include <unistd.h>
 
@@ -29,8 +30,19 @@
  */
 WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
   mAlgoId = ALGO_WATERMARK; // Unique ID for WaterMark algorithm
-  watermarkText_ = "Sample Watermark";
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  ConfigParser parser;
+  parser.loadFile("/home/uma/workspace/Gzero/Config/WaterMarkAlgorithm.config");
+  std::string watermark_ = parser.getValue("Watermark");
+  if (parser.getErrorCode() == 0) {
+    watermarkText = watermark_;
+  } else {
+    watermarkText = watermark_.size() ? watermark_ : "Uma Mahesh B";
+  }
+  std::string Version = parser.getValue("Version");
+  if (parser.getErrorCode() == 0) {
+    LOG(VERBOSE, ALGOBASE, "WaterMark Algo Version: %s", Version.c_str());
+  }
 }
 
 /**
@@ -161,7 +173,6 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     }
 
     // Add watermark text below the logo
-    std::string watermarkText = "Uma Mahesh B";
     int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX; // FONT_HERSHEY_SIMPLEX;
     double fontScale = 1.0;
     int thickness = 2;

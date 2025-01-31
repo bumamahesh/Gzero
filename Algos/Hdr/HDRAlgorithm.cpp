@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 #include "HDRAlgorithm.h"
+#include "ConfigParser.h"
 #include "Log.h"
 
 /**
@@ -28,6 +29,13 @@
  */
 HDRAlgorithm::HDRAlgorithm() : AlgoBase(HDR_NAME) {
   mAlgoId = ALGO_HDR; // Unique ID for HDR algorithm
+  SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  ConfigParser parser;
+  parser.loadFile("/home/uma/workspace/Gzero/Config/HDRAlgorithm.config");
+  std::string Version = parser.getValue("Version");
+  if (parser.getErrorCode() == 0) {
+    LOG(VERBOSE, ALGOBASE, "Hdr Algo Version: %s", Version.c_str());
+  }
 }
 
 /**

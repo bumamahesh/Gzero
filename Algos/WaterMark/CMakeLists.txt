@@ -10,6 +10,7 @@ file(GLOB CORE_SOURCES
     ${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
     ${CMAKE_SOURCE_DIR}/Utils/src/RequestMonitor.cpp
     ${CMAKE_SOURCE_DIR}/Utils/src/KpiMonitor.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/ConfigParser.cpp
     ${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoRequest.cpp

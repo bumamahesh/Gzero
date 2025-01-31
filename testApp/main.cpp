@@ -18,7 +18,7 @@
 //#define YUV_TEST_FILE "/home/uma/workspace/Gzero/testApp/lena.yuv" //352 X288
 //#define YUV_TEST_FILE
 //"/home/uma/workspace/Gzero/testApp/test_yuv420p_320x180.yuv" // 320 x180
-#define YUV_TEST_FILE "/home/uma/workspace/Gzero/testApp/1920x1080.yuv"
+#define YUV_TEST_FILE "/home/uma/workspace/Gzero/res/1920x1080.yuv"
 
 template <typename T> T clamp(T value, T min, T max) {
   if (value < min)

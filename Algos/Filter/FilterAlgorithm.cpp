@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 #include "FilterAlgorithm.h"
+#include "ConfigParser.h"
 #include "Log.h"
 #include <cmath>
 
@@ -30,6 +31,12 @@
 FilterAlgorithm::FilterAlgorithm() : AlgoBase(FILTER_NAME) {
   mAlgoId = ALGO_FILTER; // Unique ID for Nop algorithm
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  ConfigParser parser;
+  parser.loadFile("/home/uma/workspace/Gzero/Config/FilterAlgorithm.config");
+  std::string Version = parser.getValue("Version");
+  if (parser.getErrorCode() == 0) {
+    LOG(VERBOSE, ALGOBASE, "Filter Algo Version: %s", Version.c_str());
+  }
 }
 
 /**
