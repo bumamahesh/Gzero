@@ -52,7 +52,6 @@ public:
    * @return Status of the operation.
    */
   AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
-    // usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::SUCCESS);
     return GetAlgoStatus();
   }
@@ -170,7 +169,6 @@ public:
    */
   AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
 
-    // usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::INTERNAL_ERROR);
     return GetAlgoStatus();
   }
@@ -262,9 +260,8 @@ public:
    */
   AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
 
-    // usleep(5 * 1000); // Simulate processing time 20ms
     SetStatus(AlgoStatus::INTERNAL_ERROR);
-    usleep(100 * 1000); // 100 ms
+    usleep(20 * 1000); // 100 ms
 
     return GetAlgoStatus();
   }
@@ -284,7 +281,7 @@ public:
    *
    * @return int
    */
-  int GetTimeout() override { return 50; }
+  int GetTimeout() override { return 5; }
 
 private:
 };
