@@ -52,19 +52,22 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::Open() {
   return GetAlgoStatus();
 }
 
-cv::Point GetWatermarkPosition(WatermarkPosition position, int width,
-                               int height) {
+cv::Point GetWatermarkPosition(WatermarkPosition position, int imageWidth,
+                               int imageHeight, int logoWidth, int logoHeight) {
+  int padding = 40; // Padding from the edges
   switch (position) {
-  case WatermarkPosition::TOP_LEFT:
-    return cv::Point(width / 10, height / 10);
-  case WatermarkPosition::TOP_RIGHT:
-    return cv::Point(width - width / 4, height / 10);
   case WatermarkPosition::BOTTOM_LEFT:
-    return cv::Point(width / 10, height - height / 10);
+    return cv::Point(padding, imageHeight - logoHeight - padding);
   case WatermarkPosition::BOTTOM_RIGHT:
-    return cv::Point(width - width / 4, height - height / 10);
+    return cv::Point(imageWidth - logoWidth - padding,
+                     imageHeight - logoHeight - padding);
+  case WatermarkPosition::TOP_LEFT:
+    return cv::Point(padding, padding);
+  case WatermarkPosition::TOP_RIGHT:
+    return cv::Point(imageWidth - logoWidth - padding, padding);
   default:
-    return cv::Point(width / 10, height / 10);
+    return cv::Point(padding, imageHeight - logoHeight -
+                                  padding); // Default to bottom-left
   }
 }
 /**
@@ -74,11 +77,12 @@ cv::Point GetWatermarkPosition(WatermarkPosition position, int width,
  */
 AlgoBase::AlgoStatus
 WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
-  LOG(VERBOSE, ALGOBASE, "Entered WaterMarkAlgorithm::Process %ld",
-      req->mProcessCnt);
-
-  auto inputImage = req->GetImage(0); // Assume the first image as input
+  // LOG(VERBOSE, ALGOBASE, "Entered WaterMarkAlgorithm::Process %ld",
+  //     req->mProcessCnt);
+  // KpiMonitor kpi("WaterMarkAlgorithm::Process");
+  auto inputImage = req->GetImage(0);
   if (!inputImage) {
+    LOG(ERROR, ALGOBASE, "Input image is null.");
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
   }
@@ -87,38 +91,109 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   const int width = inputImage->GetWidth();
   const int height = inputImage->GetHeight();
 
-  if (true == CanProcessFormat(inputFormat, ImageFormat::RGB)) {
-
-    // Convert input data to OpenCV Mat
+  if (CanProcessFormat(inputFormat, ImageFormat::RGB)) {
+    // Convert input RGB image to BGR for OpenCV processing
     cv::Mat rgbImage(height, width, CV_8UC3, inputImage->GetData().data());
+    cv::Mat bgrImage;
+    cv::cvtColor(rgbImage, bgrImage, cv::COLOR_RGB2BGR);
 
-    // Add watermark with configurable position
+    // Load watermark logo with alpha channel
+    cv::Mat logo =
+        cv::imread("/home/uma/workspace/Gzero/Algos/WaterMark/Logo.png",
+                   cv::IMREAD_UNCHANGED);
+    if (logo.empty()) {
+      LOG(ERROR, ALGOBASE, "Failed to load the logo image.");
+      SetStatus(AlgoStatus::FAILURE);
+      return GetAlgoStatus();
+    }
+
+    // Resize logo
+    const int logoWidth = width / 5;
+    const int logoHeight = logoWidth * logo.rows / logo.cols;
+    cv::resize(logo, logo, cv::Size(logoWidth, logoHeight));
+
+    // Determine logo position based on WatermarkPosition
+    WatermarkPosition position =
+        WatermarkPosition::BOTTOM_RIGHT; // Example position
+    cv::Point logoPos =
+        GetWatermarkPosition(position, width, height, logoWidth, logoHeight);
+
+    // Adjust position if out of bounds
+    if (logoPos.x < 0 || logoPos.y < 0 || logoPos.x + logoWidth > width ||
+        logoPos.y + logoHeight > height) {
+      LOG(WARNING, ALGOBASE, "Adjusting logo position to fit within image.");
+      logoPos.x = std::max(0, std::min(logoPos.x, width - logoWidth));
+      logoPos.y = std::max(0, std::min(logoPos.y, height - logoHeight));
+    }
+
+    cv::Rect roi(logoPos.x, logoPos.y, logoWidth, logoHeight);
+    if (roi.x < 0 || roi.y < 0 || roi.width + roi.x > bgrImage.cols ||
+        roi.height + roi.y > bgrImage.rows) {
+      LOG(ERROR, ALGOBASE, "Logo region out of image bounds.");
+      SetStatus(AlgoStatus::FAILURE);
+      return GetAlgoStatus();
+    }
+
+    cv::Mat region = bgrImage(roi);
+
+    // Process logo with alpha blending
+    if (logo.channels() == 4) {
+      cv::Mat channels[4];
+      cv::split(logo, channels);
+      cv::Mat logoBGR;
+      cv::merge(std::vector<cv::Mat>{channels[0], channels[1], channels[2]},
+                logoBGR);
+      cv::Mat alpha = channels[3];
+
+      cv::Mat mask;
+      alpha.convertTo(mask, CV_8UC1, 1.0 / 255.0);
+      cv::threshold(mask, mask, 0.1, 1.0, cv::THRESH_BINARY);
+
+      logoBGR.copyTo(region, mask);
+    } else {
+      cv::Mat logoBGR;
+      if (logo.channels() == 3) {
+        logoBGR = logo;
+      } else {
+        cv::cvtColor(logo, logoBGR, cv::COLOR_GRAY2BGR);
+      }
+      logoBGR.copyTo(region);
+    }
+
+    // Add watermark text below the logo
     std::string watermarkText = "Uma Mahesh B";
-    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+    int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX; // FONT_HERSHEY_SIMPLEX;
     double fontScale = 1.0;
     int thickness = 2;
-    WatermarkPosition position =
-        WatermarkPosition::BOTTOM_RIGHT; // Set desired position
-    cv::Point textOrg = GetWatermarkPosition(position, width, height);
-    cv::Scalar color(255, 255, 255); // White watermark
-    cv::putText(rgbImage, watermarkText, textOrg, fontFace, fontScale, color,
-                thickness);
+    cv::Scalar textColor(255, 255, 255); // White in BGR
 
-    // Store the modified image data in a buffer
-    std::vector<uint8_t> outputData(rgbImage.total() * rgbImage.elemSize());
-    memcpy(outputData.data(), rgbImage.data, outputData.size());
+    // Calculate text position below the logo
+    int textX = logoPos.x;
+    int textY = logoPos.y + logoHeight + 30; // 30 pixels below the logo
 
-    // Replace input image with output image in req
+    cv::putText(bgrImage, watermarkText, cv::Point(textX, textY), fontFace,
+                fontScale, textColor, thickness);
+
+    // Convert BGR back to RGB for output
+    cv::Mat outputRgbImage;
+    cv::cvtColor(bgrImage, outputRgbImage, cv::COLOR_BGR2RGB);
+    std::vector<uint8_t> outputData(outputRgbImage.total() *
+                                    outputRgbImage.elemSize());
+    memcpy(outputData.data(), outputRgbImage.data, outputData.size());
+
     req->ClearImages();
     req->AddImage(ImageFormat::RGB, width, height, outputData);
+
+    // LOG(VERBOSE, ALGOBASE, "Watermark processing completed successfully.");
   } else {
-    // skip processing
+    LOG(ERROR, ALGOBASE, "Unsupported image format for watermark processing.");
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
   }
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
-
 /**
  * @brief Close the WaterMark algorithm, simulating cleanup.
  * @return Status of the operation.

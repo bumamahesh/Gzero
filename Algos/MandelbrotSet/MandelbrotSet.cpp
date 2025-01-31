@@ -85,7 +85,7 @@ AlgoBase::AlgoStatus MandelbrotSet::Open() {
  */
 AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
   std::lock_guard<std::mutex> lock(mutex_);
-  KpiMonitor kpi("MandelbrotSet::Process");
+  // KpiMonitor kpi("MandelbrotSet::Process");
 
   if (!req || req->GetImageCount() == 0) {
     SetStatus(AlgoStatus::FAILURE);

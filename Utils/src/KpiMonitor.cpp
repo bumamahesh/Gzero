@@ -38,7 +38,7 @@ KpiMonitor::KpiMonitor(std::string Msg) : mMsg(Msg) {
 KpiMonitor::~KpiMonitor() {
   if (mMsg.size() > 0) {
     delta = std::chrono::high_resolution_clock::now() - mStartTimer;
-    LOG(ERROR, KPI, " %s took %f seconds", mMsg.c_str(), delta.count());
+    LOG(VERBOSE, KPI, " %s took %f seconds", mMsg.c_str(), delta.count());
   } else {
     LOG(ERROR, KPI, "Took %f seconds", delta.count());
   }
