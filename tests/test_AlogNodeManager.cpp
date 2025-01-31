@@ -113,7 +113,7 @@ TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
     assert(msg != nullptr);
     switch (msg->mType) {
     case AlgoBase::AlgoMessageType::ProcessingCompleted: {
-      auto rawData = msg->mRequest->request->GetImage(0)->data;
+      auto rawData = msg->mRequest->request->GetImage(0)->GetData();
       static int i = 0;
       std::string outfile = "output" + std::to_string(i++) + ".raw";
       SaveRawDataToFile(outfile, rawData);

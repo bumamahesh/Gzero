@@ -30,16 +30,26 @@
 enum class ImageFormat { YUV420, YUV422, YUV444, RGB, GRAYSCALE, UNKNOWN };
 
 // Struct to represent an individual image
-struct ImageData {
+class ImageData {
+
   ImageFormat format;              // Format of the image (e.g., YUV, RGB)
   std::vector<unsigned char> data; // Raw image data
   int width;                       // Width of the image
   int height;                      // Height of the image
   int fd;                          // File descriptor, -1 if not available
-
+public:
   // Constructor
   ImageData(ImageFormat fmt, int w, int h, int fileDesc = -1)
       : format(fmt), width(w), height(h), fd(fileDesc) {}
+  ImageFormat GetFormat() const { return format; }
+  int GetWidth() const { return width; }
+  int GetHeight() const { return height; }
+  int GetFd() const { return fd; }
+  void SetData(const std::vector<unsigned char> &data) { this->data = data; }
+  std::vector<unsigned char> &GetData() { return data; }
+
+  // Destructor
+  ~ImageData() = default;
 };
 
 class AlgoRequest {

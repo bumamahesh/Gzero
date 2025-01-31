@@ -90,6 +90,7 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
 void AlgoInterface::SessionCallbackHandler(void *pctx,
                                            std::shared_ptr<AlgoRequest> input) {
   assert(pctx != nullptr);
+  assert(input != nullptr);
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(pctx);
   if (algoInterface->pIntfCallback) {
     algoInterface->pIntfCallback(input);

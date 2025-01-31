@@ -260,3 +260,20 @@ void AlgoBase::SetEvent(std::shared_ptr<AlgoCallbackMessage> msg) {
     LOG(ERROR, ALGOBASE, "pEventHandlerThread is nullptr");
   }
 }
+/**
+ * @brief Verify if we can process given combination on node
+ *
+ * @param Inputformat
+ * @param Outputformat
+ * @return true
+ * @return false
+ */
+bool AlgoBase::CanProcessFormat(ImageFormat Iformat, ImageFormat Oformat) {
+
+  for (const auto [InputFormat, OutputFormat] : SupportedFormatsMap) {
+    if (InputFormat == Iformat && OutputFormat == Oformat) {
+      return true;
+    }
+  }
+  return false;
+}

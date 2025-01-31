@@ -33,7 +33,7 @@
 void AlgoRequest::AddImage(ImageFormat format, int width, int height,
                            const std::vector<unsigned char> &rawData, int fd) {
   auto image = std::make_shared<ImageData>(format, width, height, fd);
-  image->data = rawData;
+  image->SetData(rawData);
   images.push_back(image);
 }
 
@@ -66,9 +66,9 @@ std::shared_ptr<ImageData> AlgoRequest::GetImage(size_t index) const {
 std::vector<std::shared_ptr<ImageData>> AlgoRequest::GetYUVImages() const {
   std::vector<std::shared_ptr<ImageData>> yuvImages;
   for (const auto &image : images) {
-    if (image->format == ImageFormat::YUV420 ||
-        image->format == ImageFormat::YUV422 ||
-        image->format == ImageFormat::YUV444) {
+    if (image->GetFormat() == ImageFormat::YUV420 ||
+        image->GetFormat() == ImageFormat::YUV422 ||
+        image->GetFormat() == ImageFormat::YUV444) {
       yuvImages.push_back(image);
     }
   }

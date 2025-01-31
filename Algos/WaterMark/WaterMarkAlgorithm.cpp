@@ -30,6 +30,7 @@
 WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
   mAlgoId = ALGO_WATERMARK; // Unique ID for WaterMark algorithm
   watermarkText_ = "Sample Watermark";
+  SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
 }
 
 /**
@@ -82,31 +83,37 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     return GetAlgoStatus();
   }
 
-  const int width = inputImage->width;
-  const int height = inputImage->height;
+  const ImageFormat inputFormat = inputImage->GetFormat();
+  const int width = inputImage->GetWidth();
+  const int height = inputImage->GetHeight();
 
-  // Convert input data to OpenCV Mat
-  cv::Mat rgbImage(height, width, CV_8UC3, inputImage->data.data());
+  if (true == CanProcessFormat(inputFormat, ImageFormat::RGB)) {
 
-  // Add watermark with configurable position
-  std::string watermarkText = "Uma Mahesh B";
-  int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-  double fontScale = 1.0;
-  int thickness = 2;
-  WatermarkPosition position =
-      WatermarkPosition::BOTTOM_RIGHT; // Set desired position
-  cv::Point textOrg = GetWatermarkPosition(position, width, height);
-  cv::Scalar color(255, 255, 255); // White watermark
-  cv::putText(rgbImage, watermarkText, textOrg, fontFace, fontScale, color,
-              thickness);
+    // Convert input data to OpenCV Mat
+    cv::Mat rgbImage(height, width, CV_8UC3, inputImage->GetData().data());
 
-  // Store the modified image data in a buffer
-  std::vector<uint8_t> outputData(rgbImage.total() * rgbImage.elemSize());
-  memcpy(outputData.data(), rgbImage.data, outputData.size());
+    // Add watermark with configurable position
+    std::string watermarkText = "Uma Mahesh B";
+    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+    double fontScale = 1.0;
+    int thickness = 2;
+    WatermarkPosition position =
+        WatermarkPosition::BOTTOM_RIGHT; // Set desired position
+    cv::Point textOrg = GetWatermarkPosition(position, width, height);
+    cv::Scalar color(255, 255, 255); // White watermark
+    cv::putText(rgbImage, watermarkText, textOrg, fontFace, fontScale, color,
+                thickness);
 
-  // Replace input image with output image in req
-  req->ClearImages();
-  req->AddImage(ImageFormat::RGB, width, height, outputData);
+    // Store the modified image data in a buffer
+    std::vector<uint8_t> outputData(rgbImage.total() * rgbImage.elemSize());
+    memcpy(outputData.data(), rgbImage.data, outputData.size());
+
+    // Replace input image with output image in req
+    req->ClearImages();
+    req->AddImage(ImageFormat::RGB, width, height, outputData);
+  } else {
+    // skip processing
+  }
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();

@@ -98,6 +98,7 @@ public:
   std::weak_ptr<AlgoBase> GetNextAlgo();
   void SetEvent(std::shared_ptr<AlgoCallbackMessage> msg);
   bool bIslastNode = false;
+  bool CanProcessFormat(ImageFormat Iformat, ImageFormat Oformat);
 
 protected:
   AlgorithmOperations mAlgoOperations;
@@ -110,6 +111,7 @@ protected:
   std::weak_ptr<AlgoBase> mNextAlgo;
   std::shared_ptr<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>
       pEventHandlerThread = nullptr;
+  std::vector<std::pair<ImageFormat, ImageFormat>> SupportedFormatsMap;
 
 private:
   static void ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task);

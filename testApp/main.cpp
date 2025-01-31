@@ -61,7 +61,7 @@ int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
     std::shared_ptr<ImageData> image = request->GetImage(0);
     if (image) {
       std::lock_guard<std::mutex> lock(g_rgbBufferMutex);
-      memcpy(g_rgbBuffer, image->data.data(), WIDTH * HEIGHT * 3);
+      memcpy(g_rgbBuffer, image->GetData().data(), WIDTH * HEIGHT * 3);
       g_dataReadyFlag = 1;
       ++g_resultCount;
     }
