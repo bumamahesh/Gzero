@@ -38,7 +38,7 @@ TEST_F(AlgoNodeManagerTest, CtorDtor) {
 TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 
   try {
-    std::string HdralgoName("HDRAlgorithm");
+    std::string HdralgoName("HdrAlgorithm");
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
@@ -56,7 +56,7 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 }
 
 TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
-  std::string HdralgoName("HDRAlgorithm");
+  std::string HdralgoName("HdrAlgorithm");
   try {
     auto algoNodeManager = AlgoNodeManager::Getinstance();
 

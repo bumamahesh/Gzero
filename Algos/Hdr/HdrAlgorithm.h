@@ -23,39 +23,39 @@
 #define HDR_ALGORITHM_H
 
 #include "AlgoBase.h"
-const char *HDR_NAME = "HDRAlgorithm";
+const char *HDR_NAME = "HdrAlgorithm";
 
 /**
- * @brief HDRAlgorithm class derived from AlgoBase to perform HDR-specific
+ * @brief HdrAlgorithm class derived from AlgoBase to perform Hdr-specific
  * operations.
  */
-class HDRAlgorithm : public AlgoBase {
+class HdrAlgorithm : public AlgoBase {
 public:
   /**
-   * @brief Constructor for HDRAlgorithm.
+   * @brief Constructor for HdrAlgorithm.
    *
    */
-  HDRAlgorithm();
+  HdrAlgorithm();
 
   /**
-   * @brief Destructor for HDRAlgorithm.
+   * @brief Destructor for HdrAlgorithm.
    */
-  ~HDRAlgorithm() override;
+  ~HdrAlgorithm() override;
 
   /**
-   * @brief Open the HDR algorithm, simulating resource checks.
+   * @brief Open the Hdr algorithm, simulating resource checks.
    * @return Status of the operation.
    */
   AlgoStatus Open() override;
 
   /**
-   * @brief Process the HDR algorithm, simulating HDR computation.
+   * @brief Process the Hdr algorithm, simulating Hdr computation.
    * @return Status of the operation.
    */
   AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override;
 
   /**
-   * @brief Close the HDR algorithm, simulating cleanup.
+   * @brief Close the Hdr algorithm, simulating cleanup.
    * @return Status of the operation.
    */
   // cppcheck-suppress virtualCallInConstructor
@@ -73,9 +73,9 @@ private:
 };
 
 /**
- * @brief Factory function to expose HDRAlgorithm via shared library.
- * @return A pointer to the HDRAlgorithm instance.
+ * @brief Factory function to expose HdrAlgorithm via shared library.
+ * @return A pointer to the HdrAlgorithm instance.
  */
 extern "C" AlgoBase *GetAlgoMethod();
 
-#endif // HDR_ALGORITHM_H
+#endif // Hdr_ALGORITHM_H

@@ -19,19 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "HDRAlgorithm.h"
+#include "HdrAlgorithm.h"
 #include "ConfigParser.h"
 #include "Log.h"
 
 /**
- * @brief Constructor for HDRAlgorithm.
- * @param name Name of the HDR algorithm.
+ * @brief Constructor for HdrAlgorithm.
+ * @param name Name of the Hdr algorithm.
  */
-HDRAlgorithm::HDRAlgorithm() : AlgoBase(HDR_NAME) {
-  mAlgoId = ALGO_HDR; // Unique ID for HDR algorithm
+HdrAlgorithm::HdrAlgorithm() : AlgoBase(HDR_NAME) {
+  mAlgoId = ALGO_HDR; // Unique ID for Hdr algorithm
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
-  parser.loadFile("/home/uma/workspace/Gzero/Config/HDRAlgorithm.config");
+  parser.loadFile("/home/uma/workspace/Gzero/Config/HdrAlgorithm.config");
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
     LOG(VERBOSE, ALGOBASE, "Hdr Algo Version: %s", Version.c_str());
@@ -39,30 +39,30 @@ HDRAlgorithm::HDRAlgorithm() : AlgoBase(HDR_NAME) {
 }
 
 /**
- * @brief Destructor for HDRAlgorithm.
+ * @brief Destructor for HdrAlgorithm.
  */
-HDRAlgorithm::~HDRAlgorithm() {
+HdrAlgorithm::~HdrAlgorithm() {
   StopAlgoThread();
   Close();
 };
 
 /**
- * @brief Open the HDR algorithm, simulating resource checks.
+ * @brief Open the Hdr algorithm, simulating resource checks.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus HDRAlgorithm::Open() {
+AlgoBase::AlgoStatus HdrAlgorithm::Open() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
-  // LOG(DEBUG, ALGOBASE, "OPEN In HDR Algo");
+  // LOG(DEBUG, ALGOBASE, "OPEN In Hdr Algo");
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
 
 /**
- * @brief Process the HDR algorithm, simulating input validation and HDR
+ * @brief Process the Hdr algorithm, simulating input validation and Hdr
  * computation.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus HDRAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
+AlgoBase::AlgoStatus HdrAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   SetStatus(AlgoStatus::SUCCESS);
@@ -70,12 +70,12 @@ AlgoBase::AlgoStatus HDRAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 }
 
 /**
- * @brief Close the HDR algorithm, simulating cleanup.
+ * @brief Close the Hdr algorithm, simulating cleanup.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus HDRAlgorithm::Close() {
+AlgoBase::AlgoStatus HdrAlgorithm::Close() {
   std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
-  // LOG(DEBUG, ALGOBASE, "Close In HDR Algo");
+  // LOG(DEBUG, ALGOBASE, "Close In Hdr Algo");
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
@@ -85,15 +85,15 @@ AlgoBase::AlgoStatus HDRAlgorithm::Close() {
  *
  * @return int
  */
-int HDRAlgorithm::GetTimeout() { return 1000; }
+int HdrAlgorithm::GetTimeout() { return 1000; }
 
-// Public Exposed API for HDR
+// Public Exposed API for Hdr
 /**
- * @brief Factory function to expose HDRAlgorithm via shared library.
- * @return A pointer to the HDRAlgorithm instance.
+ * @brief Factory function to expose HdrAlgorithm via shared library.
+ * @return A pointer to the HdrAlgorithm instance.
  */
 extern "C" AlgoBase *GetAlgoMethod() {
-  HDRAlgorithm *pInstance = new HDRAlgorithm();
+  HdrAlgorithm *pInstance = new HdrAlgorithm();
   return pInstance;
 }
 

@@ -79,6 +79,10 @@ AlgoLibraryLoader::~AlgoLibraryLoader() {
 
 std::shared_ptr<AlgoBase> AlgoLibraryLoader::GetAlgoMethod() {
 
+  if (!mGetAlgoMethod) {
+    LOG(ERROR, ALGOLIBLOADER, "mGetAlgoMethod is nullptr");
+    return nullptr;
+  }
   std::lock_guard<std::mutex> lock(mlibMutex);
   std::shared_ptr<AlgoBase> pAlgoBase(mGetAlgoMethod());
   pAlgoBase->Open();
@@ -92,6 +96,10 @@ std::shared_ptr<AlgoBase> AlgoLibraryLoader::GetAlgoMethod() {
  * @return std::string
  */
 std::string AlgoLibraryLoader::GetAlgorithmName() const {
+  if (!mGetAlgoName) {
+    LOG(ERROR, ALGOLIBLOADER, "mGetAlgoName is nullptr");
+    return "";
+  }
   return std::string(mGetAlgoName());
 }
 
@@ -100,4 +108,10 @@ std::string AlgoLibraryLoader::GetAlgorithmName() const {
  *
  * @return size_t
  */
-AlgoId AlgoLibraryLoader::GetAlgoId() const { return mGetAlgoId(); }
+AlgoId AlgoLibraryLoader::GetAlgoId() const {
+  if (!mGetAlgoId) {
+    LOG(ERROR, ALGOLIBLOADER, "mGetAlgoId is nullptr");
+    return AlgoId::ALGO_MAX;
+  }
+  return mGetAlgoId();
+}

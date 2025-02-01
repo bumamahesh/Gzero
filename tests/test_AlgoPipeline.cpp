@@ -41,7 +41,7 @@ TEST_F(AlgoPipelineTest, CtorDtorID) {
 }
 
 TEST_F(AlgoPipelineTest, CtorDtorName) {
-  std::vector<std::string> algoList = {"HDRAlgorithm", "BokehAlgorithm"};
+  std::vector<std::string> algoList = {"HdrAlgorithm", "BokehAlgorithm"};
   auto algoPipeline = std::make_shared<AlgoPipeline>();
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), AlgoPipelineState::Initialised);

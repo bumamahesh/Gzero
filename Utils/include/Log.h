@@ -31,12 +31,13 @@
 // Updated LogLevel enum class with VERBOSE included
 enum class LogLevel {
   L_TRACE = 0, // Logs even more detailed than DEBUG  //more logs
+  L_FATAL,     // Critical errors, often resulting in termination //less logs
+  L_ERROR,     // Errors during execution
   L_DEBUG,     // Debugging information
   L_VERBOSE,   // More detailed logs than DEBUG, often for diagnostics
   L_INFO,      // General informational messages
   L_WARNING,   // Warnings about potentially harmful situations
-  L_ERROR,     // Errors during execution
-  L_FATAL      // Critical errors, often resulting in termination //less logs
+
 };
 
 // Updated macro definitions linked to LogLevel values

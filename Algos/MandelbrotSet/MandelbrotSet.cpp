@@ -55,7 +55,7 @@ MandelbrotSet::MandelbrotSet()
   modelIdx = (int)MandelbrotSetCentre::Seahorse_Valley;
   offsetX = CentreCordinates[modelIdx][0];
   offsetY = CentreCordinates[modelIdx][1];
-  mAlgoId = ALGO_MANDELBROTSET; // Unique ID for HDR algorithm
+  mAlgoId = ALGO_MANDELBROTSET; // Unique ID for MANDELBROTSET algorithm
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
@@ -75,7 +75,7 @@ MandelbrotSet::~MandelbrotSet() {
 }
 
 /**
- * @brief Open the HDR algorithm, simulating resource checks.
+ * @brief Open the MANDELBROTSET algorithm, simulating resource checks.
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus MandelbrotSet::Open() {
@@ -85,8 +85,8 @@ AlgoBase::AlgoStatus MandelbrotSet::Open() {
 }
 
 /**
- * @brief Process the HDR algorithm, simulating input validation and Mandelbrot
- * computation.
+ * @brief Process the MANDELBROTSET algorithm, simulating input validation and
+ * Mandelbrot computation.
  * @param req A shared pointer to the AlgoRequest object.
  * @return Status of the operation.
  */
@@ -169,7 +169,7 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
 }
 
 /**
- * @brief Close the HDR algorithm, simulating cleanup.
+ * @brief Close the MANDELBROTSET algorithm, simulating cleanup.
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus MandelbrotSet::Close() {

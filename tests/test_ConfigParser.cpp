@@ -79,7 +79,7 @@ TEST_F(ConfigParserTest, TestInvalidLineHandling) {
 
 std::string ConfigList[] = {
     "BokehAlgorithm.config",         "FilterAlgorithm.config",
-    "HDRAlgorithm.config",           "LdcAlgorithm.config",
+    "HdrAlgorithm.config",           "LdcAlgorithm.config",
     "MandelbrotSetAlgorithm.config", "NopAlgorithm.config",
     "WaterMarkAlgorithm.config"};
 

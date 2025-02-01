@@ -1,63 +1,9 @@
-cmake_minimum_required(VERSION 3.10)
-
-# Project name and description
 project(Bokeh VERSION 1.0 LANGUAGES CXX)
-set(CMAKE_SHARED_LIBRARY_PREFIX "com.Algo.")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
+include(${CMAKE_SOURCE_DIR}/Algos/CommonCmake.txt)
 
-file(GLOB CORE_SOURCES
-    ${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/RequestMonitor.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/KpiMonitor.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/ConfigParser.cpp
-    ${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
-    ${CMAKE_SOURCE_DIR}/src/AlgoRequest.cpp
-)
-# Add the shared library
-add_library(Bokeh SHARED
-    BokehAlgorithm.cpp
-    ${CORE_SOURCES}
-)
+add_library(Bokeh SHARED BokehAlgorithm.cpp ${CORE_SOURCES})
 
-# Include directories
-target_include_directories(Bokeh
-    PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/include 
-    ${CMAKE_SOURCE_DIR}/Utils/include 
-)
-
-# Set C++ standard
-set_target_properties(Bokeh PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-)
-
-# Option to enable/disable ASAN
-option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" OFF)
-
-if(ENABLE_ASAN)
-    set(ASAN 1)
-    set(CMAKE_BUILD_TYPE DEBUG)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
-
-    # Enable AddressSanitizer
-    target_compile_options(Bokeh PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-    target_link_options(Bokeh PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-    # Set compiler flags for debugging information
-    target_compile_options(Bokeh PRIVATE -g -ggdb -Wall -fPIC)
-
-endif()
-
-# Export the shared library
-install(TARGETS Bokeh
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-)
-
-# Install header files
-install(FILES BokehAlgorithm.h DESTINATION include)
+target_include_directories(Bokeh PUBLIC ${COMMON_INCLUDE_DIRS})
+set_common_target_properties(Bokeh)
+enable_asan(Bokeh)
+install_target(Bokeh BokehAlgorithm.h)

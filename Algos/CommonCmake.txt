@@ -1,0 +1,53 @@
+cmake_minimum_required(VERSION 3.10)
+
+# Set common output directories
+set(CMAKE_SHARED_LIBRARY_PREFIX "com.Algo.")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
+
+# Common source files
+file(GLOB CORE_SOURCES
+    ${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/RequestMonitor.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/KpiMonitor.cpp
+    ${CMAKE_SOURCE_DIR}/Utils/src/ConfigParser.cpp
+    ${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
+    ${CMAKE_SOURCE_DIR}/src/AlgoRequest.cpp
+)
+
+# Common include directories
+set(COMMON_INCLUDE_DIRS
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/Utils/include
+)
+
+# Common C++ standard properties
+function(set_common_target_properties target_name)
+    set_target_properties(${target_name} PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+    )
+endfunction()
+
+# ASAN support function
+function(enable_asan target_name)
+    option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" OFF)
+    if(ENABLE_ASAN)
+        set(CMAKE_BUILD_TYPE DEBUG)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+        target_compile_options(${target_name} PRIVATE -fsanitize=address -fno-omit-frame-pointer -g -ggdb -Wall -fPIC)
+        target_link_options(${target_name} PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    endif()
+endfunction()
+
+# Common installation rules
+function(install_target target_name header_file)
+    install(TARGETS ${target_name}
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+    )
+    install(FILES ${header_file} DESTINATION include)
+endfunction()

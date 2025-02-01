@@ -40,8 +40,8 @@ enum MandelbrotSetCentre {
   Main,
 };
 /**
- * @brief MandelbrotSet class derived from AlgoBase to perform HDR-specific
- * operations.
+ * @brief MandelbrotSet class derived from AlgoBase to perform
+ * MANDELBROTSET-specific operations.
  */
 class MandelbrotSet : public AlgoBase {
 public:
@@ -57,19 +57,20 @@ public:
   ~MandelbrotSet() override;
 
   /**
-   * @brief Open the HDR algorithm, simulating resource checks.
+   * @brief Open the MANDELBROTSET algorithm, simulating resource checks.
    * @return Status of the operation.
    */
   AlgoStatus Open() override;
 
   /**
-   * @brief Process the HDR algorithm, simulating HDR computation.
+   * @brief Process the MANDELBROTSET algorithm, simulating MANDELBROTSET
+   * computation.
    * @return Status of the operation.
    */
   AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override;
 
   /**
-   * @brief Close the HDR algorithm, simulating cleanup.
+   * @brief Close the MANDELBROTSET algorithm, simulating cleanup.
    * @return Status of the operation.
    */
   // cppcheck-suppress virtualCallInConstructor
