@@ -64,6 +64,11 @@ AlgoBase::AlgoStatus BokehAlgorithm::Open() {
  */
 AlgoBase::AlgoStatus BokehAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
+  int reqdone = 0x00;
+  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+  }
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }

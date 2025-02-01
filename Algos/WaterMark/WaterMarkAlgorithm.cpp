@@ -108,8 +108,8 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   }
 
   const ImageFormat inputFormat = inputImage->GetFormat();
-  const int width = inputImage->GetWidth();
-  const int height = inputImage->GetHeight();
+  const int width               = inputImage->GetWidth();
+  const int height              = inputImage->GetHeight();
 
   if (CanProcessFormat(inputFormat, ImageFormat::RGB)) {
     // Convert input RGB image to BGR for OpenCV processing
@@ -126,7 +126,7 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     }
 
     // Resize logo
-    const int logoWidth = width / 5;
+    const int logoWidth  = width / 5;
     const int logoHeight = logoWidth * logo.rows / logo.cols;
     cv::resize(logo, logo, cv::Size(logoWidth, logoHeight));
 
@@ -179,9 +179,9 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     }
 
     // Add watermark text below the logo
-    int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX; // FONT_HERSHEY_SIMPLEX;
+    int fontFace     = cv::FONT_HERSHEY_SCRIPT_SIMPLEX; // FONT_HERSHEY_SIMPLEX;
     double fontScale = 1.0;
-    int thickness = 2;
+    int thickness    = 2;
     cv::Scalar textColor(255, 255, 255); // White in BGR
 
     // Calculate text position below the logo
@@ -210,7 +210,7 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
   int reqdone = 0x00;
   if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
-    reqdone |= (1 << (ALGO_OFFSET(ALGO_WATERMARK)));
+    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
     req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);

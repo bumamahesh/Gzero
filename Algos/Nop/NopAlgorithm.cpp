@@ -66,7 +66,13 @@ AlgoBase::AlgoStatus NopAlgorithm::Open() {
  */
 AlgoBase::AlgoStatus NopAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
-  // usleep(33 * 1000);
+  // usleep(33 * 1000);.
+
+  int reqdone = 0x00;
+  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+  }
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }

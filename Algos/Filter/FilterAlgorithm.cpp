@@ -80,8 +80,8 @@ FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   }
 
   const ImageFormat inputFormat = inputImage->GetFormat();
-  const int width = inputImage->GetWidth();
-  const int height = inputImage->GetHeight();
+  const int width               = inputImage->GetWidth();
+  const int height              = inputImage->GetHeight();
   const std::vector<unsigned char> &inputData =
       inputImage->GetData(); // RGB input assumed
 
@@ -131,6 +131,11 @@ FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     req->AddImage(ImageFormat::RGB, width, height, outputData);
   } else {
     // skip processing
+  }
+  int reqdone = 0x00;
+  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
