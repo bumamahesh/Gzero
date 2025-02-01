@@ -40,6 +40,7 @@ install(TARGETS AlgoLib DESTINATION lib)
 install(FILES include/Interface.h DESTINATION include)
 
 # Add subdirectories
+# add_subdirectory(Utils)
 add_subdirectory(Algos/Hdr)
 add_subdirectory(Algos/Bokeh)
 add_subdirectory(Algos/Nop)

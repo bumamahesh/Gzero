@@ -31,6 +31,7 @@
 WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
   mAlgoId = ALGO_WATERMARK; // Unique ID for WaterMark algorithm
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::RGB});
   ConfigParser parser;
   parser.loadFile("/home/uma/workspace/Gzero/Config/WaterMarkAlgorithm.config");
   std::string watermark_ = parser.getValue("Watermark");
@@ -47,9 +48,10 @@ WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
   std::string watermarkLogoPath_ = parser.getValue("watermarkLogoPath");
   if (parser.getErrorCode() == 0) {
     watermarkLogoPath = watermarkLogoPath_;
+    LOG(VERBOSE, ALGOBASE, "watermarkLogoPath: %s", watermarkLogoPath.c_str());
   } else {
-    watermarkLogoPath =
-        watermarkLogoPath_.size() ? watermarkLogoPath_ : "Uma Mahesh B";
+    watermarkLogoPath = "/home/uma/workspace/Gzero/Algos/res/Logo.png";
+    LOG(VERBOSE, ALGOBASE, "watermarkLogoPath: %s errcode %d", watermarkLogoPath.c_str(), parser.getErrorCode());
   }
 }
 

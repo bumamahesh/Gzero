@@ -13,6 +13,7 @@ set(SOURCES
     main.cpp
     ../src/AlgoRequest.cpp
     ../src/AlgoDecisionManager.cpp
+    ../src/AlgoMetadata.cpp
 )
 
 # Create an executable from the source files

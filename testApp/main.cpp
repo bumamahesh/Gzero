@@ -20,7 +20,8 @@
 //"/home/uma/workspace/Gzero/testApp/test_yuv420p_320x180.yuv" // 320 x180
 #define YUV_TEST_FILE "/home/uma/workspace/Gzero/res/1920x1080.yuv"
 
-template <typename T> T clamp(T value, T min, T max) {
+template <typename T>
+T clamp(T value, T min, T max) {
   if (value < min)
     return min;
   if (value > max)
@@ -28,16 +29,16 @@ template <typename T> T clamp(T value, T min, T max) {
   return value;
 }
 
-using InitAlgoInterfaceFunc = int (*)(void **);
-using DeInitAlgoInterfaceFunc = int (*)(void **);
+using InitAlgoInterfaceFunc    = int (*)(void **);
+using DeInitAlgoInterfaceFunc  = int (*)(void **);
 using AlgoInterfaceProcessFunc = int (*)(void **, std::shared_ptr<AlgoRequest>,
                                          std::vector<AlgoId>);
-using RegisterCallbackFunc = int (*)(void **,
+using RegisterCallbackFunc     = int (*)(void **,
                                      int (*)(std::shared_ptr<AlgoRequest>));
 
 class DecisionManager : public AlgoDecisionManager {
 public:
-  DecisionManager() = default;
+  DecisionManager()  = default;
   ~DecisionManager() = default;
   std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req) override {
     SetAlgoFlag(ALGO_FILTER);
@@ -47,13 +48,13 @@ public:
 } g_algoDecisionManager;
 
 // Global Variables
-unsigned char *g_rgbBuffer = nullptr;
+unsigned char *g_rgbBuffer   = nullptr;
 volatile int g_dataReadyFlag = 0;
-SDL_Renderer *g_renderer = nullptr;
-SDL_Texture *g_texture = nullptr;
+SDL_Renderer *g_renderer     = nullptr;
+SDL_Texture *g_texture       = nullptr;
 std::mutex g_rgbBufferMutex;
 int g_submittedCount = 0;
-int g_resultCount = 0;
+int g_resultCount    = 0;
 
 // Callback Function
 int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
@@ -87,10 +88,10 @@ int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
 void Cleanup(SDL_Window *window, void *libraryHandle,
              DeInitAlgoInterfaceFunc deinitFunc) {
   free(g_rgbBuffer);
-  g_rgbBuffer = nullptr;
-  g_dataReadyFlag = 0;
+  g_rgbBuffer      = nullptr;
+  g_dataReadyFlag  = 0;
   g_submittedCount = 0;
-  g_resultCount = 0;
+  g_resultCount    = 0;
   SDL_DestroyTexture(g_texture);
   SDL_DestroyRenderer(g_renderer);
   SDL_DestroyWindow(window);
@@ -186,7 +187,7 @@ bool LoadLibraryFunctions(void *&libraryHandle, InitAlgoInterfaceFunc &initFunc,
 void YUVtoRGB(const unsigned char *yuvBuffer, unsigned char *rgbBuffer) {
   for (int i = 0; i < HEIGHT; ++i) {
     for (int j = 0; j < WIDTH; ++j) {
-      int yIndex = i * WIDTH + j;
+      int yIndex  = i * WIDTH + j;
       int uvIndex = (i / 2) * (WIDTH / 2) + (j / 2);
 
       int Y = yuvBuffer[yIndex];
@@ -240,7 +241,7 @@ void RenderLoop(SDL_Window *window, AlgoInterfaceProcessFunc processFunc,
                          yuvBuffer.size())) {
         YUVtoRGB(yuvBuffer.data(), rgbBuffer.data());
 
-        auto request = std::make_shared<AlgoRequest>();
+        auto request        = std::make_shared<AlgoRequest>();
         request->mRequestId = requestId++;
         request->AddImage(ImageFormat::RGB, WIDTH, HEIGHT, rgbBuffer);
 
@@ -264,11 +265,11 @@ void RenderLoop(SDL_Window *window, AlgoInterfaceProcessFunc processFunc,
 }
 
 int main() {
-  SDL_Window *window = nullptr;
-  void *libraryHandle = nullptr;
-  InitAlgoInterfaceFunc initFunc = nullptr;
-  DeInitAlgoInterfaceFunc deinitFunc = nullptr;
-  AlgoInterfaceProcessFunc processFunc = nullptr;
+  SDL_Window *window                        = nullptr;
+  void *libraryHandle                       = nullptr;
+  InitAlgoInterfaceFunc initFunc            = nullptr;
+  DeInitAlgoInterfaceFunc deinitFunc        = nullptr;
+  AlgoInterfaceProcessFunc processFunc      = nullptr;
   RegisterCallbackFunc registerCallbackFunc = nullptr;
 
   if (!InitializeSDL(window)) {

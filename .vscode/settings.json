@@ -70,6 +70,7 @@
         "fstream": "cpp",
         "filesystem": "cpp",
         "cfenv": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "test_requestandprocess": "cpp"
     }
 }

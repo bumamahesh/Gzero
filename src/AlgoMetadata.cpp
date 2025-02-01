@@ -22,13 +22,28 @@
 #include "AlgoMetadata.h"
 
 /**
+ * @brief Construct a new Algo Metadata:: Algo Metadata object
+ *
+ */
+AlgoMetadata::AlgoMetadata() {
+  intMetadata.clear();
+  floatMetadata.clear();
+  boolMetadata.clear();
+  // default metadata
+  SetMetadata(ALGO_PROCESS_DONE, 0x00);
+}
+
+AlgoMetadata::~AlgoMetadata() {
+}
+
+/**
  * @brief Get the Metadata object
  *
  * @param id
  * @param value
  * @return int
  */
-int AlgoMetadata::GetMetadata(Medatdata id, int &value) {
+int AlgoMetadata::GetMetadata(MetaId id, int &value) {
   std::lock_guard<std::mutex> lock(mMutex);
   auto it = intMetadata.find(id);
   if (it != intMetadata.end()) {
@@ -45,10 +60,27 @@ int AlgoMetadata::GetMetadata(Medatdata id, int &value) {
  * @param value
  * @return float
  */
-int AlgoMetadata::GetMetadata(Medatdata id, float &value) {
+int AlgoMetadata::GetMetadata(MetaId id, float &value) {
   std::lock_guard<std::mutex> lock(mMutex);
   auto it = floatMetadata.find(id);
   if (it != floatMetadata.end()) {
+    value = it->second;
+    return 0; // Success
+  }
+  return -1; // Metadata not found
+}
+
+/**
+ * @brief Get the Metadata object
+ *
+ * @param id
+ * @param value
+ * @return bool
+ */
+int AlgoMetadata::GetMetadata(MetaId id, bool &value) {
+  std::lock_guard<std::mutex> lock(mMutex);
+  auto it = boolMetadata.find(id);
+  if (it != boolMetadata.end()) {
     value = it->second;
     return 0; // Success
   }
@@ -62,7 +94,7 @@ int AlgoMetadata::GetMetadata(Medatdata id, float &value) {
  * @param value
  * @return int
  */
-int AlgoMetadata::SetMetadata(Medatdata id, int value) {
+int AlgoMetadata::SetMetadata(MetaId id, int value) {
   std::lock_guard<std::mutex> lock(mMutex);
   intMetadata[id] = value;
   return 0; // Success
@@ -75,8 +107,21 @@ int AlgoMetadata::SetMetadata(Medatdata id, int value) {
  * @param value
  * @return int
  */
-int AlgoMetadata::SetMetadata(Medatdata id, float value) {
+int AlgoMetadata::SetMetadata(MetaId id, float value) {
   std::lock_guard<std::mutex> lock(mMutex);
   floatMetadata[id] = value;
+  return 0; // Success
+}
+
+/**
+ * @brief Set the Metadata object
+ *
+ * @param id
+ * @param value
+ * @return bool
+ */
+int AlgoMetadata::SetMetadata(MetaId id, bool value) {
+  std::lock_guard<std::mutex> lock(mMutex);
+  boolMetadata[id] = value;
   return 0; // Success
 }
