@@ -43,6 +43,13 @@ WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
   if (parser.getErrorCode() == 0) {
     LOG(VERBOSE, ALGOBASE, "WaterMark Algo Version: %s", Version.c_str());
   }
+
+  std::string watermarkLogoPath_ = parser.getValue("watermarkLogoPath");
+  if (parser.getErrorCode() == 0) {
+    watermarkLogoPath = watermarkLogoPath_;
+  } else {
+    watermarkLogoPath = watermarkLogoPath_.size() ? watermarkLogoPath_ : "Uma Mahesh B";
+  }
 }
 
 /**
@@ -111,7 +118,7 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
     // Load watermark logo with alpha channel
     cv::Mat logo =
-        cv::imread("/home/uma/workspace/Gzero/Algos/WaterMark/Logo.png",
+        cv::imread(watermarkLogoPath.c_str(),
                    cv::IMREAD_UNCHANGED);
     if (logo.empty()) {
       LOG(ERROR, ALGOBASE, "Failed to load the logo image.");

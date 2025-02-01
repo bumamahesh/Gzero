@@ -73,10 +73,11 @@ public:
   int GetTimeout() override;
 
 private:
-  mutable std::mutex mutex_; // Mutex to protect the shared state
-  cv::Mat image_;            // Original image
-  cv::Mat watermark_;        // Watermark (text or image)
-  std::string watermarkText; // If you want to apply text watermark
+  mutable std::mutex mutex_;      // Mutex to protect the shared state
+  cv::Mat image_;                 // Original image
+  cv::Mat watermark_;             // Watermark (text or image)
+  std::string watermarkText;      // If you want to apply text watermark
+  std::string watermarkLogoPath;  // If you want to apply logo
 };
 
 /**
