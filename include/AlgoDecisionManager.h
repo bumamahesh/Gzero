@@ -28,8 +28,6 @@
 #include <memory>
 #include <vector>
 
-#define ALGO_OFFSET(ALGO_IDX) (static_cast<int>(ALGO_IDX - ALGO_BASE_ID))
-
 class AlgoDecisionManager {
 public:
   AlgoDecisionManager();

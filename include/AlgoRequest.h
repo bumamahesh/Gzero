@@ -22,6 +22,7 @@
 #ifndef ALGO_REQUEST_H
 #define ALGO_REQUEST_H
 
+#include "AlgoMetadata.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -80,6 +81,8 @@ public:
   size_t mProcessCnt = 0;
   int mRequestId;
   /*request id assoisiated*/ // make this conts in contruction  @todo
+
+  AlgoMetadata mMetadata;
 
 private:
 };

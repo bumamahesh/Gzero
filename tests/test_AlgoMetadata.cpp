@@ -19,24 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef ALGO_DEFS_H
-#define ALGO_DEFS_H
-#pragma once
+#include "../include/AlgoMetadata.h"
+#include <gtest/gtest.h>
 
-#include <string>
-#define ALGO_OFFSET(ALGO_IDX) (static_cast<int>(ALGO_IDX - ALGO_BASE_ID))
+TEST(AlgoMetadataTest, GetSetMetadataInt) {
+  AlgoMetadata metadata;
+  int value;
 
-#define ALGO_BASE_ID 0xCAFEBABE // Base ID for algorithms
+  // Set metadata
+  ASSERT_EQ(metadata.SetMetadata(IMAGE_WIDTH, 1920), 0);
+  ASSERT_EQ(metadata.SetMetadata(IMAGE_HEIGHT, 1080), 0);
 
-typedef enum ALGOID {
-  ALGO_HDR           = ALGO_BASE_ID + 0,
-  ALGO_BOKEH         = ALGO_BASE_ID + 1,
-  ALGO_NOP           = ALGO_BASE_ID + 2,
-  ALGO_FILTER        = ALGO_BASE_ID + 3,
-  ALGO_MANDELBROTSET = ALGO_BASE_ID + 4,
-  ALGO_LDC           = ALGO_BASE_ID + 5,
-  ALGO_WATERMARK     = ALGO_BASE_ID + 6,
-  ALGO_MAX           = ALGO_BASE_ID + 7,
-} AlgoId;
+  // Get metadata
+  ASSERT_EQ(metadata.GetMetadata(IMAGE_WIDTH, value), 0);
+  ASSERT_EQ(value, 1920);
+  ASSERT_EQ(metadata.GetMetadata(IMAGE_HEIGHT, value), 0);
+  ASSERT_EQ(value, 1080);
 
-#endif // ALGO_DEFS_H
+  // Get non-existent metadata
+  ASSERT_EQ(metadata.GetMetadata(CAMERA_MAKE, value), -1);
+}
+
+TEST(AlgoMetadataTest, GetSetMetadataFloat) {
+  AlgoMetadata metadata;
+  float value;
+
+  // Set metadata
+  ASSERT_EQ(metadata.SetMetadata(EXPOSURE_TIME, 123.45f), 0);
+
+  // Get metadata
+  ASSERT_EQ(metadata.GetMetadata(EXPOSURE_TIME, value), 0);
+  ASSERT_EQ(value, 123.45f);
+
+  // Get non-existent metadata
+  ASSERT_EQ(metadata.GetMetadata(FOCAL_LENGTH, value), -1);
+}

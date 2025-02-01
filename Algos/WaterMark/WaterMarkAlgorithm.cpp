@@ -48,7 +48,8 @@ WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
   if (parser.getErrorCode() == 0) {
     watermarkLogoPath = watermarkLogoPath_;
   } else {
-    watermarkLogoPath = watermarkLogoPath_.size() ? watermarkLogoPath_ : "Uma Mahesh B";
+    watermarkLogoPath =
+        watermarkLogoPath_.size() ? watermarkLogoPath_ : "Uma Mahesh B";
   }
 }
 
@@ -117,9 +118,7 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     cv::cvtColor(rgbImage, bgrImage, cv::COLOR_RGB2BGR);
 
     // Load watermark logo with alpha channel
-    cv::Mat logo =
-        cv::imread(watermarkLogoPath.c_str(),
-                   cv::IMREAD_UNCHANGED);
+    cv::Mat logo = cv::imread(watermarkLogoPath.c_str(), cv::IMREAD_UNCHANGED);
     if (logo.empty()) {
       LOG(ERROR, ALGOBASE, "Failed to load the logo image.");
       SetStatus(AlgoStatus::FAILURE);
@@ -209,6 +208,11 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     return GetAlgoStatus();
   }
 
+  int reqdone = 0x00;
+  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+    reqdone |= (1 << (ALGO_OFFSET(ALGO_WATERMARK)));
+    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+  }
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
