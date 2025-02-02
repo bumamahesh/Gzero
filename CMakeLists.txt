@@ -18,10 +18,17 @@ file(GLOB CORE_SOURCES
 # Define the shared library target
 add_library(AlgoLib SHARED ${CORE_SOURCES})
 
-# Ensure debug symbols are preserved
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")  # Enable debug symbols and disable optimizations
-set(CMAKE_C_FLAGS_DEBUG "-g -O0")    # Same for C files
-set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Ensure debug symbols are preserved
+    # Set debug flags for Debug build type
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")  # Enable debug symbols and disable optimizations
+    set(CMAKE_C_FLAGS_DEBUG "-g -O0")    # Same for C files
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    # Set release flags for Release build type (optional: you can add flags for release optimizations)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")   # Optimize for release
+    set(CMAKE_C_FLAGS_RELEASE "-O3")      # Same for C files
+endif()
 
 # Set properties for the shared library
 set_target_properties(AlgoLib PROPERTIES

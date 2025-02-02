@@ -57,12 +57,12 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
   if (GetMemoryUsage() > 500000) {
     while (GetMemoryUsage() > 500000) {
       usleep(33 * 1000); // 33 ms assume 1 frame delay
-      LOG(VERBOSE, ALGOINTERFACE,
+      LOG(WARNING, ALGOINTERFACE,
           "AlgoInterface:: BLOCKED GetMemoryUsage() ::%ld KB",
           GetMemoryUsage());
     }
   }
-  LOG(ERROR, ALGOINTERFACE, "AlgoInterface::GetMemoryUsage() ::%ld KB",
+  LOG(WARNING, ALGOINTERFACE, "AlgoInterface::GetMemoryUsage() ::%ld KB",
       GetMemoryUsage());
 
   if ((mRequestCnt - mResultCnt) > MAX_HOLD_REQUESTS) {
@@ -93,6 +93,9 @@ void AlgoInterface::SessionCallbackHandler(void *pctx,
   assert(input != nullptr);
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(pctx);
   if (algoInterface->pIntfCallback) {
+    if (input) {
+      LOG(VERBOSE, ALGOINTERFACE, "CB Req::%d", input->mRequestId);
+    }
     algoInterface->pIntfCallback(input);
     algoInterface->mResultCnt.fetch_add(1, std::memory_order_relaxed);
   }

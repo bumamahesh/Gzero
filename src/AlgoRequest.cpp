@@ -80,3 +80,19 @@ std::vector<std::shared_ptr<ImageData>> AlgoRequest::GetYUVImages() const {
  *
  */
 void AlgoRequest::ClearImages() { images.clear(); }
+
+/**
+ * @brief Compute CheckSum of Frame
+ *
+ * @return uint8_t
+ */
+uint8_t AlgoRequest::FrameChecksum() {
+  unsigned int checksum = 0;
+  for (const auto &image : images) {
+    for (int i = 0; i < image->GetDataSize(); i++) {
+      checksum += image->GetData()[i];
+      checksum %= 256;
+    }
+  }
+  return (uint8_t)(checksum % 256);
+}

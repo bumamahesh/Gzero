@@ -28,7 +28,12 @@
 #include <vector>
 
 // Enum to represent supported image formats
-enum class ImageFormat { YUV420, YUV422, YUV444, RGB, GRAYSCALE, UNKNOWN };
+enum class ImageFormat { YUV420 = 0,
+                         YUV422,
+                         YUV444,
+                         RGB,
+                         GRAYSCALE,
+                         UNKNOWN };
 
 // Struct to represent an individual image
 class ImageData {
@@ -83,6 +88,8 @@ public:
   /*request id assoisiated*/ // make this conts in contruction  @todo
 
   AlgoMetadata mMetadata;
+
+  uint8_t FrameChecksum();
 
 private:
 };
