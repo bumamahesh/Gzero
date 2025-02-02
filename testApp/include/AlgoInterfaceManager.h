@@ -52,7 +52,7 @@ public:
   ~DecisionManager() = default;
   std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req) override {
     AlgoDecisionManager::SetAlgoFlag(ALGO_FILTER);
-    AlgoDecisionManager::SetAlgoFlag(ALGO_WATERMARK);
+    // AlgoDecisionManager::SetAlgoFlag(ALGO_WATERMARK);
     // AlgoDecisionManager::SetAlgoFlag(ALGO_MANDELBROTSET);
     return AlgoDecisionManager::ParseMetadata(req);
   }
