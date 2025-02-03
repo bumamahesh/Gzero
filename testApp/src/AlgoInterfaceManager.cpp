@@ -168,7 +168,7 @@ int AlgoInterfaceManager::SubmitRequest() {
   if ((g_SubmittedCount - g_ResultCount < 20) || (g_SubmittedCount < 30)) {
 
     // read a yuv buffer from file and convert it to RGB
-    std::vector<unsigned char> rgbBuffer(mWidth * mWidth * 3);
+    std::vector<unsigned char> rgbBuffer(mWidth * mHeight * 3);
     if (!mInputFile.read(reinterpret_cast<char *>(yuvBuffer.data()), yuvBuffer.size())) {
       mInputFile.clear();                                                            // Clear EOF flag
       mInputFile.seekg(0, std::ios::beg);                                            // Seek back to the start of the file
@@ -179,7 +179,7 @@ int AlgoInterfaceManager::SubmitRequest() {
     // prepare and submit request
     auto request        = std::make_shared<AlgoRequest>();
     request->mRequestId = mRequestId++;
-    request->AddImage(ImageFormat::RGB, mWidth, mWidth, std::move(rgbBuffer));
+    request->AddImage(ImageFormat::RGB, mWidth, mHeight, std::move(rgbBuffer));
 
     int status = handle.processFunc(&handle.libraryHandle, request, m_algoDecisionManager.ParseMetadata(request));
     if (status != 0) {

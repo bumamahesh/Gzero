@@ -93,9 +93,9 @@ void AlgoInterface::SessionCallbackHandler(void *pctx,
   assert(input != nullptr);
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(pctx);
   if (algoInterface->pIntfCallback) {
-    if (input) {
-      LOG(VERBOSE, ALGOINTERFACE, "CB Req::%d", input->mRequestId);
-    }
+    /* if (input) {
+       LOG(VERBOSE, ALGOINTERFACE, "CB Req::%d", input->mRequestId);
+     }*/
     algoInterface->pIntfCallback(input);
     algoInterface->mResultCnt.fetch_add(1, std::memory_order_relaxed);
   }

@@ -27,6 +27,7 @@
 #include "../../include/AlgoDefs.h"
 #include "../../include/AlgoRequest.h"
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -51,10 +52,15 @@ public:
   DecisionManager()  = default;
   ~DecisionManager() = default;
   std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req) override {
-    AlgoDecisionManager::SetAlgoFlag(ALGO_FILTER);
-    // AlgoDecisionManager::SetAlgoFlag(ALGO_WATERMARK);
-    // AlgoDecisionManager::SetAlgoFlag(ALGO_MANDELBROTSET);
-    return AlgoDecisionManager::ParseMetadata(req);
+    std::vector<AlgoId> ret;
+    ret = AlgoDecisionManager::ParseMetadata(req);
+    /*
+    std::cout << "AlgoDecisionManager::AlgoId Suggested for request: ";
+    for (auto algoId : ret) {
+      std::cout << " " << algoName[ALGO_OFFSET(algoId)] << std::endl;
+    }
+    */
+    return ret;
   }
 };
 
@@ -63,6 +69,7 @@ public:
   explicit AlgoInterfaceManager(const std::string inputFilePath, int width, int height);
   ~AlgoInterfaceManager();
   int SubmitRequest();
+  DecisionManager m_algoDecisionManager;
 
 private:
   bool LoadLibraryFunctions();
@@ -71,7 +78,6 @@ private:
   int mRequestId = 0;
 
   AlgoInterfaceptr handle;
-  DecisionManager m_algoDecisionManager;
 
   std::vector<unsigned char> yuvBuffer;
   std::ifstream mInputFile;

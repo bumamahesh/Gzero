@@ -44,6 +44,21 @@ int main(int argc, char *argv[]) {
   std::shared_ptr<AlgoInterfaceManager> pAlgoInterfaceManager = std::make_shared<AlgoInterfaceManager>(yuvFiles[idx].filePath, width, height);
   std::shared_ptr<Renderer> pRenderer                         = std::make_shared<Renderer>(width, height);
 
+  for (int i = 2; i < argc; ++i) {
+    if (strcmp(argv[i], "m") == 0) {
+      pAlgoInterfaceManager->m_algoDecisionManager.SetAlgoFlag(ALGO_MANDELBROTSET);
+      std::cout << "ALGO_MANDELBROTSET  is set" << std::endl;
+    } else if (strcmp(argv[i], "f") == 0) {
+      pAlgoInterfaceManager->m_algoDecisionManager.SetAlgoFlag(ALGO_FILTER);
+      std::cout << "ALGO_FILTER  is set" << std::endl;
+    } else if (strcmp(argv[i], "w") == 0) {
+      pAlgoInterfaceManager->m_algoDecisionManager.SetAlgoFlag(ALGO_WATERMARK);
+      std::cout << "ALGO_WATERMARK  is set" << std::endl;
+    } else {
+      std::cerr << "Unknown algorithm flag: " << argv[i] << std::endl;
+    }
+  }
+
 #if 0
   pRenderer->RenderLoop(pAlgoInterfaceManager);
 #else

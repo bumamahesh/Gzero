@@ -39,4 +39,14 @@ typedef enum ALGOID {
   ALGO_MAX           = ALGO_BASE_ID + 7,
 } AlgoId;
 
+static std::string algoName[ALGO_OFFSET(ALGO_MAX) + 1] = {
+    "HDR",
+    "BOKEH",
+    "NOP",
+    "FILTER",
+    "MANDELBROTSET",
+    "LDC",
+    "WATERMARK",
+    "MAX"};
+
 #endif // ALGO_DEFS_H
