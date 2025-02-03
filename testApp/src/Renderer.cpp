@@ -98,6 +98,7 @@ void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
     while (SDL_PollEvent(&event) != 0) {
       if (event.type == SDL_QUIT) {
         g_quit = true;
+        break;
       }
     }
 

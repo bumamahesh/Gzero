@@ -26,8 +26,8 @@
 #include <pthread.h>
 // Function to get current time
 std::string getCurrentTime() {
-  auto now = std::chrono::system_clock::now();
-  auto in_time_t = std::chrono::system_clock::to_time_t(now);
+  auto now          = std::chrono::system_clock::now();
+  auto in_time_t    = std::chrono::system_clock::to_time_t(now);
   auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
                           now.time_since_epoch()) %
                       1000;
