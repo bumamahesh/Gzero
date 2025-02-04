@@ -113,8 +113,8 @@ TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
     assert(msg != nullptr);
     switch (msg->mType) {
     case AlgoBase::AlgoMessageType::ProcessingCompleted: {
-      auto rawData = msg->mRequest->request->GetImage(0)->GetData();
-      static int i = 0;
+      auto rawData        = msg->mRequest->request->GetImage(0)->GetData();
+      static int i        = 0;
       std::string outfile = "output" + std::to_string(i++) + ".raw";
       SaveRawDataToFile(outfile, rawData);
     } break;
@@ -146,13 +146,15 @@ TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
   // LOG(ERROR, ALGOTIMER, "Start processing");
   for (int i = 0; i < 1; i++) {
     // Create image buffer and add to task
-    int width = 320;
-    int height = 240;
-    std::vector<unsigned char> rawData(width * height * 3);
+    int width    = 320;
+    int height   = 240;
+    auto sizeRGB = width * height * 3;
+    std::vector<unsigned char> rawData(sizeRGB);
 
-    EXPECT_EQ(rawData.size(), width * height * 3 * sizeof(unsigned char));
+    EXPECT_EQ(rawData.size(), sizeRGB * sizeof(unsigned char));
     auto image = std::make_shared<AlgoRequest>();
-    image->AddImage(ImageFormat::YUV420, width, height, rawData);
+    int rc     = image->AddImage(ImageFormat::RGB, width, height, rawData);
+    EXPECT_EQ(rc, 0);
 
     auto request = std::make_shared<Task_t>();
     EXPECT_NE(request, nullptr);

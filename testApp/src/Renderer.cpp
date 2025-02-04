@@ -131,7 +131,7 @@ void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
     Uint32 frameEnd  = SDL_GetTicks();
     Uint32 frameTime = frameEnd - frameStart;
     if (frameTime < frameDelay) {
-      SDL_Delay(frameDelay - frameTime);
+      // SDL_Delay(frameDelay - frameTime);
     }
   }
 }

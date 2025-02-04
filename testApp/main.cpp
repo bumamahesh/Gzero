@@ -64,8 +64,12 @@ int main(int argc, char *argv[]) {
 #else
   /* decouple render and submit on different threads */
   auto submit = [pRenderer, pAlgoInterfaceManager]() {
+    int rc = 0;
     while (!g_quit) {
-      pAlgoInterfaceManager->SubmitRequest();
+      rc = pAlgoInterfaceManager->SubmitRequest();
+      if (rc != 0) {
+        g_quit = true;
+      }
     }
   };
 

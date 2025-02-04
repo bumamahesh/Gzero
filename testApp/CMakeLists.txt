@@ -23,3 +23,8 @@ add_executable(test_app ${SOURCES})
 
 # Link SDL2 to the executable
 target_link_libraries(test_app SDL2::SDL2)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+endif()

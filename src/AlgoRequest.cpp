@@ -22,6 +22,40 @@
 #include "AlgoRequest.h"
 
 /**
+ * @brief Get the Size By Format object
+ *
+ * @param format
+ * @param width
+ * @param height
+ * @return size_t
+ */
+static size_t GetSizeByFormat(ImageFormat format, int width, int height) {
+  if ((width == 0) || (height == 0)) {
+    return 0;
+  }
+  switch (format) {
+  case ImageFormat::YUV420:
+    return width * height * 3 / 2;
+    break;
+  case ImageFormat::YUV422:
+    return width * height * 2;
+    break;
+  case ImageFormat::YUV444:
+    return width * height * 3;
+    break;
+  case ImageFormat::RGB:
+    return width * height * 3;
+    break;
+  case ImageFormat::GRAYSCALE:
+    return width * height;
+    break;
+  default:
+    return 0;
+  }
+
+  return 0;
+}
+/**
  * @brief Add an image to the collection
  *
  * @param format
@@ -30,11 +64,20 @@
  * @param rawData
  * @param fd
  */
-void AlgoRequest::AddImage(ImageFormat format, int width, int height,
-                           const std::vector<unsigned char> &rawData, int fd) {
+int AlgoRequest::AddImage(ImageFormat format, int width, int height,
+                          const std::vector<unsigned char> &rawData, int fd) {
+  if ((width <= 0) || (height <= 0) || (rawData.size() == 0)) {
+    return -1;
+  }
+  if (rawData.size() != GetSizeByFormat(format, width, height)) {
+    return -2;
+  }
+  // Create a new ImageData object and add it to the collection
   auto image = std::make_shared<ImageData>(format, width, height, fd);
   image->SetData(rawData);
   images.push_back(image);
+
+  return 0;
 }
 
 /**

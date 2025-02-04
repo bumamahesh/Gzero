@@ -201,7 +201,10 @@ WaterMarkAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     memcpy(outputData.data(), outputRgbImage.data, outputData.size());
 
     req->ClearImages();
-    req->AddImage(ImageFormat::RGB, width, height, outputData);
+    if (req->AddImage(ImageFormat::RGB, width, height, outputData)) {
+      LOG(ERROR, ALGOBASE, "Error Filling Output data");
+      SetStatus(AlgoStatus::FAILURE);
+    }
 
     // LOG(VERBOSE, ALGOBASE, "Watermark processing completed successfully.");
   } else {

@@ -65,8 +65,8 @@ private:
 
 public:
   // Add an image to the collection
-  void AddImage(ImageFormat format, int width, int height,
-                const std::vector<unsigned char> &rawData, int fd = -1);
+  int AddImage(ImageFormat format, int width, int height,
+               const std::vector<unsigned char> &rawData, int fd = -1);
 
   // Get the total number of images
   size_t GetImageCount() const;

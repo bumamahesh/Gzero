@@ -165,6 +165,7 @@ void YUVtoRGB(const unsigned char *yuvBuffer, unsigned char *rgbBuffer, int widt
   }
 }
 int AlgoInterfaceManager::SubmitRequest() {
+  int rc = 0;
   if ((g_SubmittedCount - g_ResultCount < 20) || (g_SubmittedCount < 30)) {
 
     // read a yuv buffer from file and convert it to RGB
@@ -179,15 +180,18 @@ int AlgoInterfaceManager::SubmitRequest() {
     // prepare and submit request
     auto request        = std::make_shared<AlgoRequest>();
     request->mRequestId = mRequestId++;
-    request->AddImage(ImageFormat::RGB, mWidth, mHeight, std::move(rgbBuffer));
-
-    int status = handle.processFunc(&handle.libraryHandle, request, m_algoDecisionManager.ParseMetadata(request));
-    if (status != 0) {
-      std::cerr << "Failed to process algorithm request." << std::endl;
+    rc                  = request->AddImage(ImageFormat::RGB, mWidth, mHeight, std::move(rgbBuffer));
+    if (rc != 0) {
+      std::cerr << "Failed to add image to request rc=" << rc << std::endl;
       return -1;
     }
-    ++g_SubmittedCount;
 
+    rc = handle.processFunc(&handle.libraryHandle, request, m_algoDecisionManager.ParseMetadata(request));
+    if (rc != 0) {
+      std::cerr << "Failed to process algorithm request rc = " << rc << std::endl;
+      return -2;
+    }
+    ++g_SubmittedCount;
   } else {
     usleep(50);
   }

@@ -142,9 +142,12 @@ TEST_F(RequestReponseTest, ProcessRequestAndCheckResponse) {
   std::vector<unsigned char> yuvData(WIDTH * HEIGHT * 3 / 2); // YUV420 format
   auto request        = std::make_shared<AlgoRequest>();
   request->mRequestId = 123;
-  request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, yuvData);
-  request->mMetadata.SetMetadata(ALGO_HDR_ENABLED, true);
-  request->mMetadata.SetMetadata(ALGO_WATERMARK_ENABLED, true);
+  int rc              = request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, yuvData);
+  ASSERT_EQ(rc, 0);
+  rc = request->mMetadata.SetMetadata(ALGO_HDR_ENABLED, true);
+  ASSERT_EQ(rc, 0);
+  rc = request->mMetadata.SetMetadata(ALGO_WATERMARK_ENABLED, true);
+  ASSERT_EQ(rc, 0);
 
   // Process the request
   status = AlgoInterfaceProcess(&algoHandle, request, decisionManager.ParseMetadata(request));

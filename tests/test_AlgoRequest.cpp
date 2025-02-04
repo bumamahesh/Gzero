@@ -22,9 +22,49 @@
 #include "../include/AlgoRequest.h"
 #include <gtest/gtest.h>
 
-TEST(AlgoRequestTest, AlgoRequestTest) {
-  auto request = std::make_shared<AlgoRequest>();
-  EXPECT_NE(request, nullptr);
+constexpr int Width  = 100;
+constexpr int Height = 100;
 
+class AlgoRequestTest : public ::testing::Test {
+protected:
+  std::shared_ptr<AlgoRequest> request;
+
+  void SetUp() override {
+    request = std::make_shared<AlgoRequest>();
+    ASSERT_NE(request, nullptr);
+  }
+};
+
+TEST_F(AlgoRequestTest, DefaultConstructor) {
+  EXPECT_EQ(request->GetImageCount(), 0);
+}
+
+TEST_F(AlgoRequestTest, AddImageWithZeroSizeRawBuffer) {
+  std::vector<unsigned char> rawData;
+  EXPECT_EQ(request->GetImageCount(), 0);
+
+  int rc = request->AddImage(ImageFormat::YUV420, Width, Height, std::move(rawData));
+  EXPECT_EQ(rc, -1);
+  EXPECT_EQ(request->GetImageCount(), 0);
+}
+
+TEST_F(AlgoRequestTest, RawBufferWithInvalidSize) {
+  std::vector<unsigned char> rawData1(100);
+  int rc = request->AddImage(ImageFormat::YUV420, 0, Height, std::move(rawData1));
+  EXPECT_EQ(rc, -1);
+  EXPECT_EQ(request->GetImageCount(), 0);
+
+  std::vector<unsigned char> rawData2(100);
+  rc = request->AddImage(ImageFormat::YUV420, Width, 0, std::move(rawData2));
+  EXPECT_EQ(rc, -1);
+  EXPECT_EQ(request->GetImageCount(), 0);
+}
+
+TEST_F(AlgoRequestTest, AddImageWithOverSizeRawBuffer) {
+  std::vector<unsigned char> rawData(Width * Height * 3);
+  EXPECT_EQ(request->GetImageCount(), 0);
+
+  int rc = request->AddImage(ImageFormat::YUV420, Width, Height, std::move(rawData));
+  EXPECT_EQ(rc, -2);
   EXPECT_EQ(request->GetImageCount(), 0);
 }
