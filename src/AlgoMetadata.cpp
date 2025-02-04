@@ -26,14 +26,23 @@
  *
  */
 AlgoMetadata::AlgoMetadata() {
-  intMetadata.clear();
-  floatMetadata.clear();
-  boolMetadata.clear();
+  {
+    std::lock_guard<std::mutex> lock(mMutex);
+    intMetadata.clear();
+    floatMetadata.clear();
+    boolMetadata.clear();
+  }
   // default metadata
   SetMetadata(ALGO_PROCESS_DONE, 0x00);
 }
 
 AlgoMetadata::~AlgoMetadata() {
+  {
+    std::lock_guard<std::mutex> lock(mMutex);
+    intMetadata.clear();
+    floatMetadata.clear();
+    boolMetadata.clear();
+  }
 }
 
 /**

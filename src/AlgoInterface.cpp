@@ -54,18 +54,23 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
 
   LOG(INFO, ALGOINTERFACE, "AlgoInterface::Process");
 
-  int cnt = 0;
-  if (GetMemoryUsage() > 500000) {
-    while (GetMemoryUsage() > 500000) {
-      usleep(33 * 1000); // 33 ms assume 1 frame delay
-      cnt++;
-      if (cnt > 10) {
-        // waited for 10 frame time  is system too slow  or exiting
-        break;
-      }
-      LOG(WARNING, ALGOINTERFACE,
-          "AlgoInterface:: BLOCKED GetMemoryUsage() ::%ld KB",
-          GetMemoryUsage());
+  size_t currentMemoryUsage = GetMemoryUsage();
+
+  if (currentMemoryUsage > MAX_MEMORY_USAGE_KB) {
+    // Use a configurable or dynamic sleep duration
+    const int sleepDurationMs = 33;
+    int maxWaitFrames         = 3000;
+
+    for (int i = 0; i < maxWaitFrames && currentMemoryUsage > MAX_MEMORY_USAGE_KB; ++i) {
+      usleep(sleepDurationMs * 1000);
+      currentMemoryUsage = GetMemoryUsage(); // Update memory usage
+
+      LOG(WARNING, ALGOINTERFACE, "Memory usage high: %zu KB, waiting...", currentMemoryUsage);
+    }
+
+    if (currentMemoryUsage > MAX_MEMORY_USAGE_KB) {
+      LOG(ERROR, ALGOINTERFACE, "Memory usage remains high after waiting.  Dropping frame.");
+      return false;
     }
   }
   LOG(WARNING, ALGOINTERFACE, "AlgoInterface::GetMemoryUsage() ::%ld KB",
@@ -102,6 +107,7 @@ void AlgoInterface::SessionCallbackHandler(void *pctx,
     /* if (input) {
        LOG(VERBOSE, ALGOINTERFACE, "CB Req::%d", input->mRequestId);
      }*/
+    std::lock_guard<std::mutex> lock(algoInterface->mCallbackMutex);
     algoInterface->pIntfCallback(input);
     algoInterface->mResultCnt.fetch_add(1, std::memory_order_relaxed);
   }

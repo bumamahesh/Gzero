@@ -95,6 +95,7 @@ RegisterCallback(void **libhandle,
   }
   LOG(INFO, ALGOINTERFACE, "RegisterCallback");
   AlgoInterface *algoInterface = static_cast<AlgoInterface *>(*libhandle);
+  std::lock_guard<std::mutex> lock(algoInterface->mCallbackMutex);
   algoInterface->pIntfCallback = Callback;
   return 0;
 }

@@ -37,6 +37,7 @@ public:
 
   std::shared_ptr<AlgoBase> CreateAlgo(AlgoId algoId);
   std::shared_ptr<AlgoBase> CreateAlgo(std::string &algoName);
+  std::mutex mAlgoCreationMutex;
 
 private:
   AlgoNodeManager();

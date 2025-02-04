@@ -74,7 +74,7 @@ int AlgoRequest::AddImage(ImageFormat format, int width, int height,
   }
   // Create a new ImageData object and add it to the collection
   auto image = std::make_shared<ImageData>(format, width, height, fd);
-  image->SetData(rawData);
+  image->SetData(std::move(rawData));
   images.push_back(image);
 
   return 0;

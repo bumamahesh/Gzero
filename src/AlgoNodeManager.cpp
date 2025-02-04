@@ -78,7 +78,7 @@ AlgoNodeManager::AlgoNodeManager() {
 
     try {
       pAlgoLoader = std::make_shared<AlgoLibraryLoader>(lib);
-      auto algo = pAlgoLoader->GetAlgoMethod();
+      auto algo   = pAlgoLoader->GetAlgoMethod();
       mIdToAlgoNameMap[pAlgoLoader->GetAlgoId()] =
           pAlgoLoader->GetAlgorithmName();
       mIdLoaderMap[pAlgoLoader->GetAlgoId()] = pAlgoLoader;
@@ -144,6 +144,7 @@ bool AlgoNodeManager::IsAlgoAvailable(std::string &algoName) const {
  * @return std::shared_ptr<AlgoBase>
  */
 std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(AlgoId algoId) {
+  std::lock_guard<std::mutex> lock(mAlgoCreationMutex);
   if (IsAlgoAvailable(algoId)) {
     return mIdLoaderMap[algoId]->GetAlgoMethod();
   }
@@ -158,6 +159,7 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(AlgoId algoId) {
  * @return std::shared_ptr<AlgoBase>
  */
 std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string &algoName) {
+  std::lock_guard<std::mutex> lock(mAlgoCreationMutex);
   auto it = std::find_if(
       mIdToAlgoNameMap.begin(), mIdToAlgoNameMap.end(),
       [&algoName](const auto &algo) { return algo.second == algoName; });

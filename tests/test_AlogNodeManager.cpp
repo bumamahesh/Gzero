@@ -39,16 +39,16 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 
   try {
     std::string HdralgoName("HdrAlgorithm");
-    auto algoNodeManager = AlgoNodeManager::Getinstance();
+    auto algoNodeManager = &AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), NumAlgos);
+    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), NumAlgos);
 
     // Check algo available by Id
-    EXPECT_EQ(algoNodeManager.IsAlgoAvailable(ALGO_HDR), true);
+    EXPECT_EQ(algoNodeManager->IsAlgoAvailable(ALGO_HDR), true);
 
     // Check algo available by name
-    EXPECT_EQ(algoNodeManager.IsAlgoAvailable(HdralgoName), true);
+    EXPECT_EQ(algoNodeManager->IsAlgoAvailable(HdralgoName), true);
 
   } catch (const std::exception &e) {
     FAIL() << "Exception thrown: " << e.what();
@@ -58,16 +58,16 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
 TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
   std::string HdralgoName("HdrAlgorithm");
   try {
-    auto algoNodeManager = AlgoNodeManager::Getinstance();
+    auto algoNodeManager = &AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), NumAlgos);
+    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), NumAlgos);
 
     // Check algo available by name
-    EXPECT_EQ(algoNodeManager.IsAlgoAvailable(HdralgoName), true);
+    EXPECT_EQ(algoNodeManager->IsAlgoAvailable(HdralgoName), true);
 
     // Create an algo object by name
-    auto algo = algoNodeManager.CreateAlgo(HdralgoName);
+    auto algo = algoNodeManager->CreateAlgo(HdralgoName);
 
     // Check if the algo object is created
     EXPECT_NE(algo, nullptr);
@@ -84,16 +84,16 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectById) {
 
   try {
 
-    auto algoNodeManager = AlgoNodeManager::Getinstance();
+    auto algoNodeManager = &AlgoNodeManager::Getinstance();
 
     // Check if the algo is loaded
-    EXPECT_EQ(algoNodeManager.GetLoadedAlgosSize(), NumAlgos);
+    EXPECT_EQ(algoNodeManager->GetLoadedAlgosSize(), NumAlgos);
 
     // Check algo available by Id
-    EXPECT_EQ(algoNodeManager.IsAlgoAvailable(ALGO_HDR), true);
+    EXPECT_EQ(algoNodeManager->IsAlgoAvailable(ALGO_HDR), true);
 
     // Create an algo object
-    auto algo = algoNodeManager.CreateAlgo(ALGO_HDR);
+    auto algo = algoNodeManager->CreateAlgo(ALGO_HDR);
 
     // Check if the algo object is created
     EXPECT_NE(algo, nullptr);

@@ -26,7 +26,7 @@
 #include <atomic>
 
 #define MAX_HOLD_REQUESTS 20
-
+const size_t MAX_MEMORY_USAGE_KB = 500 * 1024; // 500MB
 class AlgoInterface {
 public:
   AlgoInterface();
@@ -37,6 +37,7 @@ public:
 
   std::atomic<int> mRequestCnt{0};
   std::atomic<int> mResultCnt{0};
+  mutable std::mutex mCallbackMutex;
 
 private:
   std::shared_ptr<AlgoSession> mSession;

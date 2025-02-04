@@ -31,7 +31,7 @@ typedef void (*INTERFACECALLBACK)(void *pctx,
 class AlgoSession {
 public:
   AlgoSession(INTERFACECALLBACK pInterfaceCallBackHandler = nullptr,
-              void *pCtx = nullptr);
+              void *pCtx                                  = nullptr);
   ~AlgoSession();
   bool SessionStop();
   bool SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline);
@@ -45,8 +45,9 @@ public:
   int SessionGetpipelineId(std::vector<AlgoId> algoList);
   std::shared_ptr<AlgoPipeline> SessionGetPipeline(size_t pipelineId);
   INTERFACECALLBACK pInterfaceCallBackHandler = nullptr;
-  void *pInterfaceCtx = nullptr;
+  void *pInterfaceCtx                         = nullptr;
   mutable std::mutex mCallbackMutex;
+  mutable std::mutex mSessionMutex;
 
   void Dump();
 

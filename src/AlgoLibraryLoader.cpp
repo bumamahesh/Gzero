@@ -59,6 +59,7 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
     LOG(ERROR, ALGOLIBLOADER, "Failed to find GetAlgorithmName: %s", dlerror());
     assert(!mGetAlgoName);
   }
+  std::lock_guard<std::mutex> lock(mlibMutex);
   mTotalAlgoInstances = 0;
   LOG(INFO, ALGOLIBLOADER, "AlgoLibraryLoader::AlgoLibraryLoader X");
 }
@@ -71,6 +72,7 @@ AlgoLibraryLoader::~AlgoLibraryLoader() {
   LOG(INFO, ALGOLIBLOADER, "%s::[%p]Total Algo Instances %ld plibHandle:: %p",
       GetAlgorithmName().c_str(), this, mTotalAlgoInstances, plibHandle);
   if (plibHandle) {
+    std::lock_guard<std::mutex> lock(mlibMutex);
     mTotalAlgoInstances = 0;
     dlclose(plibHandle);
     plibHandle = nullptr;

@@ -52,9 +52,9 @@ private:
   std::mutex mlibMutex;           // Mutex to protect the shared library handle
   size_t mTotalAlgoInstances = 0; // Total Algo Instanced Opned
 
-  GetAlgoMethodFunc mGetAlgoMethod = nullptr;
+  GetAlgoMethodFunc mGetAlgoMethod  = nullptr;
   GetAlgorithmNameFunc mGetAlgoName = nullptr;
-  GetAlgoIdFunc mGetAlgoId = nullptr;
+  GetAlgoIdFunc mGetAlgoId          = nullptr;
 };
 
 #endif // ALGO_LIBRARY_LOADER_H

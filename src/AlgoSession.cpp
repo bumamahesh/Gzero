@@ -30,7 +30,7 @@
 AlgoSession::AlgoSession(INTERFACECALLBACK pInterfaceCallBackHandler,
                          void *pCtx) {
   this->pInterfaceCallBackHandler = pInterfaceCallBackHandler;
-  this->pInterfaceCtx = pCtx;
+  this->pInterfaceCtx             = pCtx;
 }
 
 /**
@@ -84,6 +84,7 @@ bool AlgoSession::SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline) {
  * @return false
  */
 bool AlgoSession::SessionRemovePipeline(size_t pipelineId) {
+  std::lock_guard<std::mutex> lock(mSessionMutex);
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
     return false;
@@ -108,6 +109,7 @@ bool AlgoSession::SessionRemovePipeline(size_t pipelineId) {
 bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input,
                                  std::vector<AlgoId> algoList) {
   LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess E");
+  std::lock_guard<std::mutex> lock(mSessionMutex);
   int pipelineId = SessionGetpipelineId(algoList);
   if (pipelineId == -1) {
     auto lPipeline = std::make_shared<AlgoPipeline>(
@@ -121,9 +123,9 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input,
     pipelineId = 0;
   }
 
-  SessionProcess(pipelineId, input);
-  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess X");
-  return true;
+  bool rc = SessionProcess(pipelineId, input);
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess X rc = %d", (int)rc);
+  return rc;
 }
 
 /**
