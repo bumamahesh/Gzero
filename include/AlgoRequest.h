@@ -68,6 +68,9 @@ public:
   int AddImage(ImageFormat format, int width, int height,
                const std::vector<unsigned char> &rawData, int fd = -1);
 
+  // Add an image to the collection
+  int AddImage(ImageFormat format, int width, int height);
+
   // Get the total number of images
   size_t GetImageCount() const;
 

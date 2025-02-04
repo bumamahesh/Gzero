@@ -81,6 +81,31 @@ int AlgoRequest::AddImage(ImageFormat format, int width, int height,
 }
 
 /**
+ * @brief Creat a image and add to collection
+ *
+ * @param format
+ * @param width
+ * @param height
+ * @return int
+ */
+int AlgoRequest::AddImage(ImageFormat format, int width, int height) {
+  if ((width <= 0) || (height <= 0)) {
+    return -1;
+  }
+  size_t size = GetSizeByFormat(format, width, height);
+  if (size == 0) {
+    return -2;
+  }
+
+  // Create a new ImageData object and add it to the collection
+  auto image = std::make_shared<ImageData>(format, width, height, -1);
+  std::vector<unsigned char> rawData(size, 0);
+  image->SetData(std::move(rawData));
+  images.push_back(image);
+  return 0;
+}
+
+/**
  * @brief Get the total number of images
  *
  * @return size_t

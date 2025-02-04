@@ -68,3 +68,14 @@ TEST_F(AlgoRequestTest, AddImageWithOverSizeRawBuffer) {
   EXPECT_EQ(rc, -2);
   EXPECT_EQ(request->GetImageCount(), 0);
 }
+
+TEST_F(AlgoRequestTest, VerifyAddImage) {
+  int rc = request->AddImage(ImageFormat::YUV420, Width, Height);
+  EXPECT_EQ(rc, 0);
+  EXPECT_EQ(request->GetImageCount(), 1);
+  EXPECT_EQ(request->GetImage(0)->GetWidth(), Width);
+  EXPECT_EQ(request->GetImage(0)->GetHeight(), Height);
+  EXPECT_EQ(request->GetImage(0)->GetFormat(), ImageFormat::YUV420);
+  EXPECT_EQ(request->GetImage(0)->GetFd(), -1);
+  EXPECT_EQ(request->GetImage(0)->GetDataSize(), Width * Height * 3 / 2);
+}

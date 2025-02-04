@@ -58,7 +58,8 @@ enum MetaId {
   IMAGE_SHARPNESS,        // Sharpness level
   ALGO_HDR_ENABLED,       // flag for hdr processing
   ALGO_WATERMARK_ENABLED, // flag for watermark processing
-  ALGO_PROCESS_DONE       // algo has done processing
+  ALGO_PROCESS_DONE,      // algo has done processing
+  ALGO_REQUSET_NUMBER     // Image frame Number
 };
 
 class AlgoMetadata {
