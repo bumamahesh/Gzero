@@ -60,13 +60,32 @@ public:
   ~DecisionManager() = default;
   std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req) override {
     std::vector<AlgoId> ret;
-    ret = AlgoDecisionManager::ParseMetadata(req);
-    /*
-    std::cout << "AlgoDecisionManager::AlgoId Suggested for request: ";
-    for (auto algoId : ret) {
-      std::cout << " " << algoName[ALGO_OFFSET(algoId)] << std::endl;
+    bool algo_hdr_enabled = false;
+    if (0 == req->mMetadata.GetMetadata(ALGO_HDR_ENABLED, algo_hdr_enabled)) {
+      if (algo_hdr_enabled) {
+        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_HDR);
+      }
     }
-    */
+    bool algo_filter_enabled = false;
+    if (0 == req->mMetadata.GetMetadata(ALGO_FILTER_ENABLED, algo_filter_enabled)) {
+      if (algo_filter_enabled) {
+        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_FILTER);
+      }
+    }
+    bool algo_watermark_enabled = false;
+    if (0 == req->mMetadata.GetMetadata(ALGO_WATERMARK_ENABLED, algo_watermark_enabled)) {
+      if (algo_watermark_enabled) {
+        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_WATERMARK);
+      }
+    }
+    bool algo_mandlebrotset_enabled = false;
+    if (0 == req->mMetadata.GetMetadata(ALGO_MANDELBROTSET_ENABLED, algo_mandlebrotset_enabled)) {
+      if (algo_mandlebrotset_enabled) {
+        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_MANDELBROTSET);
+      }
+    }
+
+    ret = AlgoDecisionManager::ParseMetadata(req);
     return ret;
   }
 };

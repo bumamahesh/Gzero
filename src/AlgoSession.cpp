@@ -142,6 +142,7 @@ bool AlgoSession::SessionProcess(size_t pipelineId,
   LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess E");
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
+    LOG(ERROR, ALGOSESSION, "Pipeline not found");
     return false;
   }
   it->second->Process(input);

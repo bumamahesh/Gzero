@@ -22,7 +22,7 @@ AlgoDecisionManager::~AlgoDecisionManager() {}
 bool AlgoDecisionManager::IsAlgoEnabled(AlgoId algoId) {
   if (algoId < ALGO_BASE_ID || algoId > ALGO_MAX)
     return false;
-  return mAlgoFlag & (1 << ALGO_OFFSET(algoId));
+  return ((mAlgoFlag & (1 << ALGO_OFFSET(algoId))) != 0);
 }
 
 /**

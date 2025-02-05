@@ -19,6 +19,11 @@ std::queue<unsigned char *> g_ResultQueue;
 
 std::atomic<bool> g_quit(false);
 
+bool g_HdrEnabled           = false;
+bool g_WatermarkEnabled     = false;
+bool g_MandlebrotSetEnabled = false;
+bool g_FilterEnabled        = false;
+
 /**
  * @brief Construct a new Algo Interfaceptr:: Algo Interfaceptr object
  *
@@ -176,6 +181,22 @@ void YUVtoRGB(const unsigned char *yuvBuffer, unsigned char *rgbBuffer, int widt
     }
   }
 }
+
+/**
+ * @brief Set the Metadata object
+ *
+ * @param request
+ */
+void SetMetadata(std::shared_ptr<AlgoRequest> request) {
+  if (request) {
+    request->mMetadata.SetMetadata(ALGO_HDR_ENABLED, g_HdrEnabled);
+    request->mMetadata.SetMetadata(ALGO_WATERMARK_ENABLED, g_WatermarkEnabled);
+    request->mMetadata.SetMetadata(ALGO_MANDELBROTSET_ENABLED, g_MandlebrotSetEnabled);
+    request->mMetadata.SetMetadata(ALGO_FILTER_ENABLED, g_FilterEnabled);
+    std::cerr << "g_HdrEnabled = " << g_HdrEnabled << " g_WatermarkEnabled = " << g_WatermarkEnabled << " g_MandlebrotSetEnabled = " << g_MandlebrotSetEnabled << " g_FilterEnabled = " << g_FilterEnabled << std::endl;
+  }
+}
+
 int AlgoInterfaceManager::SubmitRequest() {
   int rc = 0;
   if ((g_SubmittedCount - g_ResultCount < 20) || (g_SubmittedCount < 30)) {
@@ -197,8 +218,17 @@ int AlgoInterfaceManager::SubmitRequest() {
       std::cerr << "Failed to add image to request rc=" << rc << std::endl;
       return -1;
     }
+    request->mMetadata.SetMetadata(IMAGE_WIDTH, mWidth);
+    request->mMetadata.SetMetadata(IMAGE_HEIGHT, mHeight);
+    SetMetadata(request);
+    std::vector<AlgoId> algoSuggested = m_algoDecisionManager.ParseMetadata(request);
 
-    rc = phandle->processFunc(&phandle->libraryHandle, request, m_algoDecisionManager.ParseMetadata(request));
+    /*std::cerr << "Algo Suggested :";
+    for (auto id : algoSuggested) {
+      std::cerr << " " << algoName[ALGO_OFFSET(id)] << std::endl;
+    }*/
+
+    rc = phandle->processFunc(&phandle->libraryHandle, request, algoSuggested);
     if (rc != 0) {
       std::cerr << "Failed to process algorithm request rc = " << rc << std::endl;
       return -2;

@@ -9,6 +9,11 @@
 #include <unistd.h>
 
 extern std::atomic<bool> g_quit;
+extern bool g_HdrEnabled;
+extern bool g_WatermarkEnabled;
+extern bool g_MandlebrotSetEnabled;
+extern bool g_FilterEnabled;
+
 struct YUVFile {
   std::string filePath;
   int width;
@@ -45,17 +50,24 @@ int main(int argc, char *argv[]) {
   int height                                                  = yuvFiles[idx].height;
   std::shared_ptr<AlgoInterfaceManager> pAlgoInterfaceManager = std::make_shared<AlgoInterfaceManager>(yuvFiles[idx].filePath, width, height);
   std::shared_ptr<Renderer> pRenderer                         = std::make_shared<Renderer>(width, height);
+  g_HdrEnabled                                                = false;
+  g_WatermarkEnabled                                          = false;
+  g_MandlebrotSetEnabled                                      = false;
+  g_FilterEnabled                                             = false;
 
   for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "m") == 0) {
-      pAlgoInterfaceManager->m_algoDecisionManager.SetAlgoFlag(ALGO_MANDELBROTSET);
+      g_MandlebrotSetEnabled = true;
       std::cout << "ALGO_MANDELBROTSET  is set" << std::endl;
     } else if (strcmp(argv[i], "f") == 0) {
-      pAlgoInterfaceManager->m_algoDecisionManager.SetAlgoFlag(ALGO_FILTER);
+      g_FilterEnabled = true;
       std::cout << "ALGO_FILTER  is set" << std::endl;
     } else if (strcmp(argv[i], "w") == 0) {
-      pAlgoInterfaceManager->m_algoDecisionManager.SetAlgoFlag(ALGO_WATERMARK);
+      g_WatermarkEnabled = true;
       std::cout << "ALGO_WATERMARK  is set" << std::endl;
+    } else if (strcmp(argv[i], "h") == 0) {
+      g_HdrEnabled = true;
+      std::cout << "ALGO_HDR  is set" << std::endl;
     } else {
       std::cerr << "Unknown algorithm flag: " << argv[i] << std::endl;
     }

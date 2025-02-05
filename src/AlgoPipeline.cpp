@@ -29,10 +29,10 @@
  */
 AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
   LOG(INFO, ALGOPIPELINE, "AlgoPipeline::AlgoPipeline E");
-  mProcessedFrames = 0;
-  mState = AlgoPipelineState::Initialised;
+  mProcessedFrames             = 0;
+  mState                       = AlgoPipelineState::Initialised;
   this->pSesionCallBackHandler = pSesionCallBackHandler;
-  this->pSessionCtx = pCtx;
+  this->pSessionCtx            = pCtx;
   pEventHandlerThread =
       std::make_shared<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>(
           AlgoPipeline::NodeEventHandler, this);
@@ -97,9 +97,9 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
       LOG(ERROR, ALGOPIPELINE, "AlgoList is empty");
       return SetState(AlgoPipelineState::FailedToConfigure);
     }
-    mAlgoListId = algoList;
+    mAlgoListId      = algoList;
     mProcessedFrames = 0;
-    mAlgoNodeMgr = &AlgoNodeManager::Getinstance();
+    mAlgoNodeMgr     = &AlgoNodeManager::Getinstance();
     assert(mAlgoNodeMgr != nullptr);
 
     std::shared_ptr<AlgoBase> previousAlgo = nullptr;
@@ -114,7 +114,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
       if (previousAlgo) {
         previousAlgo->SetNextAlgo(algo);
       }
-      previousAlgo = algo;
+      previousAlgo     = algo;
       mAlgoMap[algoId] = algo;
     }
     previousAlgo->bIslastNode = true; // lets mark last  node
@@ -143,9 +143,9 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
       LOG(ERROR, ALGOPIPELINE, "AlgoList is empty");
       return SetState(AlgoPipelineState::FailedToConfigure);
     }
-    mAlgoListName = algoList;
+    mAlgoListName    = algoList;
     mProcessedFrames = 0;
-    mAlgoNodeMgr = &AlgoNodeManager::Getinstance();
+    mAlgoNodeMgr     = &AlgoNodeManager::Getinstance();
     assert(mAlgoNodeMgr != nullptr);
 
     std::shared_ptr<AlgoBase> previousAlgo = nullptr;
@@ -160,7 +160,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
       if (previousAlgo) {
         previousAlgo->SetNextAlgo(algo);
       }
-      previousAlgo = algo;
+      previousAlgo                = algo;
       mAlgoMap[algo->GetAlgoId()] = algo;
     }
     previousAlgo->bIslastNode = true; // lets mark last  node
@@ -186,7 +186,7 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
   if (GetState() == AlgoPipelineState::ConfiguredWithName ||
       GetState() == AlgoPipelineState::ConfiguredWithId) {
     std::shared_ptr<Task_t> task = std::make_shared<Task_t>();
-    task->request = input;
+    task->request                = input;
     {
       std::lock_guard<std::mutex> lock(mRequesteMapMutex);
       if (mRequesteMap.find(input->mRequestId) == mRequesteMap.end()) {
