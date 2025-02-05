@@ -1,12 +1,14 @@
 #include "include/AlgoInterfaceManager.h"
 #include "include/Renderer.h"
+#include <atomic>
 #include <cstring>
 #include <iostream>
 #include <memory>
 #include <pthread.h>
 #include <thread>
 #include <unistd.h>
-extern bool g_quit;
+
+extern std::atomic<bool> g_quit;
 struct YUVFile {
   std::string filePath;
   int width;
@@ -65,10 +67,10 @@ int main(int argc, char *argv[]) {
   /* decouple render and submit on different threads */
   auto submit = [pRenderer, pAlgoInterfaceManager]() {
     int rc = 0;
-    while (!g_quit) {
+    while (!g_quit.load()) {
       rc = pAlgoInterfaceManager->SubmitRequest();
       if (rc != 0) {
-        g_quit = true;
+        g_quit.store(true);
       }
     }
   };

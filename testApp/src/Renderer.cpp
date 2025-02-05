@@ -1,11 +1,11 @@
 #include "../include/Renderer.h"
+#include <atomic>
 #include <condition_variable>
 #include <iostream>
 #include <queue>
-
 extern unsigned char *g_rgbBuffer;
 extern std::mutex g_rgbBufferMutex;
-extern bool g_quit;
+extern std::atomic<bool> g_quit;
 
 extern std::mutex g_ResultQueueMutex;
 extern std::condition_variable g_ResultQueueCondVar;
@@ -92,12 +92,12 @@ void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
   const int targetFPS  = 120;
   const int frameDelay = 1000 / targetFPS; // ms per frame
 
-  while (!g_quit) {
+  while (!g_quit.load()) {
     Uint32 frameStart = SDL_GetTicks();
 
     while (SDL_PollEvent(&event) != 0) {
       if (event.type == SDL_QUIT) {
-        g_quit = true;
+        g_quit.store(true);
         break;
       }
     }

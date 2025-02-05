@@ -156,7 +156,7 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
 
     // Replace input image with output image
     req->ClearImages();
-    if (req->AddImage(ImageFormat::RGB, width, height, outputData)) {
+    if (req->AddImage(ImageFormat::RGB, width, height, std::move(outputData))) {
       LOG(ERROR, ALGOBASE, "Error Filling Output data");
       SetStatus(AlgoStatus::FAILURE);
     }

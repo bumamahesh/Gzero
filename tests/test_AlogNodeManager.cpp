@@ -153,7 +153,7 @@ TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
 
     EXPECT_EQ(rawData.size(), sizeRGB * sizeof(unsigned char));
     auto image = std::make_shared<AlgoRequest>();
-    int rc     = image->AddImage(ImageFormat::RGB, width, height, rawData);
+    int rc     = image->AddImage(ImageFormat::RGB, width, height, std::move(rawData));
     EXPECT_EQ(rc, 0);
 
     auto request = std::make_shared<Task_t>();

@@ -26,10 +26,14 @@
 #include "../../include/AlgoDecisionManager.h"
 #include "../../include/AlgoDefs.h"
 #include "../../include/AlgoRequest.h"
+#include <dlfcn.h>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <vector>
+
+#define ALGOLIB_PATH "/home/uma/workspace/Gzero/cmake/lib/libAlgoLib.so"
+#define LOAD_SYM(FUNC) reinterpret_cast<FUNC##Func>(getSymbol(#FUNC))
 
 using InitAlgoInterfaceFunc    = int (*)(void **);
 using DeInitAlgoInterfaceFunc  = int (*)(void **);
@@ -38,8 +42,11 @@ using AlgoInterfaceProcessFunc = int (*)(void **, std::shared_ptr<AlgoRequest>,
 using RegisterCallbackFunc     = int (*)(void **,
                                      int (*)(std::shared_ptr<AlgoRequest>));
 
-struct AlgoInterfaceptr {
+class AlgoInterfaceptr {
 public:
+  AlgoInterfaceptr(const std::string &path);
+  ~AlgoInterfaceptr();
+  void *getSymbol(const char *symbolName);
   InitAlgoInterfaceFunc initFunc            = nullptr;
   DeInitAlgoInterfaceFunc deinitFunc        = nullptr;
   AlgoInterfaceProcessFunc processFunc      = nullptr;
@@ -72,13 +79,11 @@ public:
   DecisionManager m_algoDecisionManager;
 
 private:
-  bool LoadLibraryFunctions();
   int InitAlgoInterface();
   void Cleanup();
   int mRequestId = 0;
 
-  AlgoInterfaceptr handle;
-
+  std::shared_ptr<AlgoInterfaceptr> phandle;
   std::vector<unsigned char> yuvBuffer;
   std::ifstream mInputFile;
   int mWidth;

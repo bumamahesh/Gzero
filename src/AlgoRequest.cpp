@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 #include "AlgoRequest.h"
+#include "Log.h"
 
 /**
  * @brief Get the Size By Format object
@@ -65,7 +66,7 @@ static size_t GetSizeByFormat(ImageFormat format, int width, int height) {
  * @param fd
  */
 int AlgoRequest::AddImage(ImageFormat format, int width, int height,
-                          const std::vector<unsigned char> &rawData, int fd) {
+                          std::vector<unsigned char> &&rawData, int fd) {
   if ((width <= 0) || (height <= 0) || (rawData.size() == 0)) {
     return -1;
   }

@@ -79,3 +79,36 @@ TEST_F(AlgoRequestTest, VerifyAddImage) {
   EXPECT_EQ(request->GetImage(0)->GetFd(), -1);
   EXPECT_EQ(request->GetImage(0)->GetDataSize(), Width * Height * 3 / 2);
 }
+
+TEST_F(AlgoRequestTest, AddImage_MoveSemantics) {
+  AlgoRequest request;
+  std::vector<unsigned char> data(32 * 32 * 3, 123);
+  // Add the image using AddImage
+  int rc = request.AddImage(ImageFormat::RGB, 32, 32, std::move(data));
+  EXPECT_EQ(rc, 0);
+
+  // Check that the image data was correctly moved into the request
+  std::shared_ptr<ImageData> image = request.GetImage(0);
+  EXPECT_NE(image, nullptr);
+  EXPECT_EQ(image->GetData().size(), 32 * 32 * 3);
+  for (unsigned char value : image->GetData()) {
+    EXPECT_EQ(value, 123);
+  }
+
+  // Ensure the new image data has non-zero capacity in its new location
+  EXPECT_NE(image->GetData().capacity(), 0);
+}
+
+TEST(AlgoRequestTests, AddImage_ZeroWidthHeight) {
+  AlgoRequest request;
+  std::vector<unsigned char> data1(1024, 123); // Sample image data
+  std::vector<unsigned char> data2(1024, 123); // Sample image data
+  std::vector<unsigned char> data3(1024, 123); // Sample image data
+
+  int ret = request.AddImage(ImageFormat::RGB, 0, 32, std::move(data1));
+  EXPECT_EQ(ret, -1);
+  ret = request.AddImage(ImageFormat::RGB, 32, 0, std::move(data2));
+  EXPECT_EQ(ret, -1);
+  ret = request.AddImage(ImageFormat::RGB, 0, 0, std::move(data3));
+  EXPECT_EQ(ret, -1);
+}

@@ -51,7 +51,7 @@ public:
   int GetWidth() const { return width; }
   int GetHeight() const { return height; }
   int GetFd() const { return fd; }
-  void SetData(const std::vector<unsigned char> &data) { this->data = data; }
+  void SetData(std::vector<unsigned char> &&data) { this->data = std::move(data); }
   std::vector<unsigned char> &GetData() { return data; }
   size_t GetDataSize() const { return data.size(); }
 
@@ -66,7 +66,7 @@ private:
 public:
   // Add an image to the collection
   int AddImage(ImageFormat format, int width, int height,
-               const std::vector<unsigned char> &rawData, int fd = -1);
+               std::vector<unsigned char> &&rawData, int fd = -1);
 
   // Add an image to the collection
   int AddImage(ImageFormat format, int width, int height);

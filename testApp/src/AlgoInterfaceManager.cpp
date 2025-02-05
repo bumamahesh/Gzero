@@ -1,4 +1,5 @@
 #include "../include/AlgoInterfaceManager.h"
+#include <atomic>
 #include <condition_variable>
 #include <cstring>
 #include <dlfcn.h>
@@ -16,15 +17,60 @@ std::mutex g_ResultQueueMutex;
 std::condition_variable g_ResultQueueCondVar;
 std::queue<unsigned char *> g_ResultQueue;
 
-bool g_quit = false;
+std::atomic<bool> g_quit(false);
+
+/**
+ * @brief Construct a new Algo Interfaceptr:: Algo Interfaceptr object
+ *
+ * @param path
+ */
+AlgoInterfaceptr::AlgoInterfaceptr(const std::string &path) {
+  libraryHandle = dlopen(path.c_str(), RTLD_NOW | RTLD_NODELETE);
+  if (!libraryHandle) {
+    throw std::runtime_error(dlerror());
+  }
+  initFunc             = LOAD_SYM(InitAlgoInterface);
+  deinitFunc           = LOAD_SYM(DeInitAlgoInterface);
+  processFunc          = LOAD_SYM(AlgoInterfaceProcess);
+  registerCallbackFunc = LOAD_SYM(RegisterCallback);
+
+  if (!initFunc || !deinitFunc || !processFunc || !registerCallbackFunc) {
+    std::cerr << "Failed to load one or more functions from the library."
+              << std::endl;
+
+    dlclose(libraryHandle);
+    libraryHandle = nullptr;
+    throw std::runtime_error(nullptr);
+  }
+}
+/**
+ * @brief Destroy the Algo Interfaceptr:: Algo Interfaceptr object
+ *
+ */
+AlgoInterfaceptr::~AlgoInterfaceptr() {
+  if (libraryHandle) {
+    dlclose(libraryHandle);
+  }
+}
+/**
+ * @brief load Symbol from shared library
+ *
+ * @param symbolName
+ * @return void*
+ */
+void *AlgoInterfaceptr::getSymbol(const char *symbolName) {
+  return dlsym(libraryHandle, symbolName);
+}
 
 /**
  * @brief Construct a new Algo Interface Manager:: Algo Interface Manager object
  *
  */
 AlgoInterfaceManager::AlgoInterfaceManager(const std::string inputFilePath, int width, int height) {
-  if (!LoadLibraryFunctions()) {
-    std::cerr << "Error: Failed to load library functions." << std::endl;
+
+  phandle = std::make_shared<AlgoInterfaceptr>(ALGOLIB_PATH);
+  if (!phandle) {
+    std::cerr << "Error: Failed to load algorithm library." << std::endl;
     return;
   }
   if (InitAlgoInterface() != 0) {
@@ -50,40 +96,6 @@ AlgoInterfaceManager::AlgoInterfaceManager(const std::string inputFilePath, int 
  */
 AlgoInterfaceManager::~AlgoInterfaceManager() {
   Cleanup();
-}
-
-/**
- * @brief
- *
- * @return true
- * @return false
- */
-bool AlgoInterfaceManager::LoadLibraryFunctions() {
-  handle.libraryHandle =
-      dlopen("/home/uma/workspace/Gzero/cmake/lib/libAlgoLib.so", RTLD_LAZY);
-  if (!handle.libraryHandle) {
-    std::cerr << "Failed to load library." << std::endl;
-    return false;
-  }
-
-  handle.initFunc = reinterpret_cast<InitAlgoInterfaceFunc>(
-      dlsym(handle.libraryHandle, "InitAlgoInterface"));
-  handle.deinitFunc = reinterpret_cast<DeInitAlgoInterfaceFunc>(
-      dlsym(handle.libraryHandle, "DeInitAlgoInterface"));
-  handle.processFunc = reinterpret_cast<AlgoInterfaceProcessFunc>(
-      dlsym(handle.libraryHandle, "AlgoInterfaceProcess"));
-  handle.registerCallbackFunc = reinterpret_cast<RegisterCallbackFunc>(
-      dlsym(handle.libraryHandle, "RegisterCallback"));
-
-  if (!handle.initFunc || !handle.deinitFunc || !handle.processFunc || !handle.registerCallbackFunc) {
-    std::cerr << "Failed to load one or more functions from the library."
-              << std::endl;
-    dlclose(handle.libraryHandle);
-    handle.libraryHandle = nullptr;
-    return false;
-  }
-
-  return true;
 }
 
 // Callback Function
@@ -186,7 +198,7 @@ int AlgoInterfaceManager::SubmitRequest() {
       return -1;
     }
 
-    rc = handle.processFunc(&handle.libraryHandle, request, m_algoDecisionManager.ParseMetadata(request));
+    rc = phandle->processFunc(&phandle->libraryHandle, request, m_algoDecisionManager.ParseMetadata(request));
     if (rc != 0) {
       std::cerr << "Failed to process algorithm request rc = " << rc << std::endl;
       return -2;
@@ -204,12 +216,12 @@ int AlgoInterfaceManager::SubmitRequest() {
  * @return int
  */
 int AlgoInterfaceManager::InitAlgoInterface() {
-  if (handle.initFunc(&handle.libraryHandle) != 0) {
+  if (phandle->initFunc(&phandle->libraryHandle) != 0) {
     std::cerr << "Failed to initialize algorithm interface." << std::endl;
     return -1;
   }
 
-  if (handle.registerCallbackFunc(&handle.libraryHandle, ProcessCallback) != 0) {
+  if (phandle->registerCallbackFunc(&phandle->libraryHandle, ProcessCallback) != 0) {
     std::cerr << "Failed to register callback." << std::endl;
     return -1;
   }
@@ -221,11 +233,11 @@ int AlgoInterfaceManager::InitAlgoInterface() {
  *
  */
 void AlgoInterfaceManager::Cleanup() {
-  if (handle.deinitFunc) {
-    handle.deinitFunc(&handle.libraryHandle);
+  if (phandle->deinitFunc) {
+    phandle->deinitFunc(&phandle->libraryHandle);
   }
-  if (handle.libraryHandle) {
-    dlclose(handle.libraryHandle);
+  if (phandle->libraryHandle) {
+    dlclose(phandle->libraryHandle);
   }
   if (mInputFile.is_open()) {
     mInputFile.close();
@@ -237,9 +249,9 @@ void AlgoInterfaceManager::Cleanup() {
     }
   }
 
-  handle.libraryHandle        = nullptr;
-  handle.initFunc             = nullptr;
-  handle.deinitFunc           = nullptr;
-  handle.processFunc          = nullptr;
-  handle.registerCallbackFunc = nullptr;
+  phandle->libraryHandle        = nullptr;
+  phandle->initFunc             = nullptr;
+  phandle->deinitFunc           = nullptr;
+  phandle->processFunc          = nullptr;
+  phandle->registerCallbackFunc = nullptr;
 }

@@ -142,7 +142,7 @@ TEST_F(RequestReponseTest, ProcessRequestAndCheckResponse) {
   std::vector<unsigned char> yuvData(WIDTH * HEIGHT * 3 / 2); // YUV420 format
   auto request        = std::make_shared<AlgoRequest>();
   request->mRequestId = 123;
-  int rc              = request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, yuvData);
+  int rc              = request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, std::move(yuvData));
   ASSERT_EQ(rc, 0);
   rc = request->mMetadata.SetMetadata(ALGO_HDR_ENABLED, true);
   ASSERT_EQ(rc, 0);
