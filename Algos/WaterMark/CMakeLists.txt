@@ -5,7 +5,7 @@ include(${CMAKE_SOURCE_DIR}/Algos/CommonCmake.txt)
 # Find OpenCV package
 find_package(OpenCV REQUIRED)
 
-add_library(WaterMark SHARED WaterMarkAlgorithm.cpp ${CORE_SOURCES})
+add_library(WaterMark SHARED WaterMarkAlgorithm.cpp)
 
 target_include_directories(WaterMark 
     PUBLIC 

@@ -5,18 +5,6 @@ set(CMAKE_SHARED_LIBRARY_PREFIX "com.Algo.")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
 
-# Common source files
-file(GLOB CORE_SOURCES
-    ${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/RequestMonitor.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/KpiMonitor.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/ConfigParser.cpp
-    ${CMAKE_SOURCE_DIR}/src/AlgoMetadata.cpp
-    ${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
-    ${CMAKE_SOURCE_DIR}/src/AlgoRequest.cpp
-)
-
 # Common include directories
 set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/include
@@ -30,6 +18,8 @@ function(set_common_target_properties target_name)
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
     )
+    target_link_libraries(${target_name} PRIVATE AlgoCore)
+
 endfunction()
 
 # ASAN support function

@@ -3,7 +3,7 @@ include(${CMAKE_SOURCE_DIR}/Algos/CommonCmake.txt)
 
 find_package(OpenMP REQUIRED)
 
-add_library(MandelbrotSet SHARED MandelbrotSet.cpp ${CORE_SOURCES})
+add_library(MandelbrotSet SHARED MandelbrotSet.cpp)
 
 target_include_directories(MandelbrotSet PUBLIC ${COMMON_INCLUDE_DIRS})
 set_common_target_properties(MandelbrotSet)

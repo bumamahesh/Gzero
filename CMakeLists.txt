@@ -11,14 +11,31 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
 project(AlgoLib VERSION 1.0)
 
 file(GLOB CORE_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_SOURCE_DIR}/Utils/src/*.cpp
+
+    #${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
+    ${CMAKE_SOURCE_DIR}/src/AlgoDecisionManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/AlgoInterface.cpp
+    ${CMAKE_SOURCE_DIR}/src/AlgoLibraryLoader.cpp
+    #${CMAKE_SOURCE_DIR}/src/AlgoMetadata.cpp
+    ${CMAKE_SOURCE_DIR}/src/AlgoNodeManager.cpp
+    ${CMAKE_SOURCE_DIR}/src/AlgoPipeline.cpp
+    #${CMAKE_SOURCE_DIR}/src/AlgoRequest.cpp
+    ${CMAKE_SOURCE_DIR}/src/AlgoSession.cpp
+    ${CMAKE_SOURCE_DIR}/src/Interface.cpp
+    #${CMAKE_SOURCE_DIR}/src/Watchdog.cpp not used
+    #${CMAKE_SOURCE_DIR}/Utils/src/ConfigParser.cpp
+    #${CMAKE_SOURCE_DIR}/Utils/src/KpiMonitor.cpp
+    #${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
+    #${CMAKE_SOURCE_DIR}/Utils/src/RequestMonitor.cpp
+    #${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
+    #${CMAKE_SOURCE_DIR}/Utils/src/Utils.cpp
 )
 
 # Define the shared library target
 add_library(AlgoLib SHARED ${CORE_SOURCES})
 
-
+add_subdirectory(Utils)
+add_subdirectory(Algos)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     # Ensure debug symbols are preserved
     # Set debug flags for Debug build type
@@ -42,12 +59,13 @@ target_include_directories(AlgoLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Utils/include
 )
 
+target_link_libraries(AlgoLib PRIVATE AlgoCore)
 # Optionally, install the shared library
 install(TARGETS AlgoLib DESTINATION lib)
 install(FILES include/Interface.h DESTINATION include)
 
 # Add subdirectories
-# add_subdirectory(Utils)
+
 add_subdirectory(Algos/Hdr)
 add_subdirectory(Algos/Bokeh)
 add_subdirectory(Algos/Nop)
