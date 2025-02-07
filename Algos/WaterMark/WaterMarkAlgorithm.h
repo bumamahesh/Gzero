@@ -27,7 +27,10 @@
 #include <string>
 const char *WATERMARK_NAME = "WaterMarkAlgorithm";
 
-enum class WatermarkPosition { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT };
+enum class WatermarkPosition { TOP_LEFT,
+                               TOP_RIGHT,
+                               BOTTOM_LEFT,
+                               BOTTOM_RIGHT };
 
 /**
  * @brief WaterMarkAlgorithm class derived from AlgoBase to perform
@@ -73,11 +76,14 @@ public:
   int GetTimeout() override;
 
 private:
-  mutable std::mutex mutex_;      // Mutex to protect the shared state
-  cv::Mat image_;                 // Original image
-  cv::Mat watermark_;             // Watermark (text or image)
-  std::string watermarkText;      // If you want to apply text watermark
-  std::string watermarkLogoPath;  // If you want to apply logo
+  mutable std::mutex mutex_;     // Mutex to protect the shared state
+  cv::Mat image_;                // Original image
+  cv::Mat watermark_;            // Watermark (text or image)
+  std::string watermarkText;     // If you want to apply text watermark
+  std::string watermarkLogoPath; // If you want to apply logo
+
+  AlgoStatus ProcessRGB(std::shared_ptr<AlgoRequest> req);
+  AlgoStatus ProcessYUV(std::shared_ptr<AlgoRequest> req);
 };
 
 /**
