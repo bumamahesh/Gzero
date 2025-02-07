@@ -30,9 +30,9 @@ void AlgoBase::ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task) {
 
   assert(task != nullptr);
   assert(Ctx != nullptr);
-  auto pCtx = static_cast<AlgoBase *>(Ctx);
+  auto pCtx                        = static_cast<AlgoBase *>(Ctx);
   std::shared_ptr<AlgoRequest> req = task->request;
-  AlgoBase::AlgoStatus rc = pCtx->Process(req);
+  AlgoBase::AlgoStatus rc          = pCtx->Process(req);
   pCtx->SetStatus(rc);
 }
 
@@ -270,7 +270,7 @@ void AlgoBase::SetEvent(std::shared_ptr<AlgoCallbackMessage> msg) {
  */
 bool AlgoBase::CanProcessFormat(ImageFormat Iformat, ImageFormat Oformat) {
 
-  for (const auto [InputFormat, OutputFormat] : SupportedFormatsMap) {
+  for (const auto &[InputFormat, OutputFormat] : SupportedFormatsMap) {
     if (InputFormat == Iformat && OutputFormat == Oformat) {
       return true;
     }

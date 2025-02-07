@@ -31,6 +31,7 @@
 FilterAlgorithm::FilterAlgorithm() : AlgoBase(FILTER_NAME) {
   mAlgoId = ALGO_FILTER; // Unique ID for Nop algorithm
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
+  SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   ConfigParser parser;
   parser.loadFile("/home/uma/workspace/Gzero/Config/FilterAlgorithm.config");
   std::string Version = parser.getValue("Version");
@@ -57,6 +58,104 @@ AlgoBase::AlgoStatus FilterAlgorithm::Open() {
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
+AlgoBase::AlgoStatus FilterAlgorithm::SobelRGB(std::shared_ptr<AlgoRequest> req) {
+  auto inputImage = req->GetImage(0); // Assume the first image as input
+  if (!inputImage) {
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
+  }
+  const int width  = inputImage->GetWidth();
+  const int height = inputImage->GetHeight();
+  const std::vector<unsigned char> &inputData =
+      inputImage->GetData();
+
+  std::vector<unsigned char> outputData(width * height * 3, 0); // RGB output
+
+  // Compute Sobel filter sequentially for each color channel
+  for (int y = 1; y < height - 1; ++y) {
+    for (int x = 1; x < width - 1; ++x) {
+      int gradientX[3] = {0, 0, 0};
+      int gradientY[3] = {0, 0, 0};
+
+      // Apply Sobel kernels for each color channel
+      for (int ky = -1; ky <= 1; ++ky) {
+        for (int kx = -1; kx <= 1; ++kx) {
+          int pixelIndex = ((y + ky) * width + (x + kx)) * 3;
+          for (int c = 0; c < 3; ++c) { // Iterate over R, G, B channels
+            int pixelValue = inputData[pixelIndex + c];
+            gradientX[c] += pixelValue * Gx[ky + 1][kx + 1];
+            gradientY[c] += pixelValue * Gy[ky + 1][kx + 1];
+          }
+        }
+      }
+
+      // Compute gradient magnitude for each channel and clamp to 255
+      int outputIndex = (y * width + x) * 3;
+      for (int c = 0; c < 3; ++c) {
+        int magnitude = static_cast<int>(std::sqrt(
+            gradientX[c] * gradientX[c] + gradientY[c] * gradientY[c]));
+        outputData[outputIndex + c] =
+            static_cast<unsigned char>(std::min(magnitude, 255));
+      }
+    }
+  }
+
+  // Replace input image with output image
+  req->ClearImages();
+  if (req->AddImage(ImageFormat::RGB, width, height, std::move(outputData))) {
+    LOG(ERROR, ALGOBASE, "Error Filling Output data");
+    SetStatus(AlgoStatus::FAILURE);
+  }
+
+  return GetAlgoStatus();
+}
+
+AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv(std::shared_ptr<AlgoRequest> req) {
+  auto inputImage = req->GetImage(0);
+  if (!inputImage) {
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
+  }
+
+  const int width                             = inputImage->GetWidth();
+  const int height                            = inputImage->GetHeight();
+  const std::vector<unsigned char> &inputData = inputImage->GetData();
+
+  // YUV420 - Y plane size = width * height
+  // UV planes = (width * height) / 4 each
+  std::vector<unsigned char> outputData(width * height * 3 / 2, 0);
+
+  // Sobel on Y channel only
+  for (int y = 1; y < height - 1; ++y) {
+    for (int x = 1; x < width - 1; ++x) {
+      int gradientX = 0, gradientY = 0;
+
+      for (int ky = -1; ky <= 1; ++ky) {
+        for (int kx = -1; kx <= 1; ++kx) {
+          int pixelIndex = (y + ky) * width + (x + kx); // Correct indexing
+          int pixelValue = inputData[pixelIndex];       // Y channel
+          gradientX += pixelValue * Gx[ky + 1][kx + 1];
+          gradientY += pixelValue * Gy[ky + 1][kx + 1];
+        }
+      }
+
+      int magnitude             = static_cast<int>(std::sqrt(gradientX * gradientX + gradientY * gradientY));
+      outputData[y * width + x] = static_cast<unsigned char>(std::min(magnitude, 255)); // Store in Y plane
+    }
+  }
+
+  // Copy U and V channels from input
+  int uvOffset = width * height;
+  std::copy(inputData.begin() + uvOffset, inputData.end(), outputData.begin() + uvOffset);
+
+  req->ClearImages();
+  if (req->AddImage(ImageFormat::YUV420, width, height, std::move(outputData))) {
+    LOG(ERROR, ALGOBASE, "Error Filling Output data");
+    SetStatus(AlgoStatus::FAILURE);
+  }
+
+  return GetAlgoStatus();
+}
 
 /**
  * @brief Process the Nop algorithm, simulating input validation and Nop
@@ -65,6 +164,7 @@ AlgoBase::AlgoStatus FilterAlgorithm::Open() {
  */
 AlgoBase::AlgoStatus
 FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
+  AlgoBase::AlgoStatus rc = AlgoStatus::FAILURE;
   std::lock_guard<std::mutex> lock(mutex_);
   // KpiMonitor kpi("SobelFilter::Process");
 
@@ -80,68 +180,28 @@ FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   }
 
   const ImageFormat inputFormat = inputImage->GetFormat();
-  const int width               = inputImage->GetWidth();
-  const int height              = inputImage->GetHeight();
-  const std::vector<unsigned char> &inputData =
-      inputImage->GetData(); // RGB input assumed
 
-  if (inputData.size() != static_cast<size_t>(width * height * 3)) {
-    SetStatus(AlgoStatus::FAILURE);
-    return GetAlgoStatus();
-  }
-  if (true == CanProcessFormat(inputFormat, ImageFormat::RGB)) {
-    std::vector<unsigned char> outputData(width * height * 3, 0); // RGB output
-
-    // Sobel kernels for X and Y gradients
-    const int Gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-
-    const int Gy[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
-
-    // Compute Sobel filter sequentially for each color channel
-    for (int y = 1; y < height - 1; ++y) {
-      for (int x = 1; x < width - 1; ++x) {
-        int gradientX[3] = {0, 0, 0};
-        int gradientY[3] = {0, 0, 0};
-
-        // Apply Sobel kernels for each color channel
-        for (int ky = -1; ky <= 1; ++ky) {
-          for (int kx = -1; kx <= 1; ++kx) {
-            int pixelIndex = ((y + ky) * width + (x + kx)) * 3;
-            for (int c = 0; c < 3; ++c) { // Iterate over R, G, B channels
-              int pixelValue = inputData[pixelIndex + c];
-              gradientX[c] += pixelValue * Gx[ky + 1][kx + 1];
-              gradientY[c] += pixelValue * Gy[ky + 1][kx + 1];
-            }
-          }
-        }
-
-        // Compute gradient magnitude for each channel and clamp to 255
-        int outputIndex = (y * width + x) * 3;
-        for (int c = 0; c < 3; ++c) {
-          int magnitude = static_cast<int>(std::sqrt(
-              gradientX[c] * gradientX[c] + gradientY[c] * gradientY[c]));
-          outputData[outputIndex + c] =
-              static_cast<unsigned char>(std::min(magnitude, 255));
-        }
-      }
+  switch (inputFormat) {
+  case ImageFormat::RGB: {
+    if (true == CanProcessFormat(inputFormat, ImageFormat::RGB)) {
+      rc = SobelRGB(req);
     }
-
-    // Replace input image with output image
-    req->ClearImages();
-    if (req->AddImage(ImageFormat::RGB, width, height, std::move(outputData))) {
-      LOG(ERROR, ALGOBASE, "Error Filling Output data");
-      SetStatus(AlgoStatus::FAILURE);
+  } break;
+  case ImageFormat::YUV420: {
+    if (true == CanProcessFormat(inputFormat, ImageFormat::YUV420)) {
+      rc = SobelYuv(req);
     }
-  } else {
-    // skip processing
+  } break;
+  default:
+    break;
   }
+
   int reqdone = 0x00;
   if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
     req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
-  SetStatus(AlgoStatus::SUCCESS);
-  return GetAlgoStatus();
+  return rc;
 }
 
 /**

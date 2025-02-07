@@ -42,6 +42,7 @@ private:
   SDL_Texture *mTexture;
   int mWidth;
   int mHeight;
+  bool isYUV = true;
 };
 
 #endif // RENDERER_H

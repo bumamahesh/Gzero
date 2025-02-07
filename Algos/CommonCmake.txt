@@ -34,7 +34,7 @@ endfunction()
 
 # ASAN support function
 function(enable_asan target_name)
-    option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" OFF)
+    option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" ON)
     if(ENABLE_ASAN)
         set(CMAKE_BUILD_TYPE DEBUG)
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")

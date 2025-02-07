@@ -3,13 +3,13 @@
 #include <condition_variable>
 #include <iostream>
 #include <queue>
-extern unsigned char *g_rgbBuffer;
-extern std::mutex g_rgbBufferMutex;
-extern std::atomic<bool> g_quit;
+#include <unistd.h>
 
 extern std::mutex g_ResultQueueMutex;
 extern std::condition_variable g_ResultQueueCondVar;
-extern std::queue<unsigned char *> g_ResultQueue;
+extern std::queue<std::shared_ptr<AlgoRequest>> g_ResultQueue;
+extern std::atomic<bool> g_quit;
+
 /**
  * @brief Construct a new Renderer:: Renderer object
  *
@@ -56,19 +56,10 @@ bool Renderer::Initialize() {
     return false;
   }
 
-  mTexture = SDL_CreateTexture(mRenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
+  Uint32 format = (isYUV) ? SDL_PIXELFORMAT_IYUV : SDL_PIXELFORMAT_RGB24;
+  mTexture      = SDL_CreateTexture(mRenderer, format, SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
   if (!mTexture) {
     std::cerr << "Texture could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-    SDL_DestroyRenderer(mRenderer);
-    SDL_DestroyWindow(mWindow);
-    SDL_Quit();
-    return false;
-  }
-
-  g_rgbBuffer = static_cast<unsigned char *>(malloc(mWidth * mHeight * 3));
-  if (!g_rgbBuffer) {
-    std::cerr << "Failed to allocate memory for RGB data." << std::endl;
-    SDL_DestroyTexture(mTexture);
     SDL_DestroyRenderer(mRenderer);
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
@@ -86,66 +77,91 @@ bool Renderer::Initialize() {
  * @param inputFilePath
  */
 void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
-  int requestId = 0;
   SDL_Event event;
-
-  const int targetFPS  = 120;
-  const int frameDelay = 1000 / targetFPS; // ms per frame
+  // const int targetFPS  = 120;
+  // const int frameDelay = 1000 / targetFPS; // ms per frame
 
   while (!g_quit.load()) {
-    Uint32 frameStart = SDL_GetTicks();
+    // Uint32 frameStart = SDL_GetTicks();
 
     while (SDL_PollEvent(&event) != 0) {
       if (event.type == SDL_QUIT) {
         g_quit.store(true);
+        std::cerr << "Sdl Quite Event" << std::endl;
         break;
       }
     }
 
-    unsigned char *rgbBuffer = nullptr;
-
-    // Try to lock, and avoid blocking forever
+    std::shared_ptr<AlgoRequest> request; // Try to lock, and avoid blocking forever
     {
       std::unique_lock<std::mutex> lock(g_ResultQueueMutex);
       if (g_ResultQueue.empty()) {
         continue;
       }
-
-      rgbBuffer = g_ResultQueue.front();
+      request = g_ResultQueue.front();
       g_ResultQueue.pop();
     }
-
-    if (rgbBuffer) {
-      SDL_UpdateTexture(mTexture, nullptr, rgbBuffer, mWidth * 3);
-      SDL_RenderClear(mRenderer);
-      SDL_RenderCopy(mRenderer, mTexture, nullptr, nullptr);
-      SDL_RenderPresent(mRenderer);
-      free(rgbBuffer);
+    if (!request) {
+      continue;
     }
 
-    if (pAlgoInteface) {
-      pAlgoInteface->SubmitRequest();
+    std::shared_ptr<ImageData> image = request->GetImage(0);
+
+    {
+      /*image validation logic */
+      if (!image || !image->GetDataSize()) {
+        std::cerr << "Error: Image data is null or size is zero." << std::endl;
+        continue;
+      }
+      bool isrgb              = (image->GetFormat() == ImageFormat::RGB) ? true : false;
+      size_t Width            = image->GetWidth();
+      size_t Height           = image->GetHeight();
+      size_t OutputBufferSize = (isrgb) ? (Width * Height * 3) : (Width * Height * 3 / 2); // either RGB or YUV
+
+      // Check if the image data size is correct
+      if (image->GetData().size() < OutputBufferSize) {
+        std::cerr << "Error: Image data size is smaller than expected."
+                  << std::endl;
+        continue;
+      }
     }
 
-    // Limit the frame rate to targetFPS
-    Uint32 frameEnd  = SDL_GetTicks();
-    Uint32 frameTime = frameEnd - frameStart;
-    if (frameTime < frameDelay) {
-      // SDL_Delay(frameDelay - frameTime);
+    unsigned char *OutputBuffer = image->GetData().data();
+    if (image->GetFormat() == ImageFormat::YUV420) {
+
+      // YUV420p format requires separate planes
+      SDL_UpdateYUVTexture(mTexture, nullptr,
+                           OutputBuffer, mWidth,                                   // Y plane
+                           OutputBuffer + (mWidth * mHeight), mWidth / 2,          // U plane
+                           OutputBuffer + (mWidth * mHeight * 5 / 4), mWidth / 2); // V plane
+    } else {
+      SDL_UpdateTexture(mTexture, nullptr, OutputBuffer, mWidth * 3);
     }
+
+    SDL_RenderClear(mRenderer);
+    SDL_RenderCopy(mRenderer, mTexture, nullptr, nullptr);
+    SDL_RenderPresent(mRenderer);
   }
+
+  if (pAlgoInteface) {
+    pAlgoInteface->SubmitRequest();
+  }
+
+  // Limit the frame rate to targetFPS
+  // Uint32 frameEnd  = SDL_GetTicks();
+  // Uint32 frameTime = frameEnd - frameStart;
+  // if (frameTime < frameDelay) {
+  // SDL_Delay(frameDelay - frameTime);
+  //}
 }
 
 void Renderer::Cleanup() {
-  if (g_rgbBuffer) {
-    free(g_rgbBuffer);
-  }
+
   SDL_DestroyTexture(mTexture);
   SDL_DestroyRenderer(mRenderer);
   SDL_DestroyWindow(mWindow);
   SDL_Quit();
-  mWindow     = nullptr;
-  mRenderer   = nullptr;
-  mTexture    = nullptr;
-  g_rgbBuffer = nullptr;
+  mWindow   = nullptr;
+  mRenderer = nullptr;
+  mTexture  = nullptr;
 }

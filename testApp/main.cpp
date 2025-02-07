@@ -1,5 +1,7 @@
 #include "include/AlgoInterfaceManager.h"
+#ifdef __RENDER__
 #include "include/Renderer.h"
+#endif
 #include <atomic>
 #include <cstring>
 #include <iostream>
@@ -13,7 +15,7 @@ extern bool g_HdrEnabled;
 extern bool g_WatermarkEnabled;
 extern bool g_MandlebrotSetEnabled;
 extern bool g_FilterEnabled;
-
+bool g_DisplayEnable = false;
 struct YUVFile {
   std::string filePath;
   int width;
@@ -39,21 +41,28 @@ int main(int argc, char *argv[]) {
     std::cout << "Argument " << i << ": " << argv[i] << std::endl;
   }
 
-  int idx = std::stoi(argv[1]);
+  int idx;
 
-  if (idx >= sizeof(yuvFiles) / sizeof(YUVFile)) {
-    std::cerr << "Index out of range, defaulting to 0" << std::endl;
+  char *endptr;
+  long idx_long = strtol(argv[1], &endptr, 10);
+  if (*endptr != '\0' || errno == ERANGE || idx_long < 0 || idx_long >= (long)(sizeof(yuvFiles) / sizeof(YUVFile))) {
+    std::cerr << "Invalid index, defaulting to 0" << std::endl;
     idx = 0;
+  } else {
+    idx = static_cast<int>(idx_long);
   }
 
   int width                                                   = yuvFiles[idx].width;
   int height                                                  = yuvFiles[idx].height;
   std::shared_ptr<AlgoInterfaceManager> pAlgoInterfaceManager = std::make_shared<AlgoInterfaceManager>(yuvFiles[idx].filePath, width, height);
-  std::shared_ptr<Renderer> pRenderer                         = std::make_shared<Renderer>(width, height);
-  g_HdrEnabled                                                = false;
-  g_WatermarkEnabled                                          = false;
-  g_MandlebrotSetEnabled                                      = false;
-  g_FilterEnabled                                             = false;
+#ifdef __RENDER__
+  std::shared_ptr<Renderer> pRenderer = std::make_shared<Renderer>(width, height);
+#endif
+  g_HdrEnabled           = false;
+  g_WatermarkEnabled     = false;
+  g_MandlebrotSetEnabled = false;
+  g_FilterEnabled        = false;
+  g_DisplayEnable        = false;
 
   for (int i = 2; i < argc; ++i) {
     if (strcmp(argv[i], "m") == 0) {
@@ -68,16 +77,19 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(argv[i], "h") == 0) {
       g_HdrEnabled = true;
       std::cout << "ALGO_HDR  is set" << std::endl;
+    } else if (strcmp(argv[i], "D") == 0) {
+      g_DisplayEnable = true;
+      std::cout << "Display is set" << std::endl;
     } else {
       std::cerr << "Unknown algorithm flag: " << argv[i] << std::endl;
     }
   }
-
-#if 0
+  std::cerr << "g_HdrEnabled = " << g_HdrEnabled << " g_WatermarkEnabled = " << g_WatermarkEnabled << " g_MandlebrotSetEnabled = " << g_MandlebrotSetEnabled << " g_FilterEnabled = " << g_FilterEnabled << std::endl;
+#ifdef SYNC_THREAD
   pRenderer->RenderLoop(pAlgoInterfaceManager);
 #else
   /* decouple render and submit on different threads */
-  auto submit = [pRenderer, pAlgoInterfaceManager]() {
+  auto submit = [pAlgoInterfaceManager]() {
     int rc = 0;
     while (!g_quit.load()) {
       rc = pAlgoInterfaceManager->SubmitRequest();
@@ -88,9 +100,20 @@ int main(int argc, char *argv[]) {
   };
 
   std::thread t2(submit);
-  pRenderer->RenderLoop(nullptr);
+  if (g_DisplayEnable) {
+#ifdef __RENDER__
+    pRenderer->RenderLoop(nullptr);
+#endif
+  } else {
+    while (!g_quit.load()) {
+      std::string name;
+      std::getline(std::cin, name); // Reads the entire line
+      if (name == "e") {
+        g_quit.store(true);
+      }
+    }
+  }
   t2.join();
 #endif
-
   return 0;
 }

@@ -17,14 +17,17 @@ set(SOURCES
     ../src/AlgoDecisionManager.cpp
     ../src/AlgoMetadata.cpp
 )
-
+add_compile_definitions(__RENDER__)
 # Create an executable from the source files
 add_executable(test_app ${SOURCES})
 
 # Link SDL2 to the executable
 target_link_libraries(test_app SDL2::SDL2)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" ON)
+if(ENABLE_ASAN)
+    set(CMAKE_BUILD_TYPE DEBUG)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+    target_compile_options(test_app PRIVATE -fsanitize=address -fno-omit-frame-pointer -g -ggdb -Wall -fPIC)
+    target_link_options(test_app PRIVATE -fsanitize=address -fno-omit-frame-pointer)
 endif()

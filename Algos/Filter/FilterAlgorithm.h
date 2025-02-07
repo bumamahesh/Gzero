@@ -69,6 +69,12 @@ public:
 
 private:
   mutable std::mutex mutex_; // Mutex to protect the shared state
+                             /* Sobel kernels for X and Y gradients*/
+  const int Gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  const int Gy[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
+
+  AlgoStatus SobelRGB(std::shared_ptr<AlgoRequest> req);
+  AlgoStatus SobelYuv(std::shared_ptr<AlgoRequest> req);
 };
 
 /**

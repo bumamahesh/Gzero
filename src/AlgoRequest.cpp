@@ -158,7 +158,7 @@ void AlgoRequest::ClearImages() { images.clear(); }
 uint8_t AlgoRequest::FrameChecksum() {
   unsigned int checksum = 0;
   for (const auto &image : images) {
-    for (int i = 0; i < image->GetDataSize(); i++) {
+    for (size_t i = 0; i < image->GetDataSize(); i++) {
       checksum += image->GetData()[i];
       checksum %= 256;
     }
