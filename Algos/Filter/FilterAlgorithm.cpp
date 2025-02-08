@@ -20,16 +20,16 @@
  * THE SOFTWARE.
  */
 #include "FilterAlgorithm.h"
+#include <cmath>
 #include "ConfigParser.h"
 #include "Log.h"
-#include <cmath>
 
 /**
  * @brief Constructor for FilterAlgorithm.
  * @param name Name of the Nop algorithm.
  */
 FilterAlgorithm::FilterAlgorithm() : AlgoBase(FILTER_NAME) {
-  mAlgoId = ALGO_FILTER; // Unique ID for Nop algorithm
+  mAlgoId = ALGO_FILTER;  // Unique ID for Nop algorithm
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   ConfigParser parser;
@@ -53,23 +53,23 @@ FilterAlgorithm::~FilterAlgorithm() {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus FilterAlgorithm::Open() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
-AlgoBase::AlgoStatus FilterAlgorithm::SobelRGB(std::shared_ptr<AlgoRequest> req) {
-  auto inputImage = req->GetImage(0); // Assume the first image as input
+AlgoBase::AlgoStatus FilterAlgorithm::SobelRGB(
+    std::shared_ptr<AlgoRequest> req) {
+  auto inputImage = req->GetImage(0);  // Assume the first image as input
   if (!inputImage) {
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
   }
-  const int width  = inputImage->GetWidth();
+  const int width = inputImage->GetWidth();
   const int height = inputImage->GetHeight();
-  const std::vector<unsigned char> &inputData =
-      inputImage->GetData();
+  const std::vector<unsigned char>& inputData = inputImage->GetData();
 
-  std::vector<unsigned char> outputData(width * height * 3, 0); // RGB output
+  std::vector<unsigned char> outputData(width * height * 3, 0);  // RGB output
 
   // Compute Sobel filter sequentially for each color channel
   for (int y = 1; y < height - 1; ++y) {
@@ -81,7 +81,7 @@ AlgoBase::AlgoStatus FilterAlgorithm::SobelRGB(std::shared_ptr<AlgoRequest> req)
       for (int ky = -1; ky <= 1; ++ky) {
         for (int kx = -1; kx <= 1; ++kx) {
           int pixelIndex = ((y + ky) * width + (x + kx)) * 3;
-          for (int c = 0; c < 3; ++c) { // Iterate over R, G, B channels
+          for (int c = 0; c < 3; ++c) {  // Iterate over R, G, B channels
             int pixelValue = inputData[pixelIndex + c];
             gradientX[c] += pixelValue * Gx[ky + 1][kx + 1];
             gradientY[c] += pixelValue * Gy[ky + 1][kx + 1];
@@ -110,16 +110,17 @@ AlgoBase::AlgoStatus FilterAlgorithm::SobelRGB(std::shared_ptr<AlgoRequest> req)
   return GetAlgoStatus();
 }
 
-AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv(std::shared_ptr<AlgoRequest> req) {
+AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv(
+    std::shared_ptr<AlgoRequest> req) {
   auto inputImage = req->GetImage(0);
   if (!inputImage) {
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
   }
 
-  const int width                             = inputImage->GetWidth();
-  const int height                            = inputImage->GetHeight();
-  const std::vector<unsigned char> &inputData = inputImage->GetData();
+  const int width = inputImage->GetWidth();
+  const int height = inputImage->GetHeight();
+  const std::vector<unsigned char>& inputData = inputImage->GetData();
 
   // YUV420 - Y plane size = width * height
   // UV planes = (width * height) / 4 each
@@ -132,24 +133,28 @@ AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv(std::shared_ptr<AlgoRequest> req)
 
       for (int ky = -1; ky <= 1; ++ky) {
         for (int kx = -1; kx <= 1; ++kx) {
-          int pixelIndex = (y + ky) * width + (x + kx); // Correct indexing
-          int pixelValue = inputData[pixelIndex];       // Y channel
+          int pixelIndex = (y + ky) * width + (x + kx);  // Correct indexing
+          int pixelValue = inputData[pixelIndex];        // Y channel
           gradientX += pixelValue * Gx[ky + 1][kx + 1];
           gradientY += pixelValue * Gy[ky + 1][kx + 1];
         }
       }
 
-      int magnitude             = static_cast<int>(std::sqrt(gradientX * gradientX + gradientY * gradientY));
-      outputData[y * width + x] = static_cast<unsigned char>(std::min(magnitude, 255)); // Store in Y plane
+      int magnitude = static_cast<int>(
+          std::sqrt(gradientX * gradientX + gradientY * gradientY));
+      outputData[y * width + x] = static_cast<unsigned char>(
+          std::min(magnitude, 255));  // Store in Y plane
     }
   }
 
   // Copy U and V channels from input
   int uvOffset = width * height;
-  std::copy(inputData.begin() + uvOffset, inputData.end(), outputData.begin() + uvOffset);
+  std::copy(inputData.begin() + uvOffset, inputData.end(),
+            outputData.begin() + uvOffset);
 
   req->ClearImages();
-  if (req->AddImage(ImageFormat::YUV420, width, height, std::move(outputData))) {
+  if (req->AddImage(ImageFormat::YUV420, width, height,
+                    std::move(outputData))) {
     LOG(ERROR, ALGOBASE, "Error Filling Output data");
     SetStatus(AlgoStatus::FAILURE);
   }
@@ -162,8 +167,8 @@ AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv(std::shared_ptr<AlgoRequest> req)
  * computation.
  * @return Status of the operation.
  */
-AlgoBase::AlgoStatus
-FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
+AlgoBase::AlgoStatus FilterAlgorithm::Process(
+    std::shared_ptr<AlgoRequest> req) {
   AlgoBase::AlgoStatus rc = AlgoStatus::FAILURE;
   std::lock_guard<std::mutex> lock(mutex_);
   // KpiMonitor kpi("SobelFilter::Process");
@@ -173,7 +178,7 @@ FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
     return GetAlgoStatus();
   }
 
-  auto inputImage = req->GetImage(0); // Assume the first image as input
+  auto inputImage = req->GetImage(0);  // Assume the first image as input
   if (!inputImage) {
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
@@ -182,23 +187,23 @@ FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   const ImageFormat inputFormat = inputImage->GetFormat();
 
   switch (inputFormat) {
-  case ImageFormat::RGB: {
-    if (true == CanProcessFormat(inputFormat, ImageFormat::RGB)) {
-      rc = SobelRGB(req);
-    }
-  } break;
-  case ImageFormat::YUV420: {
-    if (true == CanProcessFormat(inputFormat, ImageFormat::YUV420)) {
-      rc = SobelYuv(req);
-    }
-  } break;
-  default:
-    break;
+    case ImageFormat::RGB: {
+      if (true == CanProcessFormat(inputFormat, ImageFormat::RGB)) {
+        rc = SobelRGB(req);
+      }
+    } break;
+    case ImageFormat::YUV420: {
+      if (true == CanProcessFormat(inputFormat, ImageFormat::YUV420)) {
+        rc = SobelYuv(req);
+      }
+    } break;
+    default:
+      break;
   }
 
   int reqdone = 0x00;
   if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
-    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    reqdone |= ALGO_MASK(mAlgoId);
     req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
   return rc;
@@ -209,7 +214,7 @@ FilterAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus FilterAlgorithm::Close() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -219,15 +224,17 @@ AlgoBase::AlgoStatus FilterAlgorithm::Close() {
  *
  * @return int
  */
-int FilterAlgorithm::GetTimeout() { return 5000; }
+int FilterAlgorithm::GetTimeout() {
+  return 5000;
+}
 
 // Public Exposed API for Nop
 /**
  * @brief Factory function to expose FilterAlgorithm via shared library.
  * @return A pointer to the FilterAlgorithm instance.
  */
-extern "C" AlgoBase *GetAlgoMethod() {
-  FilterAlgorithm *pInstance = new FilterAlgorithm();
+extern "C" AlgoBase* GetAlgoMethod() {
+  FilterAlgorithm* pInstance = new FilterAlgorithm();
   return pInstance;
 }
 
@@ -235,9 +242,13 @@ extern "C" AlgoBase *GetAlgoMethod() {
 @brief Get the algorithm ID.
  *
  */
-extern "C" AlgoId GetAlgoId() { return ALGO_FILTER; }
+extern "C" AlgoId GetAlgoId() {
+  return ALGO_FILTER;
+}
 /**
 @brief Get the algorithm name.
  *
  */
-extern "C" const char *GetAlgorithmName() { return FILTER_NAME; }
+extern "C" const char* GetAlgorithmName() {
+  return FILTER_NAME;
+}

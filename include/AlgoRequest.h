@@ -22,28 +22,32 @@
 #ifndef ALGO_REQUEST_H
 #define ALGO_REQUEST_H
 
-#include "AlgoMetadata.h"
 #include <memory>
 #include <string>
 #include <vector>
+#include "AlgoMetadata.h"
 
 // Enum to represent supported image formats
-enum class ImageFormat { YUV420 = 0,
-                         YUV422,
-                         YUV444,
-                         RGB,
-                         GRAYSCALE,
-                         UNKNOWN };
+enum class ImageFormat {
+  YUV420 = 0,
+  YUV422,
+  YUV444,
+  RGB,
+  GRAYSCALE,
+  JPEG,
+  PNG,
+  UNKNOWN
+};
 
 // Struct to represent an individual image
 class ImageData {
 
-  ImageFormat format;              // Format of the image (e.g., YUV, RGB)
-  std::vector<unsigned char> data; // Raw image data
-  int width;                       // Width of the image
-  int height;                      // Height of the image
-  int fd;                          // File descriptor, -1 if not available
-public:
+  ImageFormat format;               // Format of the image (e.g., YUV, RGB)
+  std::vector<unsigned char> data;  // Raw image data
+  int width;                        // Width of the image
+  int height;                       // Height of the image
+  int fd;                           // File descriptor, -1 if not available
+ public:
   // Constructor
   ImageData(ImageFormat fmt, int w, int h, int fileDesc = -1)
       : format(fmt), width(w), height(h), fd(fileDesc) {}
@@ -51,8 +55,10 @@ public:
   int GetWidth() const { return width; }
   int GetHeight() const { return height; }
   int GetFd() const { return fd; }
-  void SetData(std::vector<unsigned char> &&data) { this->data = std::move(data); }
-  std::vector<unsigned char> &GetData() { return data; }
+  void SetData(std::vector<unsigned char>&& data) {
+    this->data = std::move(data);
+  }
+  std::vector<unsigned char>& GetData() { return data; }
   size_t GetDataSize() const { return data.size(); }
 
   // Destructor
@@ -60,13 +66,13 @@ public:
 };
 
 class AlgoRequest {
-private:
-  std::vector<std::shared_ptr<ImageData>> images; // Collection of images
+ private:
+  std::vector<std::shared_ptr<ImageData>> images;  // Collection of images
 
-public:
+ public:
   // Add an image to the collection
   int AddImage(ImageFormat format, int width, int height,
-               std::vector<unsigned char> &&rawData, int fd = -1);
+               std::vector<unsigned char>&& rawData, int fd = -1);
 
   // Add an image to the collection
   int AddImage(ImageFormat format, int width, int height);
@@ -88,13 +94,13 @@ public:
 
   size_t mProcessCnt = 0;
   int mRequestId;
-  /*request id assoisiated*/ // make this conts in contruction  @todo
+  /*request id assoisiated*/  // make this conts in contruction  @todo
 
   AlgoMetadata mMetadata;
 
   uint8_t FrameChecksum();
 
-private:
+ private:
 };
 
-#endif // ALGO_REQUEST_H
+#endif  // ALGO_REQUEST_H

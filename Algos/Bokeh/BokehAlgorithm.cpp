@@ -28,7 +28,7 @@
  * @param name Name of the BOKEH algorithm.
  */
 BokehAlgorithm::BokehAlgorithm() : AlgoBase(BOKEH_NAME) {
-  mAlgoId = ALGO_BOKEH; // Unique ID for BOKEH algorithm
+  mAlgoId = ALGO_BOKEH;  // Unique ID for BOKEH algorithm
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
   parser.loadFile("/home/uma/workspace/Gzero/Config/BokehAlgorithm.config");
@@ -51,7 +51,7 @@ BokehAlgorithm::~BokehAlgorithm() {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus BokehAlgorithm::Open() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -66,7 +66,7 @@ AlgoBase::AlgoStatus BokehAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
   int reqdone = 0x00;
   if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
-    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    reqdone |= ALGO_MASK(mAlgoId);
     req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
@@ -78,7 +78,7 @@ AlgoBase::AlgoStatus BokehAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus BokehAlgorithm::Close() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -89,15 +89,17 @@ AlgoBase::AlgoStatus BokehAlgorithm::Close() {
  *
  * @return int
  */
-int BokehAlgorithm::GetTimeout() { return 1000; }
+int BokehAlgorithm::GetTimeout() {
+  return 1000;
+}
 
 // Public Exposed API for BOKEH
 /**
  * @brief Factory function to expose BokehAlgorithm via shared library.
  * @return A pointer to the BokehAlgorithm instance.
  */
-extern "C" AlgoBase *GetAlgoMethod() {
-  BokehAlgorithm *pInstance = new BokehAlgorithm();
+extern "C" AlgoBase* GetAlgoMethod() {
+  BokehAlgorithm* pInstance = new BokehAlgorithm();
   return pInstance;
 }
 
@@ -105,9 +107,13 @@ extern "C" AlgoBase *GetAlgoMethod() {
 @brief Get the algorithm ID.
  *
  */
-extern "C" AlgoId GetAlgoId() { return ALGO_BOKEH; }
+extern "C" AlgoId GetAlgoId() {
+  return ALGO_BOKEH;
+}
 /**
 @brief Get the algorithm name.
  *
  */
-extern "C" const char *GetAlgorithmName() { return BOKEH_NAME; }
+extern "C" const char* GetAlgorithmName() {
+  return BOKEH_NAME;
+}

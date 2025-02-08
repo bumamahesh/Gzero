@@ -28,7 +28,7 @@
  * @param name Name of the Hdr algorithm.
  */
 HdrAlgorithm::HdrAlgorithm() : AlgoBase(HDR_NAME) {
-  mAlgoId = ALGO_HDR; // Unique ID for Hdr algorithm
+  mAlgoId = ALGO_HDR;  // Unique ID for Hdr algorithm
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
   parser.loadFile("/home/uma/workspace/Gzero/Config/HdrAlgorithm.config");
@@ -51,7 +51,7 @@ HdrAlgorithm::~HdrAlgorithm() {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus HdrAlgorithm::Open() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
   // LOG(DEBUG, ALGOBASE, "OPEN In Hdr Algo");
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -67,7 +67,7 @@ AlgoBase::AlgoStatus HdrAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
   int reqdone = 0x00;
   if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
-    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    reqdone |= ALGO_MASK(mAlgoId);
     req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
@@ -79,7 +79,7 @@ AlgoBase::AlgoStatus HdrAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus HdrAlgorithm::Close() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
   // LOG(DEBUG, ALGOBASE, "Close In Hdr Algo");
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -90,15 +90,17 @@ AlgoBase::AlgoStatus HdrAlgorithm::Close() {
  *
  * @return int
  */
-int HdrAlgorithm::GetTimeout() { return 1000; }
+int HdrAlgorithm::GetTimeout() {
+  return 1000;
+}
 
 // Public Exposed API for Hdr
 /**
  * @brief Factory function to expose HdrAlgorithm via shared library.
  * @return A pointer to the HdrAlgorithm instance.
  */
-extern "C" AlgoBase *GetAlgoMethod() {
-  HdrAlgorithm *pInstance = new HdrAlgorithm();
+extern "C" AlgoBase* GetAlgoMethod() {
+  HdrAlgorithm* pInstance = new HdrAlgorithm();
   return pInstance;
 }
 
@@ -106,9 +108,13 @@ extern "C" AlgoBase *GetAlgoMethod() {
 @brief Get the algorithm ID.
  *
  */
-extern "C" AlgoId GetAlgoId() { return ALGO_HDR; }
+extern "C" AlgoId GetAlgoId() {
+  return ALGO_HDR;
+}
 /**
 @brief Get the algorithm name.
  *
  */
-extern "C" const char *GetAlgorithmName() { return HDR_NAME; }
+extern "C" const char* GetAlgorithmName() {
+  return HDR_NAME;
+}

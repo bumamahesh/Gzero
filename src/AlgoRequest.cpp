@@ -35,23 +35,23 @@ static size_t GetSizeByFormat(ImageFormat format, int width, int height) {
     return 0;
   }
   switch (format) {
-  case ImageFormat::YUV420:
-    return width * height * 3 / 2;
-    break;
-  case ImageFormat::YUV422:
-    return width * height * 2;
-    break;
-  case ImageFormat::YUV444:
-    return width * height * 3;
-    break;
-  case ImageFormat::RGB:
-    return width * height * 3;
-    break;
-  case ImageFormat::GRAYSCALE:
-    return width * height;
-    break;
-  default:
-    return 0;
+    case ImageFormat::YUV420:
+      return width * height * 3 / 2;
+      break;
+    case ImageFormat::YUV422:
+      return width * height * 2;
+      break;
+    case ImageFormat::YUV444:
+      return width * height * 3;
+      break;
+    case ImageFormat::RGB:
+      return width * height * 3;
+      break;
+    case ImageFormat::GRAYSCALE:
+      return width * height;
+      break;
+    default:
+      return 0;
   }
 
   return 0;
@@ -66,12 +66,14 @@ static size_t GetSizeByFormat(ImageFormat format, int width, int height) {
  * @param fd
  */
 int AlgoRequest::AddImage(ImageFormat format, int width, int height,
-                          std::vector<unsigned char> &&rawData, int fd) {
+                          std::vector<unsigned char>&& rawData, int fd) {
   if ((width <= 0) || (height <= 0) || (rawData.size() == 0)) {
     return -1;
   }
-  if (rawData.size() != GetSizeByFormat(format, width, height)) {
-    return -2;
+  if (format != ImageFormat::JPEG) {
+    if (rawData.size() != GetSizeByFormat(format, width, height)) {
+      return -2;
+    }
   }
   // Create a new ImageData object and add it to the collection
   auto image = std::make_shared<ImageData>(format, width, height, fd);
@@ -111,7 +113,9 @@ int AlgoRequest::AddImage(ImageFormat format, int width, int height) {
  *
  * @return size_t
  */
-size_t AlgoRequest::GetImageCount() const { return images.size(); }
+size_t AlgoRequest::GetImageCount() const {
+  return images.size();
+}
 
 /**
  * @brief Get an image by index
@@ -134,7 +138,7 @@ std::shared_ptr<ImageData> AlgoRequest::GetImage(size_t index) const {
  */
 std::vector<std::shared_ptr<ImageData>> AlgoRequest::GetYUVImages() const {
   std::vector<std::shared_ptr<ImageData>> yuvImages;
-  for (const auto &image : images) {
+  for (const auto& image : images) {
     if (image->GetFormat() == ImageFormat::YUV420 ||
         image->GetFormat() == ImageFormat::YUV422 ||
         image->GetFormat() == ImageFormat::YUV444) {
@@ -148,7 +152,9 @@ std::vector<std::shared_ptr<ImageData>> AlgoRequest::GetYUVImages() const {
  * @brief Clear all stored images
  *
  */
-void AlgoRequest::ClearImages() { images.clear(); }
+void AlgoRequest::ClearImages() {
+  images.clear();
+}
 
 /**
  * @brief Compute CheckSum of Frame
@@ -157,7 +163,7 @@ void AlgoRequest::ClearImages() { images.clear(); }
  */
 uint8_t AlgoRequest::FrameChecksum() {
   unsigned int checksum = 0;
-  for (const auto &image : images) {
+  for (const auto& image : images) {
     for (size_t i = 0; i < image->GetDataSize(); i++) {
       checksum += image->GetData()[i];
       checksum %= 256;

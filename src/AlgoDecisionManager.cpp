@@ -22,7 +22,7 @@ AlgoDecisionManager::~AlgoDecisionManager() {}
 bool AlgoDecisionManager::IsAlgoEnabled(AlgoId algoId) {
   if (algoId < ALGO_BASE_ID || algoId > ALGO_MAX)
     return false;
-  return ((mAlgoFlag & (1 << ALGO_OFFSET(algoId))) != 0);
+  return ((mAlgoFlag & (ALGO_MASK(algoId))) != 0);
 }
 
 /**
@@ -30,7 +30,9 @@ bool AlgoDecisionManager::IsAlgoEnabled(AlgoId algoId) {
  *
  * @return unsigned int
  */
-uint32_t AlgoDecisionManager::GetAlgoFlag() const { return mAlgoFlag; }
+uint32_t AlgoDecisionManager::GetAlgoFlag() const {
+  return mAlgoFlag;
+}
 
 /**
  * @brief Set Algo Flags
@@ -40,7 +42,7 @@ uint32_t AlgoDecisionManager::GetAlgoFlag() const { return mAlgoFlag; }
 uint32_t AlgoDecisionManager::SetAlgoFlag(AlgoId algoId) {
   if (algoId < ALGO_BASE_ID || algoId > ALGO_MAX)
     return mAlgoFlag;
-  mAlgoFlag |= (1 << ALGO_OFFSET(algoId));
+  mAlgoFlag |= (ALGO_MASK(algoId));
   return mAlgoFlag;
 }
 
@@ -49,8 +51,8 @@ uint32_t AlgoDecisionManager::SetAlgoFlag(AlgoId algoId) {
  *
  * @return std::vector<AlgoId>
  */
-std::vector<AlgoId>
-AlgoDecisionManager::ParseMetadata(std::shared_ptr<AlgoRequest> req) {
+std::vector<AlgoId> AlgoDecisionManager::ParseMetadata(
+    std::shared_ptr<AlgoRequest> req) {
   std::vector<AlgoId> algos;
 
   for (int i = (int)ALGO_BASE_ID; i <= (int)ALGO_MAX; ++i) {

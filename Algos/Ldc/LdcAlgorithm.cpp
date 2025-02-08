@@ -28,7 +28,7 @@
  * @param name Name of the ldc algorithm.
  */
 LdcAlgorithm::LdcAlgorithm() : AlgoBase(LDC_NAME) {
-  mAlgoId = ALGO_LDC; // Unique ID for ldc algorithm
+  mAlgoId = ALGO_LDC;  // Unique ID for ldc algorithm
 
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
@@ -55,7 +55,7 @@ LdcAlgorithm::~LdcAlgorithm() {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus LdcAlgorithm::Open() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -75,7 +75,7 @@ AlgoBase::AlgoStatus LdcAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   // UndistortImages(req);
   int reqdone = 0x00;
   if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
-    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    reqdone |= ALGO_MASK(mAlgoId);
     req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
@@ -87,7 +87,7 @@ AlgoBase::AlgoStatus LdcAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus LdcAlgorithm::Close() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -98,20 +98,22 @@ AlgoBase::AlgoStatus LdcAlgorithm::Close() {
  *
  * @return int
  */
-int LdcAlgorithm::GetTimeout() { return 1000; }
+int LdcAlgorithm::GetTimeout() {
+  return 1000;
+}
 
 CameraIntrinsics LdcAlgorithm::ComputeCameraIntrinsics(
-    const std::vector<std::shared_ptr<ImageData>> &yuvImages) {
+    const std::vector<std::shared_ptr<ImageData>>& yuvImages) {
   // Placeholder for actual camera intrinsics computation logic
   CameraIntrinsics intrinsics;
-  intrinsics.focalLength      = {1000.0, 1000.0};
-  intrinsics.principalPoint   = {640.0, 480.0};
+  intrinsics.focalLength = {1000.0, 1000.0};
+  intrinsics.principalPoint = {640.0, 480.0};
   intrinsics.distortionCoeffs = {0.1, -0.05, 0.0, 0.0, 0.0};
   return intrinsics;
 }
 
 CameraExtrinsics LdcAlgorithm::ComputeCameraExtrinsics(
-    const std::vector<std::shared_ptr<ImageData>> &yuvImages) {
+    const std::vector<std::shared_ptr<ImageData>>& yuvImages) {
   // Placeholder for actual camera extrinsics computation logic
   CameraExtrinsics extrinsics;
   extrinsics.rotationMatrix = {
@@ -151,8 +153,8 @@ void LdcAlgorithm::CalculateCalibrationData(std::shared_ptr<AlgoRequest> req) {
  * @brief Factory function to expose LdcAlgorithm via shared library.
  * @return A pointer to the LdcAlgorithm instance.
  */
-extern "C" AlgoBase *GetAlgoMethod() {
-  LdcAlgorithm *pInstance = new LdcAlgorithm();
+extern "C" AlgoBase* GetAlgoMethod() {
+  LdcAlgorithm* pInstance = new LdcAlgorithm();
   return pInstance;
 }
 
@@ -160,9 +162,13 @@ extern "C" AlgoBase *GetAlgoMethod() {
 @brief Get the algorithm ID.
  *
  */
-extern "C" AlgoId GetAlgoId() { return ALGO_LDC; }
+extern "C" AlgoId GetAlgoId() {
+  return ALGO_LDC;
+}
 /**
 @brief Get the algorithm name.
  *
  */
-extern "C" const char *GetAlgorithmName() { return LDC_NAME; }
+extern "C" const char* GetAlgorithmName() {
+  return LDC_NAME;
+}

@@ -19,15 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../include/AlgoNodeManager.h"
-#include "ImageUtils.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include "../include/AlgoNodeManager.h"
+#include "ImageUtils.h"
 // Test fixture
 
-constexpr size_t NumAlgos = (int)(ALGOID::ALGO_MAX - ALGOID::ALGO_HDR);
+constexpr size_t NumAlgos = (int)(ALGO_END);
 class AlgoNodeManagerTest : public ::testing::Test {
-protected:
+ protected:
 };
 TEST_F(AlgoNodeManagerTest, CtorDtor) {
 
@@ -50,7 +50,7 @@ TEST_F(AlgoNodeManagerTest, AlgoNodeManagerApi) {
     // Check algo available by name
     EXPECT_EQ(algoNodeManager->IsAlgoAvailable(HdralgoName), true);
 
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     FAIL() << "Exception thrown: " << e.what();
   }
 }
@@ -75,7 +75,7 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectByName) {
     // Check if the algo object is created with the correct algoName
     EXPECT_EQ(algo->GetAlgorithmName(), HdralgoName);
 
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     FAIL() << "Exception thrown: " << e.what();
   }
 }
@@ -101,34 +101,34 @@ TEST_F(AlgoNodeManagerTest, GetAlgoObjectById) {
     // Check if the algo object is created with the correct algoId
     EXPECT_EQ(algo->GetAlgoId(), ALGO_HDR);
 
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     FAIL() << "Exception thrown: " << e.what();
   }
 }
 
 TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
 
-  auto callback = [](void *ctx,
+  auto callback = [](void* ctx,
                      std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
     assert(msg != nullptr);
     switch (msg->mType) {
-    case AlgoBase::AlgoMessageType::ProcessingCompleted: {
-      auto rawData        = msg->mRequest->request->GetImage(0)->GetData();
-      static int i        = 0;
-      std::string outfile = "output" + std::to_string(i++) + ".raw";
-      SaveRawDataToFile(outfile, rawData);
-    } break;
-    case AlgoBase::AlgoMessageType::ProcessingFailed:
-      break;
-    case AlgoBase::AlgoMessageType::ProcessingTimeout:
-      break;
-    case AlgoBase::AlgoMessageType::ProcessingPartial:
-      break;
-    case AlgoBase::AlgoMessageType::ProcessDone:
-      break;
-    default:
-      assert(false);
-      break;
+      case AlgoBase::AlgoMessageType::ProcessingCompleted: {
+        auto rawData        = msg->mRequest->request->GetImage(0)->GetData();
+        static int i        = 0;
+        std::string outfile = "output" + std::to_string(i++) + ".raw";
+        SaveRawDataToFile(outfile, rawData);
+      } break;
+      case AlgoBase::AlgoMessageType::ProcessingFailed:
+        break;
+      case AlgoBase::AlgoMessageType::ProcessingTimeout:
+        break;
+      case AlgoBase::AlgoMessageType::ProcessingPartial:
+        break;
+      case AlgoBase::AlgoMessageType::ProcessDone:
+        break;
+      default:
+        assert(false);
+        break;
     }
   };
   // Get algo and process
@@ -153,7 +153,8 @@ TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
 
     EXPECT_EQ(rawData.size(), sizeRGB * sizeof(unsigned char));
     auto image = std::make_shared<AlgoRequest>();
-    int rc     = image->AddImage(ImageFormat::RGB, width, height, std::move(rawData));
+    int rc =
+        image->AddImage(ImageFormat::RGB, width, height, std::move(rawData));
     EXPECT_EQ(rc, 0);
 
     auto request = std::make_shared<Task_t>();

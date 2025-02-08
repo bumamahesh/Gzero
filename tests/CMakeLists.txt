@@ -10,7 +10,7 @@ add_test(NAME GzeroUnitTest COMMAND GzeroUnitTest)
 # GoogleTest
 find_package(GTest REQUIRED)
 # find_package(GMock REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS}  ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/Utils/include )
+include_directories(${GTEST_INCLUDE_DIRS}  ${CMAKE_SOURCE_DIR}/include/ ${CMAKE_SOURCE_DIR}/Utils/include  ${CMAKE_SOURCE_DIR}/test/)
 
 # Find all the test source files starting with "test_"
 file(GLOB TEST_SOURCES "test_*.cpp")

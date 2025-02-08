@@ -20,16 +20,16 @@
  * THE SOFTWARE.
  */
 #include "MandelbrotSet.h"
-#include "ConfigParser.h"
-#include "Log.h"
 #include <cmath>
 #include <complex>
+#include "ConfigParser.h"
+#include "Log.h"
 
 // Function to compute the Mandelbrot set for a single pixel
 int ComputeMandelbrot(double x, double y) {
   std::complex<double> c(x, y);
   std::complex<double> z = 0;
-  int iter               = 0;
+  int iter = 0;
 
   while (std::norm(z) <= 4.0 && iter < MAX_ITER) {
     z = z * z + c;
@@ -53,9 +53,9 @@ std::pair<double, double> MapToComplexPlane(int px, int py, int width,
 MandelbrotSet::MandelbrotSet()
     : AlgoBase(MANDELBROTSET_NAME), zoomLevel(INITIAL_ZOOM) {
   modelIdx = (int)MandelbrotSetCentre::Seahorse_Valley;
-  offsetX  = CentreCordinates[modelIdx][0];
-  offsetY  = CentreCordinates[modelIdx][1];
-  mAlgoId  = ALGO_MANDELBROTSET; // Unique ID for MANDELBROTSET algorithm
+  offsetX = CentreCordinates[modelIdx][0];
+  offsetY = CentreCordinates[modelIdx][1];
+  mAlgoId = ALGO_MANDELBROTSET;  // Unique ID for MANDELBROTSET algorithm
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
@@ -98,14 +98,14 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
   }
-  auto inputImage = req->GetImage(0); // Assume the first image as input
+  auto inputImage = req->GetImage(0);  // Assume the first image as input
   if (!inputImage) {
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
   }
   const ImageFormat inputFormat = req->GetImage(0)->GetFormat();
-  const int width               = inputImage->GetWidth();
-  const int height              = inputImage->GetHeight();
+  const int width = inputImage->GetWidth();
+  const int height = inputImage->GetHeight();
   if (true == CanProcessFormat(inputFormat, inputFormat)) {
 
     if (req->mRequestId % 30 == 0) {
@@ -119,7 +119,7 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
 
     // Preallocate combined YUV420 buffer for output
 
-    std::vector<unsigned char> outputData(width * height * 3, 0); // RGB format
+    std::vector<unsigned char> outputData(width * height * 3, 0);  // RGB format
 
     // Parallelized computation using OpenMP
     //#pragma omp parallel for schedule(dynamic)
@@ -168,7 +168,7 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
   }
   int reqdone = 0x00;
   if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
-    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    reqdone |= ALGO_MASK(mAlgoId);
     req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
@@ -190,23 +190,29 @@ AlgoBase::AlgoStatus MandelbrotSet::Close() {
  *
  * @return int
  */
-int MandelbrotSet::GetTimeout() { return 5000; }
+int MandelbrotSet::GetTimeout() {
+  return 5000;
+}
 
 /**
  * @brief Factory function to expose MandelbrotSet via shared library.
  * @return A pointer to the MandelbrotSet instance.
  */
-extern "C" AlgoBase *GetAlgoMethod() {
-  MandelbrotSet *pInstance = new MandelbrotSet();
+extern "C" AlgoBase* GetAlgoMethod() {
+  MandelbrotSet* pInstance = new MandelbrotSet();
   return pInstance;
 }
 
 /**
  * @brief Get the algorithm ID.
  */
-extern "C" AlgoId GetAlgoId() { return ALGO_MANDELBROTSET; }
+extern "C" AlgoId GetAlgoId() {
+  return ALGO_MANDELBROTSET;
+}
 
 /**
  * @brief Get the algorithm name.
  */
-extern "C" const char *GetAlgorithmName() { return MANDELBROTSET_NAME; }
+extern "C" const char* GetAlgorithmName() {
+  return MANDELBROTSET_NAME;
+}

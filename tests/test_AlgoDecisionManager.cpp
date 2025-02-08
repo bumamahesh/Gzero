@@ -1,5 +1,5 @@
-#include "../include/AlgoDecisionManager.h"
 #include <gtest/gtest.h>
+#include "../include/AlgoDecisionManager.h"
 
 TEST(AlgoDecisionManagerTest, IsAlgoEnabledTest) {
   AlgoDecisionManager manager;
@@ -37,11 +37,11 @@ TEST(AlgoDecisionManagerTest, GetAlgoFlagTest) {
 
 TEST(AlgoDecisionManagerTest, SetAlgoFlagTest) {
   AlgoDecisionManager manager;
-  unsigned ExpectedFlag = (1 << ALGO_OFFSET(ALGO_MANDELBROTSET));
+  unsigned ExpectedFlag = (ALGO_MASK(ALGO_MANDELBROTSET));
   EXPECT_EQ(manager.SetAlgoFlag(ALGO_MANDELBROTSET),
             (1U << ALGO_OFFSET(ALGO_MANDELBROTSET)));
 
-  ExpectedFlag |= (1 << ALGO_OFFSET(ALGO_HDR));
+  ExpectedFlag |= (ALGO_MASK(ALGO_HDR));
   EXPECT_EQ(manager.SetAlgoFlag(ALGO_HDR), ExpectedFlag);
 
   // Test with an invalid AlgoId
@@ -52,7 +52,7 @@ TEST(AlgoDecisionManagerTest, SetAlgoFlagTest) {
 
 TEST(AlgoDecisionManagerTest, ParseMetadataTest) {
   AlgoDecisionManager manager;
-  auto req = std::make_shared<AlgoRequest>();
+  auto req   = std::make_shared<AlgoRequest>();
   auto algos = manager.ParseMetadata(req);
   ASSERT_EQ(algos.size(), 1);
 }
@@ -61,7 +61,7 @@ TEST(AlgoDecisionManagerTest, DublicateIdinsetionTest) {
   AlgoDecisionManager manager;
   manager.SetAlgoFlag(ALGO_MANDELBROTSET);
   manager.SetAlgoFlag(ALGO_MANDELBROTSET);
-  auto req = std::make_shared<AlgoRequest>();
+  auto req   = std::make_shared<AlgoRequest>();
   auto algos = manager.ParseMetadata(req);
   ASSERT_EQ(algos.size(), 1);
 }

@@ -19,32 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef ALGO_DEFS_H
-#define ALGO_DEFS_H
-#pragma once
 
-#include <string>
-#define ALGO_OFFSET(ALGO_IDX) (static_cast<int>(ALGO_IDX - ALGO_BASE_ID))
-#define ALGO_MASK(ALGO_IDX) (1 << ALGO_OFFSET(ALGO_IDX))
-#define ALGO_BASE_ID 0xCAFEBABE  // Base ID for algorithms
+#ifndef TEST_COMMON_H
+#define TEST_COMMON_H
 
-typedef enum ALGOID {
-  ALGO_HDR           = ALGO_BASE_ID + 0,
-  ALGO_BOKEH         = ALGO_BASE_ID + 1,
-  ALGO_NOP           = ALGO_BASE_ID + 2,
-  ALGO_FILTER        = ALGO_BASE_ID + 3,
-  ALGO_MANDELBROTSET = ALGO_BASE_ID + 4,
-  ALGO_LDC           = ALGO_BASE_ID + 5,
-  ALGO_WATERMARK     = ALGO_BASE_ID + 6,
-  ALGO_SWJPEG        = ALGO_BASE_ID + 7,
-  ALGO_MAX           = ALGO_BASE_ID + 8,
-} AlgoId;
+#include <dlfcn.h>
+#include <gtest/gtest.h>
+#include <memory>
+#include "../include/AlgoDefs.h"
+#include "../include/AlgoMetadata.h"
+#include "../include/AlgoRequest.h"
 
-#define ALGO_START (ALGO_OFFSET(ALGO_BASE_ID))
-#define ALGO_END (ALGO_OFFSET(ALGO_MAX))
+#define WIDTH 640
+#define HEIGHT 480
 
-static std::string algoName[ALGO_OFFSET(ALGO_MAX) + 1] = {
-    "HDR", "BOKEH",     "NOP",  "FILTER", "MANDELBROTSET",
-    "LDC", "WATERMARK", "JPEG", "MAX"};
+// Type aliases for function pointers
+typedef int (*Init)(void**);
+typedef int (*DeInit)(void**);
+typedef int (*Process)(void**, std::shared_ptr<AlgoRequest>,
+                       std::vector<AlgoId>);
+typedef int (*Callback)(void**, int (*)(std::shared_ptr<AlgoRequest>));
 
-#endif  // ALGO_DEFS_H
+#endif  // TEST_COMMON_H

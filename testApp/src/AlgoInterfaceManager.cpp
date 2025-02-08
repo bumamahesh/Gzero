@@ -140,7 +140,10 @@ AlgoInterfaceManager::AlgoInterfaceManager(const std::string inputFilePath, int 
 AlgoInterfaceManager::~AlgoInterfaceManager() {
   Cleanup();
 }
-
+#include <chrono>
+#include <iostream>
+int totalFrames = 0;
+std::chrono::steady_clock::time_point Lasttime;
 // Callback Function
 /**
  * @brief
@@ -149,6 +152,21 @@ AlgoInterfaceManager::~AlgoInterfaceManager() {
  * @return int
  */
 int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
+  {
+    /**fps calcualtion Logic */
+    if (totalFrames == 0) {
+      Lasttime = std::chrono::steady_clock::now();
+    }
+    totalFrames++;
+
+    auto Currenttime                           = std::chrono::steady_clock::now();
+    std::chrono::duration<double> totalElapsed = Currenttime - Lasttime;
+    Lasttime                                   = Currenttime;
+    if (totalElapsed.count() >= 1.0) { // Compute average FPS after 1 seconds
+      double avgFPS = totalFrames / totalElapsed.count();
+      std::cout << "[" << totalFrames << "] Average FPS: " << avgFPS << "\r" << std::flush;
+    }
+  }
   if (request) {
     std::shared_ptr<ImageData> image = request->GetImage(0);
     if (image) {

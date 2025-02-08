@@ -29,7 +29,7 @@
  * @param name Name of the Nop algorithm.
  */
 NopAlgorithm::NopAlgorithm() : AlgoBase(NOP_NAME) {
-  mAlgoId = ALGO_NOP; // Unique ID for Nop algorithm
+  mAlgoId = ALGO_NOP;  // Unique ID for Nop algorithm
   /*
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
@@ -53,7 +53,7 @@ NopAlgorithm::~NopAlgorithm() {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus NopAlgorithm::Open() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -70,7 +70,7 @@ AlgoBase::AlgoStatus NopAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 
   int reqdone = 0x00;
   if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
-    reqdone |= (1 << (ALGO_OFFSET(mAlgoId)));
+    reqdone |= ALGO_MASK(mAlgoId);
     req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
@@ -82,7 +82,7 @@ AlgoBase::AlgoStatus NopAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus NopAlgorithm::Close() {
-  std::lock_guard<std::mutex> lock(mutex_); // Protect the shared state
+  std::lock_guard<std::mutex> lock(mutex_);  // Protect the shared state
 
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -93,15 +93,17 @@ AlgoBase::AlgoStatus NopAlgorithm::Close() {
  *
  * @return int
  */
-int NopAlgorithm::GetTimeout() { return 1000; }
+int NopAlgorithm::GetTimeout() {
+  return 1000;
+}
 
 // Public Exposed API for Nop
 /**
  * @brief Factory function to expose NopAlgorithm via shared library.
  * @return A pointer to the NopAlgorithm instance.
  */
-extern "C" AlgoBase *GetAlgoMethod() {
-  NopAlgorithm *pInstance = new NopAlgorithm();
+extern "C" AlgoBase* GetAlgoMethod() {
+  NopAlgorithm* pInstance = new NopAlgorithm();
   return pInstance;
 }
 
@@ -109,9 +111,13 @@ extern "C" AlgoBase *GetAlgoMethod() {
 @brief Get the algorithm ID.
  *
  */
-extern "C" AlgoId GetAlgoId() { return ALGO_NOP; }
+extern "C" AlgoId GetAlgoId() {
+  return ALGO_NOP;
+}
 /**
 @brief Get the algorithm name.
  *
  */
-extern "C" const char *GetAlgorithmName() { return NOP_NAME; }
+extern "C" const char* GetAlgorithmName() {
+  return NOP_NAME;
+}

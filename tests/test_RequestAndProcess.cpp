@@ -20,36 +20,20 @@
  * THE SOFTWARE.
  */
 #include "../include/AlgoDecisionManager.h"
-#include "../include/AlgoDefs.h"
-#include "../include/AlgoMetadata.h"
-#include "../include/AlgoRequest.h"
-#include <dlfcn.h>
-#include <gtest/gtest.h>
-#include <memory>
-
-#define WIDTH 640
-#define HEIGHT 480
-// Type aliases for function pointers
-typedef int (*Init)(void **);
-typedef int (*DeInit)(void **);
-typedef int (*Process)(void **, std::shared_ptr<AlgoRequest>,
-                       std::vector<AlgoId>);
-typedef int (*Callback)(void **,
-                        int (*)(std::shared_ptr<AlgoRequest>));
+#include "test_common.h"
 
 // DecisionManager class
 class DecisionManager : public AlgoDecisionManager {
-public:
-  std::vector<AlgoId>
-  ParseMetadata(std::shared_ptr<AlgoRequest> req) override;
+ public:
+  std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req) override;
 
-private:
+ private:
   bool bIsHdrenabled       = false;
   bool bIswatermarkenabled = false;
 };
 
-std::vector<AlgoId>
-DecisionManager::ParseMetadata(std::shared_ptr<AlgoRequest> req) {
+std::vector<AlgoId> DecisionManager::ParseMetadata(
+    std::shared_ptr<AlgoRequest> req) {
   std::vector<AlgoId> algos;
 
   if (req) {
@@ -69,8 +53,8 @@ DecisionManager::ParseMetadata(std::shared_ptr<AlgoRequest> req) {
 
 // Test Fixture Class
 class RequestReponseTest : public ::testing::Test {
-protected:
-  void *libhandle = nullptr;
+ protected:
+  void* libhandle = nullptr;
 
   // Function pointers
   Init InitAlgoInterface       = nullptr;
@@ -87,23 +71,23 @@ protected:
         << "Failed to load shared library: " << dlerror();
 
     // Load the functions
-    InitAlgoInterface = reinterpret_cast<Init>(
-        dlsym(libhandle, "InitAlgoInterface"));
+    InitAlgoInterface =
+        reinterpret_cast<Init>(dlsym(libhandle, "InitAlgoInterface"));
     ASSERT_NE(InitAlgoInterface, nullptr)
         << "Failed to load InitAlgoInterface: " << dlerror();
 
-    DeInitAlgoInterface = reinterpret_cast<DeInit>(
-        dlsym(libhandle, "DeInitAlgoInterface"));
+    DeInitAlgoInterface =
+        reinterpret_cast<DeInit>(dlsym(libhandle, "DeInitAlgoInterface"));
     ASSERT_NE(DeInitAlgoInterface, nullptr)
         << "Failed to load DeInitAlgoInterface: " << dlerror();
 
-    AlgoInterfaceProcess = reinterpret_cast<Process>(
-        dlsym(libhandle, "AlgoInterfaceProcess"));
+    AlgoInterfaceProcess =
+        reinterpret_cast<Process>(dlsym(libhandle, "AlgoInterfaceProcess"));
     ASSERT_NE(AlgoInterfaceProcess, nullptr)
         << "Failed to load AlgoInterfaceProcess: " << dlerror();
 
-    RegisterCallback = reinterpret_cast<Callback>(
-        dlsym(libhandle, "RegisterCallback"));
+    RegisterCallback =
+        reinterpret_cast<Callback>(dlsym(libhandle, "RegisterCallback"));
     ASSERT_NE(RegisterCallback, nullptr)
         << "Failed to load RegisterCallback: " << dlerror();
   }
@@ -124,10 +108,10 @@ int ImageResponseCallback(std::shared_ptr<AlgoRequest> input) {
   if (input) {
     input->mMetadata.GetMetadata(ALGO_PROCESS_DONE, ProcessedFlag);
   }
-  return 0; // Return success
+  return 0;  // Return success
 }
 TEST_F(RequestReponseTest, ProcessRequestAndCheckResponse) {
-  void *algoHandle = nullptr;
+  void* algoHandle = nullptr;
 
   // Initialize the library
   int status = InitAlgoInterface(&algoHandle);
@@ -139,10 +123,11 @@ TEST_F(RequestReponseTest, ProcessRequestAndCheckResponse) {
 
   g_Responsecbs = 0;
   // Create a mock AlgoRequest
-  std::vector<unsigned char> yuvData(WIDTH * HEIGHT * 3 / 2); // YUV420 format
+  std::vector<unsigned char> yuvData(WIDTH * HEIGHT * 3 / 2);  // YUV420 format
   auto request        = std::make_shared<AlgoRequest>();
   request->mRequestId = 123;
-  int rc              = request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, std::move(yuvData));
+  int rc =
+      request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, std::move(yuvData));
   ASSERT_EQ(rc, 0);
   rc = request->mMetadata.SetMetadata(ALGO_HDR_ENABLED, true);
   ASSERT_EQ(rc, 0);
@@ -150,7 +135,8 @@ TEST_F(RequestReponseTest, ProcessRequestAndCheckResponse) {
   ASSERT_EQ(rc, 0);
 
   // Process the request
-  status = AlgoInterfaceProcess(&algoHandle, request, decisionManager.ParseMetadata(request));
+  status = AlgoInterfaceProcess(&algoHandle, request,
+                                decisionManager.ParseMetadata(request));
   ASSERT_EQ(status, 0) << "AlgoInterfaceProcess failed with status:" << status;
 
   while (g_Responsecbs == 0) {
@@ -162,6 +148,6 @@ TEST_F(RequestReponseTest, ProcessRequestAndCheckResponse) {
   ASSERT_EQ(status, 0) << "DeInitAlgoInterface failed with status:" << status;
 
   // check Processed algos
-  int ExpectedFlag = (1 << ALGO_OFFSET(ALGO_HDR)) | (1 << ALGO_OFFSET(ALGO_WATERMARK));
+  int ExpectedFlag = (ALGO_MASK(ALGO_HDR)) | (ALGO_MASK(ALGO_WATERMARK));
   ASSERT_EQ(ProcessedFlag, ExpectedFlag);
 }

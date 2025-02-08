@@ -20,15 +20,15 @@
  * THE SOFTWARE.
  */
 #include "AlgoInterface.h"
+#include <cassert>
 #include "Log.h"
 #include "Utils.h"
-#include <cassert>
 /**
  * @brief Construct a new Algo Interface:: Algo Interface object
  *
  */
 AlgoInterface::AlgoInterface() {
-  Log::SetLevel(LogLevel::L_VERBOSE);
+  Log::SetLevel(LogLevel::L_INFO);
   LOG(INFO, ALGOINTERFACE, "AlgoInterface::AlgoInterface");
   mSession = std::make_shared<AlgoSession>(
       AlgoInterface::SessionCallbackHandler, this);
@@ -61,15 +61,18 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
     const int sleepDurationMs = 33;
     int maxWaitFrames         = 3000;
 
-    for (int i = 0; i < maxWaitFrames && currentMemoryUsage > MAX_MEMORY_USAGE_KB; ++i) {
+    for (int i = 0;
+         i < maxWaitFrames && currentMemoryUsage > MAX_MEMORY_USAGE_KB; ++i) {
       usleep(sleepDurationMs * 1000);
-      currentMemoryUsage = GetMemoryUsage(); // Update memory usage
+      currentMemoryUsage = GetMemoryUsage();  // Update memory usage
 
-      LOG(WARNING, ALGOINTERFACE, "Memory usage high: %zu KB, waiting...", currentMemoryUsage);
+      LOG(WARNING, ALGOINTERFACE, "Memory usage high: %zu KB, waiting...",
+          currentMemoryUsage);
     }
 
     if (currentMemoryUsage > MAX_MEMORY_USAGE_KB) {
-      LOG(ERROR, ALGOINTERFACE, "Memory usage remains high after waiting.  Dropping frame.");
+      LOG(ERROR, ALGOINTERFACE,
+          "Memory usage remains high after waiting.  Dropping frame.");
       return false;
     }
   }
@@ -77,7 +80,7 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
       GetMemoryUsage());
 
   if ((mRequestCnt - mResultCnt) > MAX_HOLD_REQUESTS) {
-    usleep(33 * 1000); // 33 ms assume 1 frame delay)
+    usleep(33 * 1000);  // 33 ms assume 1 frame delay)
     LOG(VERBOSE, ALGOINTERFACE, "[Req::%d Res::%d] processed[%d]",
         mRequestCnt.load(), mResultCnt.load(),
         (mRequestCnt.load() - mResultCnt.load()));
@@ -98,11 +101,11 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
  * @param pctx
  * @param input
  */
-void AlgoInterface::SessionCallbackHandler(void *pctx,
+void AlgoInterface::SessionCallbackHandler(void* pctx,
                                            std::shared_ptr<AlgoRequest> input) {
   assert(pctx != nullptr);
   assert(input != nullptr);
-  AlgoInterface *algoInterface = static_cast<AlgoInterface *>(pctx);
+  AlgoInterface* algoInterface = static_cast<AlgoInterface*>(pctx);
   if (algoInterface->pIntfCallback) {
     /* if (input) {
        LOG(VERBOSE, ALGOINTERFACE, "CB Req::%d", input->mRequestId);

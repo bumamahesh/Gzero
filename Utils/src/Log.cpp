@@ -46,32 +46,32 @@ std::string getCurrentThreadId() {
 }
 
 // Overload the << operator for LogLevel enum class
-std::ostream &operator<<(std::ostream &os, const LogLevel &level) {
+std::ostream& operator<<(std::ostream& os, const LogLevel& level) {
   switch (level) {
-  case LogLevel::L_TRACE:
-    os << "TRACE";
-    break;
-  case LogLevel::L_DEBUG:
-    os << "DEBUG";
-    break;
-  case LogLevel::L_INFO:
-    os << "INFO";
-    break;
-  case LogLevel::L_WARNING:
-    os << "WARNING";
-    break;
-  case LogLevel::L_ERROR:
-    os << "ERROR";
-    break;
-  case LogLevel::L_FATAL:
-    os << "FATAL";
-    break;
-  case LogLevel::L_VERBOSE:
-    os << "VERBOSE";
-    break;
-  default:
-    os << "UNKNOWN";
-    break;
+    case LogLevel::L_TRACE:
+      os << "TRACE";
+      break;
+    case LogLevel::L_DEBUG:
+      os << "DEBUG";
+      break;
+    case LogLevel::L_INFO:
+      os << "INFO";
+      break;
+    case LogLevel::L_WARNING:
+      os << "WARNING";
+      break;
+    case LogLevel::L_ERROR:
+      os << "ERROR";
+      break;
+    case LogLevel::L_FATAL:
+      os << "FATAL";
+      break;
+    case LogLevel::L_VERBOSE:
+      os << "VERBOSE";
+      break;
+    default:
+      os << "UNKNOWN";
+      break;
   }
   return os;
 }
@@ -79,28 +79,32 @@ std::ostream &operator<<(std::ostream &os, const LogLevel &level) {
 // Helper function to get log level abbreviation
 std::string getLogLevelAbbreviation(LogLevel level) {
   switch (level) {
-  case LogLevel::L_TRACE:
-    return "T"; // Trace
-  case LogLevel::L_DEBUG:
-    return "D"; // Debug
-  case LogLevel::L_VERBOSE:
-    return "V"; // Verbose
-  case LogLevel::L_INFO:
-    return "I"; // Info
-  case LogLevel::L_WARNING:
-    return "W"; // Warning
-  case LogLevel::L_ERROR:
-    return "E"; // Error
-  case LogLevel::L_FATAL:
-    return "F"; // Fatal
-  default:
-    return "?"; // Unknown level
+    case LogLevel::L_TRACE:
+      return "T";  // Trace
+    case LogLevel::L_DEBUG:
+      return "D";  // Debug
+    case LogLevel::L_VERBOSE:
+      return "V";  // Verbose
+    case LogLevel::L_INFO:
+      return "I";  // Info
+    case LogLevel::L_WARNING:
+      return "W";  // Warning
+    case LogLevel::L_ERROR:
+      return "E";  // Error
+    case LogLevel::L_FATAL:
+      return "F";  // Fatal
+    default:
+      return "?";  // Unknown level
   }
 }
 
 // Log class static member definition and implementation
-LogLevel Log::logLevel = LogLevel::L_VERBOSE; // Initialize static member
+LogLevel Log::logLevel = LogLevel::L_INFO;  // Initialize static member
 
-void Log::SetLevel(LogLevel level) { logLevel = level; }
+void Log::SetLevel(LogLevel level) {
+  logLevel = level;
+}
 
-LogLevel Log::GetLevel() { return logLevel; }
+LogLevel Log::GetLevel() {
+  return logLevel;
+}
