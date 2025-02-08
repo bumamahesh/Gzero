@@ -21,6 +21,9 @@
  */
 #include "SwJpeg.h"
 #include <jpeglib.h>
+#include <algorithm>
+#include <map>
+#include <string>
 #include "ConfigParser.h"
 #include "Log.h"
 
@@ -95,6 +98,47 @@ void ConvertYUVToRGB(const unsigned char* yuvData, unsigned char* rgbData,
 }
 
 /**
+@brief  Compose metadata for Jpeg
+ * 
+ * @param req 
+ * @param cinfo 
+ * @return int  status
+ */
+static int ComposeMetadata(std::shared_ptr<AlgoRequest> req,
+                           struct jpeg_compress_struct& cinfo) {
+  std::map<std::string, std::string> metadata;
+  // Example of extracting some metadata
+  int imageWidth, imageHeight;
+  if (req->mMetadata.GetMetadata(MetaId::IMAGE_WIDTH, imageWidth) == 0) {
+    metadata["Image Width"] = std::to_string(imageWidth);
+  }
+
+  if (req->mMetadata.GetMetadata(MetaId::IMAGE_HEIGHT, imageHeight) == 0) {
+    metadata["Image Height"] = std::to_string(imageHeight);
+  }
+
+  // Extract other metadata similarly...
+  float exposureTime;
+  if (req->mMetadata.GetMetadata(MetaId::EXPOSURE_TIME, exposureTime) == 0) {
+    metadata["Exposure Time"] = std::to_string(exposureTime);
+  }
+
+  bool flashState;
+  if (req->mMetadata.GetMetadata(MetaId::FLASH_STATE, flashState) == 0) {
+    metadata["Flash State"] = flashState ? "Used" : "Not Used";
+  }
+
+  // Set metadata in JPEG header (e.g., EXIF data)
+  for (const auto& entry : metadata) {
+    // Add custom metadata to EXIF or JFIF header
+    jpeg_write_marker(&cinfo, JPEG_COM, (unsigned char*)entry.first.c_str(),
+                      entry.first.length());
+    jpeg_write_marker(&cinfo, JPEG_COM, (unsigned char*)entry.second.c_str(),
+                      entry.second.length());
+  }
+  return 0;
+}
+/**
  * @brief Process the SWJPEG algorithm, simulating input validation and
  * ShJpeg computation.
  * @param req A shared pointer to the AlgoRequest object.
@@ -139,13 +183,18 @@ AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
 
     cinfo.image_width      = width;
     cinfo.image_height     = height;
-    cinfo.input_components = 3;
+    cinfo.input_components = 3;  // RGB
     cinfo.in_color_space   = JCS_RGB;
 
     jpeg_set_defaults(&cinfo);
-    jpeg_set_quality(&cinfo, 75, TRUE);
+    jpeg_set_quality(&cinfo, 75, TRUE);  // Set quality to 75%
+
     jpeg_start_compress(&cinfo, TRUE);
 
+    // Add metadata first, before scanlines
+    ComposeMetadata(req, cinfo);
+
+    // Write image scanlines
     JSAMPROW row_pointer[1];
     int row_stride = width * 3;
     while (cinfo.next_scanline < cinfo.image_height) {
@@ -154,11 +203,11 @@ AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
       jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
 
-    jpeg_finish_compress(&cinfo);
-    jpeg_destroy_compress(&cinfo);
+    jpeg_finish_compress(&cinfo);   // Finish compression
+    jpeg_destroy_compress(&cinfo);  // Cleanup
 
     jpegData.assign(outBuffer, outBuffer + outSize);
-    free(outBuffer);
+    free(outBuffer);  // Free memory allocated for the buffer
 
     req->ClearImages();
     if (req->AddImage(ImageFormat::JPEG, width, height, std::move(jpegData))) {
@@ -168,9 +217,10 @@ AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
   }
 
   int reqdone = 0x00;
-  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+  if (req &&
+      (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= ALGO_MASK(mAlgoId);
-    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+    req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
 
   SetStatus(AlgoStatus::SUCCESS);

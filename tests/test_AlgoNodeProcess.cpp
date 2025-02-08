@@ -28,11 +28,10 @@ int g_AlgoProcessTestCallback      = 0;
 int g_ProcessedFlagAlgoProcessTest = 0x00;
 int AlgoProcessTestResponseCallback(std::shared_ptr<AlgoRequest> input) {
   // Simulate callback logic
-  g_AlgoProcessTestCallback++;
 
   if (input) {
 
-    int rc = input->mMetadata.GetMetadata(ALGO_PROCESS_DONE,
+    int rc = input->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE,
                                           g_ProcessedFlagAlgoProcessTest);
     /*std::cerr << "Output Format ::" << (int)input->GetImage(0)->GetFormat()
               << "rc =" << rc << "g_ProcessedFlagAlgoProcessTest::"
@@ -53,6 +52,7 @@ int AlgoProcessTestResponseCallback(std::shared_ptr<AlgoRequest> input) {
       std::cerr << "Failed to open file for writing JPEG data" << std::endl;
     }
   }
+  g_AlgoProcessTestCallback++;
   return 0;  // Return success
 }
 // Test Fixture Class
@@ -131,7 +131,7 @@ TEST_F(AlgoProcessTest, AlgoNodeProcessTest) {
                                             std::move(yuvData));
     ASSERT_EQ(rc, 0);
     // Clear Process flags
-    rc = request->mMetadata.SetMetadata(ALGO_PROCESS_DONE, 0x00);
+    rc = request->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, 0x00);
     ASSERT_EQ(rc, 0);
 
     // Process the request
@@ -175,7 +175,7 @@ TEST_F(AlgoProcessTest, TestComboNodes) {
                                             std::move(yuvData));
     ASSERT_EQ(rc, 0);
     // Clear Process flags
-    rc = request->mMetadata.SetMetadata(ALGO_PROCESS_DONE, 0x00);
+    rc = request->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, 0x00);
     ASSERT_EQ(rc, 0);
 
     // Process the request

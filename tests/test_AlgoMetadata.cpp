@@ -19,25 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../include/AlgoMetadata.h"
 #include <gtest/gtest.h>
+#include "../include/AlgoMetadata.h"
 
 TEST(AlgoMetadataTest, GetSetMetadataInt) {
   AlgoMetadata metadata;
   int value;
 
   // Set metadata
-  ASSERT_EQ(metadata.SetMetadata(IMAGE_WIDTH, 1920), 0);
-  ASSERT_EQ(metadata.SetMetadata(IMAGE_HEIGHT, 1080), 0);
+  ASSERT_EQ(metadata.SetMetadata(MetaId::IMAGE_WIDTH, 1920), 0);
+  ASSERT_EQ(metadata.SetMetadata(MetaId::IMAGE_HEIGHT, 1080), 0);
 
   // Get metadata
-  ASSERT_EQ(metadata.GetMetadata(IMAGE_WIDTH, value), 0);
+  ASSERT_EQ(metadata.GetMetadata(MetaId::IMAGE_WIDTH, value), 0);
   ASSERT_EQ(value, 1920);
-  ASSERT_EQ(metadata.GetMetadata(IMAGE_HEIGHT, value), 0);
+  ASSERT_EQ(metadata.GetMetadata(MetaId::IMAGE_HEIGHT, value), 0);
   ASSERT_EQ(value, 1080);
 
   // Get non-existent metadata
-  ASSERT_EQ(metadata.GetMetadata(CAMERA_MAKE, value), -1);
+  ASSERT_EQ(metadata.GetMetadata(MetaId::CAMERA_MAKE, value), -1);
 }
 
 TEST(AlgoMetadataTest, GetSetMetadataFloat) {
@@ -45,12 +45,12 @@ TEST(AlgoMetadataTest, GetSetMetadataFloat) {
   float value;
 
   // Set metadata
-  ASSERT_EQ(metadata.SetMetadata(EXPOSURE_TIME, 123.45f), 0);
+  ASSERT_EQ(metadata.SetMetadata(MetaId::EXPOSURE_TIME, 123.45f), 0);
 
   // Get metadata
-  ASSERT_EQ(metadata.GetMetadata(EXPOSURE_TIME, value), 0);
+  ASSERT_EQ(metadata.GetMetadata(MetaId::EXPOSURE_TIME, value), 0);
   ASSERT_EQ(value, 123.45f);
 
   // Get non-existent metadata
-  ASSERT_EQ(metadata.GetMetadata(FOCAL_LENGTH, value), -1);
+  ASSERT_EQ(metadata.GetMetadata(MetaId::FOCAL_LENGTH, value), -1);
 }

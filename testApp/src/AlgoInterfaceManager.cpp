@@ -1,11 +1,11 @@
 #include "../include/AlgoInterfaceManager.h"
+#include <dlfcn.h>
+#include <unistd.h>
 #include <atomic>
 #include <condition_variable>
 #include <cstring>
-#include <dlfcn.h>
 #include <iostream>
 #include <queue>
-#include <unistd.h>
 #include <vector>
 
 int g_ResultCount    = 0;
@@ -37,7 +37,8 @@ T clamp(T value, T min, T max) {
  * @param width
  * @param height
  */
-void YUVtoRGB(const unsigned char *yuvBuffer, unsigned char *rgbBuffer, int width, int height) {
+void YUVtoRGB(const unsigned char* yuvBuffer, unsigned char* rgbBuffer,
+              int width, int height) {
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
       int yIndex  = i * width + j;
@@ -63,7 +64,7 @@ void YUVtoRGB(const unsigned char *yuvBuffer, unsigned char *rgbBuffer, int widt
  *
  * @param path
  */
-AlgoInterfaceptr::AlgoInterfaceptr(const std::string &path) {
+AlgoInterfaceptr::AlgoInterfaceptr(const std::string& path) {
   libraryHandle = dlopen(path.c_str(), RTLD_NOW | RTLD_NODELETE);
   if (!libraryHandle) {
     throw std::runtime_error(dlerror());
@@ -103,7 +104,7 @@ AlgoInterfaceptr::~AlgoInterfaceptr() {
  * @param symbolName
  * @return void*
  */
-void *AlgoInterfaceptr::getSymbol(const char *symbolName) {
+void* AlgoInterfaceptr::getSymbol(const char* symbolName) {
   return dlsym(libraryHandle, symbolName);
 }
 
@@ -111,7 +112,8 @@ void *AlgoInterfaceptr::getSymbol(const char *symbolName) {
  * @brief Construct a new Algo Interface Manager:: Algo Interface Manager object
  *
  */
-AlgoInterfaceManager::AlgoInterfaceManager(const std::string inputFilePath, int width, int height) {
+AlgoInterfaceManager::AlgoInterfaceManager(const std::string inputFilePath,
+                                           int width, int height) {
 
   phandle = std::make_shared<AlgoInterfaceptr>(ALGOLIB_PATH);
   if (!phandle) {
@@ -119,7 +121,8 @@ AlgoInterfaceManager::AlgoInterfaceManager(const std::string inputFilePath, int 
     return;
   }
   if (InitAlgoInterface() != 0) {
-    std::cerr << "Error: Failed to initialize algorithm interface." << std::endl;
+    std::cerr << "Error: Failed to initialize algorithm interface."
+              << std::endl;
     return;
   }
 
@@ -159,12 +162,13 @@ int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
     }
     totalFrames++;
 
-    auto Currenttime                           = std::chrono::steady_clock::now();
+    auto Currenttime = std::chrono::steady_clock::now();
     std::chrono::duration<double> totalElapsed = Currenttime - Lasttime;
     Lasttime                                   = Currenttime;
-    if (totalElapsed.count() >= 1.0) { // Compute average FPS after 1 seconds
+    if (totalElapsed.count() >= 1.0) {  // Compute average FPS after 1 seconds
       double avgFPS = totalFrames / totalElapsed.count();
-      std::cout << "[" << totalFrames << "] Average FPS: " << avgFPS << "\r" << std::flush;
+      std::cout << "[" << totalFrames << "] Average FPS: " << avgFPS << "\r"
+                << std::flush;
     }
   }
   if (request) {
@@ -194,10 +198,13 @@ int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
  */
 void SetMetadata(std::shared_ptr<AlgoRequest> request) {
   if (request) {
-    request->mMetadata.SetMetadata(ALGO_HDR_ENABLED, g_HdrEnabled);
-    request->mMetadata.SetMetadata(ALGO_WATERMARK_ENABLED, g_WatermarkEnabled);
-    request->mMetadata.SetMetadata(ALGO_MANDELBROTSET_ENABLED, g_MandlebrotSetEnabled);
-    request->mMetadata.SetMetadata(ALGO_FILTER_ENABLED, g_FilterEnabled);
+    request->mMetadata.SetMetadata(MetaId::ALGO_HDR_ENABLED, g_HdrEnabled);
+    request->mMetadata.SetMetadata(MetaId::ALGO_WATERMARK_ENABLED,
+                                   g_WatermarkEnabled);
+    request->mMetadata.SetMetadata(MetaId::ALGO_MANDELBROTSET_ENABLED,
+                                   g_MandlebrotSetEnabled);
+    request->mMetadata.SetMetadata(MetaId::ALGO_FILTER_ENABLED,
+                                   g_FilterEnabled);
   }
 }
 
@@ -207,10 +214,12 @@ int AlgoInterfaceManager::SubmitRequest() {
 
     // read a yuv buffer from file and convert it to RGB
 
-    if (!mInputFile.read(reinterpret_cast<char *>(yuvBuffer.data()), yuvBuffer.size())) {
-      mInputFile.clear();                                                            // Clear EOF flag
-      mInputFile.seekg(0, std::ios::beg);                                            // Seek back to the start of the file
-      mInputFile.read(reinterpret_cast<char *>(yuvBuffer.data()), yuvBuffer.size()); // read after reset
+    if (!mInputFile.read(reinterpret_cast<char*>(yuvBuffer.data()),
+                         yuvBuffer.size())) {
+      mInputFile.clear();                  // Clear EOF flag
+      mInputFile.seekg(0, std::ios::beg);  // Seek back to the start of the file
+      mInputFile.read(reinterpret_cast<char*>(yuvBuffer.data()),
+                      yuvBuffer.size());  // read after reset
     }
 
     // prepare and submit request
@@ -219,19 +228,22 @@ int AlgoInterfaceManager::SubmitRequest() {
     if (false /*processRGB*/) {
       std::vector<unsigned char> rgbBuffer(mWidth * mHeight * 3);
       YUVtoRGB(yuvBuffer.data(), rgbBuffer.data(), mWidth, mHeight);
-      rc = request->AddImage(ImageFormat::RGB, mWidth, mHeight, std::move(rgbBuffer));
+      rc = request->AddImage(ImageFormat::RGB, mWidth, mHeight,
+                             std::move(rgbBuffer));
     } else {
       std::vector<unsigned char> Inputyuvbuf = yuvBuffer;
-      rc                                     = request->AddImage(ImageFormat::YUV420, mWidth, mHeight, std::move(Inputyuvbuf));
+      rc = request->AddImage(ImageFormat::YUV420, mWidth, mHeight,
+                             std::move(Inputyuvbuf));
     }
     if (rc != 0) {
       std::cerr << "Failed to add image to request rc=" << rc << std::endl;
       return -1;
     }
-    request->mMetadata.SetMetadata(IMAGE_WIDTH, mWidth);
-    request->mMetadata.SetMetadata(IMAGE_HEIGHT, mHeight);
+    request->mMetadata.SetMetadata(MetaId::IMAGE_WIDTH, mWidth);
+    request->mMetadata.SetMetadata(MetaId::IMAGE_HEIGHT, mHeight);
     SetMetadata(request);
-    std::vector<AlgoId> algoSuggested = m_algoDecisionManager.ParseMetadata(request);
+    std::vector<AlgoId> algoSuggested =
+        m_algoDecisionManager.ParseMetadata(request);
 
     /*std::cerr << "Algo Suggested :";
     for (auto id : algoSuggested) {
@@ -240,7 +252,8 @@ int AlgoInterfaceManager::SubmitRequest() {
 
     rc = phandle->processFunc(&phandle->libraryHandle, request, algoSuggested);
     if (rc != 0) {
-      std::cerr << "Failed to process algorithm request rc = " << rc << std::endl;
+      std::cerr << "Failed to process algorithm request rc = " << rc
+                << std::endl;
       return -2;
     }
     ++g_SubmittedCount;
@@ -261,7 +274,8 @@ int AlgoInterfaceManager::InitAlgoInterface() {
     return -1;
   }
 
-  if (phandle->registerCallbackFunc(&phandle->libraryHandle, ProcessCallback) != 0) {
+  if (phandle->registerCallbackFunc(&phandle->libraryHandle, ProcessCallback) !=
+      0) {
     std::cerr << "Failed to register callback." << std::endl;
     return -1;
   }

@@ -29,7 +29,7 @@
 int ComputeMandelbrot(double x, double y) {
   std::complex<double> c(x, y);
   std::complex<double> z = 0;
-  int iter = 0;
+  int iter               = 0;
 
   while (std::norm(z) <= 4.0 && iter < MAX_ITER) {
     z = z * z + c;
@@ -53,9 +53,9 @@ std::pair<double, double> MapToComplexPlane(int px, int py, int width,
 MandelbrotSet::MandelbrotSet()
     : AlgoBase(MANDELBROTSET_NAME), zoomLevel(INITIAL_ZOOM) {
   modelIdx = (int)MandelbrotSetCentre::Seahorse_Valley;
-  offsetX = CentreCordinates[modelIdx][0];
-  offsetY = CentreCordinates[modelIdx][1];
-  mAlgoId = ALGO_MANDELBROTSET;  // Unique ID for MANDELBROTSET algorithm
+  offsetX  = CentreCordinates[modelIdx][0];
+  offsetY  = CentreCordinates[modelIdx][1];
+  mAlgoId  = ALGO_MANDELBROTSET;  // Unique ID for MANDELBROTSET algorithm
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
@@ -104,8 +104,8 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
     return GetAlgoStatus();
   }
   const ImageFormat inputFormat = req->GetImage(0)->GetFormat();
-  const int width = inputImage->GetWidth();
-  const int height = inputImage->GetHeight();
+  const int width               = inputImage->GetWidth();
+  const int height              = inputImage->GetHeight();
   if (true == CanProcessFormat(inputFormat, inputFormat)) {
 
     if (req->mRequestId % 30 == 0) {
@@ -167,9 +167,10 @@ AlgoBase::AlgoStatus MandelbrotSet::Process(std::shared_ptr<AlgoRequest> req) {
     // skip processing
   }
   int reqdone = 0x00;
-  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+  if (req &&
+      (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= ALGO_MASK(mAlgoId);
-    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+    req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();

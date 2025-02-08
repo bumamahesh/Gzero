@@ -74,9 +74,10 @@ AlgoBase::AlgoStatus LdcAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   // Perform image undistortion
   // UndistortImages(req);
   int reqdone = 0x00;
-  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+  if (req &&
+      (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= ALGO_MASK(mAlgoId);
-    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+    req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
@@ -106,8 +107,8 @@ CameraIntrinsics LdcAlgorithm::ComputeCameraIntrinsics(
     const std::vector<std::shared_ptr<ImageData>>& yuvImages) {
   // Placeholder for actual camera intrinsics computation logic
   CameraIntrinsics intrinsics;
-  intrinsics.focalLength = {1000.0, 1000.0};
-  intrinsics.principalPoint = {640.0, 480.0};
+  intrinsics.focalLength      = {1000.0, 1000.0};
+  intrinsics.principalPoint   = {640.0, 480.0};
   intrinsics.distortionCoeffs = {0.1, -0.05, 0.0, 0.0, 0.0};
   return intrinsics;
 }

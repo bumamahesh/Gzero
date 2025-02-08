@@ -37,8 +37,9 @@ std::vector<AlgoId> DecisionManager::ParseMetadata(
   std::vector<AlgoId> algos;
 
   if (req) {
-    req->mMetadata.GetMetadata(ALGO_HDR_ENABLED, bIsHdrenabled);
-    req->mMetadata.GetMetadata(ALGO_WATERMARK_ENABLED, bIswatermarkenabled);
+    req->mMetadata.GetMetadata(MetaId::ALGO_HDR_ENABLED, bIsHdrenabled);
+    req->mMetadata.GetMetadata(MetaId::ALGO_WATERMARK_ENABLED,
+                               bIswatermarkenabled);
   }
 
   if (bIsHdrenabled) {
@@ -104,10 +105,11 @@ int g_Responsecbs = 0;
 int ProcessedFlag = 0x00;
 int ImageResponseCallback(std::shared_ptr<AlgoRequest> input) {
   // Simulate callback logic
-  g_Responsecbs++;
+
   if (input) {
-    input->mMetadata.GetMetadata(ALGO_PROCESS_DONE, ProcessedFlag);
+    input->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, ProcessedFlag);
   }
+  g_Responsecbs++;
   return 0;  // Return success
 }
 TEST_F(RequestReponseTest, ProcessRequestAndCheckResponse) {
@@ -129,9 +131,9 @@ TEST_F(RequestReponseTest, ProcessRequestAndCheckResponse) {
   int rc =
       request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, std::move(yuvData));
   ASSERT_EQ(rc, 0);
-  rc = request->mMetadata.SetMetadata(ALGO_HDR_ENABLED, true);
+  rc = request->mMetadata.SetMetadata(MetaId::ALGO_HDR_ENABLED, true);
   ASSERT_EQ(rc, 0);
-  rc = request->mMetadata.SetMetadata(ALGO_WATERMARK_ENABLED, true);
+  rc = request->mMetadata.SetMetadata(MetaId::ALGO_WATERMARK_ENABLED, true);
   ASSERT_EQ(rc, 0);
 
   // Process the request

@@ -66,9 +66,10 @@ AlgoBase::AlgoStatus HdrAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   int reqdone = 0x00;
-  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+  if (req &&
+      (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= ALGO_MASK(mAlgoId);
-    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+    req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();

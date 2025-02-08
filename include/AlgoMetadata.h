@@ -26,7 +26,7 @@
 #include <unordered_map>
 
 class AlgoRequest;
-enum MetaId {
+enum class MetaId {
   IMAGE_WIDTH,             // Image width in pixels
   IMAGE_HEIGHT,            // Image height in pixels
   IMAGE_FORMAT,            // Image format (e.g., JPEG, PNG)
@@ -62,7 +62,20 @@ enum MetaId {
   ALGO_FILTER_ENABLED,         // flag for filter processing
   ALGO_JPEG_ENABLE,            // JPEG quality setting
   ALGO_PROCESS_DONE,           // algo has done processing
-  ALGO_REQUSET_NUMBER          // Image frame Number
+  ALGO_REQUSET_NUMBER,         // Image frame Number
+
+  // Additional ExifMetadata fields
+  LENS_MAKE,
+  LENS_MODEL,
+  COMPRESSION_TYPE,
+  SOFTWARE,
+  THUMBNAIL,
+  DATE_TIME_ORIGINAL,
+  DATE_TIME_MODIFIED,
+  GPS_DIRECTION,
+  FILE_SIZE,
+  EDITING_SOFTWARE,
+  MODIFICATION_HISTORY
 };
 
 class AlgoMetadata {

@@ -104,8 +104,8 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessRGB(
   }
 
   const ImageFormat inputFormat = inputImage->GetFormat();
-  const int width = inputImage->GetWidth();
-  const int height = inputImage->GetHeight();
+  const int width               = inputImage->GetWidth();
+  const int height              = inputImage->GetHeight();
 
   if (CanProcessFormat(inputFormat, ImageFormat::RGB)) {
     // Convert input RGB image to BGR for OpenCV processing
@@ -122,7 +122,7 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessRGB(
     }
 
     // Resize logo
-    const int logoWidth = width / 5;
+    const int logoWidth  = width / 5;
     const int logoHeight = logoWidth * logo.rows / logo.cols;
     cv::resize(logo, logo, cv::Size(logoWidth, logoHeight));
 
@@ -177,7 +177,7 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessRGB(
     // Add watermark text below the logo
     int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;  // FONT_HERSHEY_SIMPLEX;
     double fontScale = 1.0;
-    int thickness = 2;
+    int thickness    = 2;
     cv::Scalar textColor(255, 255, 255);  // White in BGR
 
     // Calculate text position below the logo
@@ -218,8 +218,8 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessYUV(
   }
 
   const ImageFormat inputFormat = inputImage->GetFormat();
-  const int width = inputImage->GetWidth();
-  const int height = inputImage->GetHeight();
+  const int width               = inputImage->GetWidth();
+  const int height              = inputImage->GetHeight();
   if (CanProcessFormat(inputFormat, ImageFormat::YUV420)) {
     cv::Mat bgrImage;
 
@@ -247,7 +247,7 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessYUV(
     }
 
     // Resize logo
-    const int logoWidth = width / 5;
+    const int logoWidth  = width / 5;
     const int logoHeight = logoWidth * logo.rows / logo.cols;
     cv::resize(logo, logo, cv::Size(logoWidth, logoHeight));
 
@@ -295,9 +295,9 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessYUV(
     }
 
     // Add watermark text below the logo
-    int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
+    int fontFace     = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
     double fontScale = 1.0;
-    int thickness = 2;
+    int thickness    = 2;
     cv::Scalar textColor(255, 255, 255);  // White in BGR
 
     int textX = logoPos.x;
@@ -340,7 +340,7 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::Process(
   //     req->mProcessCnt);
   // KpiMonitor kpi("WaterMarkAlgorithm::Process");
   AlgoBase::AlgoStatus rc = AlgoStatus::FAILURE;
-  auto inputImage = req->GetImage(0);
+  auto inputImage         = req->GetImage(0);
   if (!inputImage) {
     LOG(ERROR, ALGOBASE, "Input image is null.");
     SetStatus(AlgoStatus::FAILURE);
@@ -362,9 +362,10 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::Process(
   }
 
   int reqdone = 0x00;
-  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+  if (req &&
+      (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= ALGO_MASK(mAlgoId);
-    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+    req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
   return rc;
 }

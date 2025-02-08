@@ -65,8 +65,8 @@ AlgoBase::AlgoStatus FilterAlgorithm::SobelRGB(
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
   }
-  const int width = inputImage->GetWidth();
-  const int height = inputImage->GetHeight();
+  const int width                             = inputImage->GetWidth();
+  const int height                            = inputImage->GetHeight();
   const std::vector<unsigned char>& inputData = inputImage->GetData();
 
   std::vector<unsigned char> outputData(width * height * 3, 0);  // RGB output
@@ -118,8 +118,8 @@ AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv(
     return GetAlgoStatus();
   }
 
-  const int width = inputImage->GetWidth();
-  const int height = inputImage->GetHeight();
+  const int width                             = inputImage->GetWidth();
+  const int height                            = inputImage->GetHeight();
   const std::vector<unsigned char>& inputData = inputImage->GetData();
 
   // YUV420 - Y plane size = width * height
@@ -202,9 +202,10 @@ AlgoBase::AlgoStatus FilterAlgorithm::Process(
   }
 
   int reqdone = 0x00;
-  if (req && (0 == req->mMetadata.GetMetadata(ALGO_PROCESS_DONE, reqdone))) {
+  if (req &&
+      (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= ALGO_MASK(mAlgoId);
-    req->mMetadata.SetMetadata(ALGO_PROCESS_DONE, reqdone);
+    req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
   return rc;
 }

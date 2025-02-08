@@ -23,63 +23,67 @@
 #ifndef ALGOINTERFACEMANAGER_H
 #define ALGOINTERFACEMANAGER_H
 #pragma once
-#include "../../include/AlgoDecisionManager.h"
-#include "../../include/AlgoDefs.h"
-#include "../../include/AlgoRequest.h"
 #include <dlfcn.h>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <vector>
+#include "../../include/AlgoDecisionManager.h"
+#include "../../include/AlgoDefs.h"
+#include "../../include/AlgoRequest.h"
 
 #define ALGOLIB_PATH "/home/uma/workspace/Gzero/cmake/lib/libAlgoLib.so"
 #define LOAD_SYM(FUNC) reinterpret_cast<FUNC##Func>(getSymbol(#FUNC))
 
-using InitAlgoInterfaceFunc    = int (*)(void **);
-using DeInitAlgoInterfaceFunc  = int (*)(void **);
-using AlgoInterfaceProcessFunc = int (*)(void **, std::shared_ptr<AlgoRequest>,
+using InitAlgoInterfaceFunc    = int (*)(void**);
+using DeInitAlgoInterfaceFunc  = int (*)(void**);
+using AlgoInterfaceProcessFunc = int (*)(void**, std::shared_ptr<AlgoRequest>,
                                          std::vector<AlgoId>);
-using RegisterCallbackFunc     = int (*)(void **,
+using RegisterCallbackFunc     = int (*)(void**,
                                      int (*)(std::shared_ptr<AlgoRequest>));
 
 class AlgoInterfaceptr {
-public:
-  AlgoInterfaceptr(const std::string &path);
+ public:
+  AlgoInterfaceptr(const std::string& path);
   ~AlgoInterfaceptr();
-  void *getSymbol(const char *symbolName);
+  void* getSymbol(const char* symbolName);
   InitAlgoInterfaceFunc initFunc            = nullptr;
   DeInitAlgoInterfaceFunc deinitFunc        = nullptr;
   AlgoInterfaceProcessFunc processFunc      = nullptr;
   RegisterCallbackFunc registerCallbackFunc = nullptr;
-  void *libraryHandle                       = nullptr;
+  void* libraryHandle                       = nullptr;
 };
 
 class DecisionManager : public AlgoDecisionManager {
-public:
+ public:
   DecisionManager()  = default;
   ~DecisionManager() = default;
   std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req) override {
     std::vector<AlgoId> ret;
     bool algo_hdr_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(ALGO_HDR_ENABLED, algo_hdr_enabled)) {
+    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_HDR_ENABLED,
+                                        algo_hdr_enabled)) {
       if (algo_hdr_enabled) {
         AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_HDR);
       }
     }
     bool algo_filter_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(ALGO_FILTER_ENABLED, algo_filter_enabled)) {
+    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_FILTER_ENABLED,
+                                        algo_filter_enabled)) {
       if (algo_filter_enabled) {
         AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_FILTER);
       }
     }
     bool algo_watermark_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(ALGO_WATERMARK_ENABLED, algo_watermark_enabled)) {
+    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_WATERMARK_ENABLED,
+                                        algo_watermark_enabled)) {
       if (algo_watermark_enabled) {
         AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_WATERMARK);
       }
     }
     bool algo_mandlebrotset_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(ALGO_MANDELBROTSET_ENABLED, algo_mandlebrotset_enabled)) {
+    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_MANDELBROTSET_ENABLED,
+                                        algo_mandlebrotset_enabled)) {
       if (algo_mandlebrotset_enabled) {
         AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_MANDELBROTSET);
       }
@@ -91,13 +95,14 @@ public:
 };
 
 class AlgoInterfaceManager {
-public:
-  explicit AlgoInterfaceManager(const std::string inputFilePath, int width, int height);
+ public:
+  explicit AlgoInterfaceManager(const std::string inputFilePath, int width,
+                                int height);
   ~AlgoInterfaceManager();
   int SubmitRequest();
   DecisionManager m_algoDecisionManager;
 
-private:
+ private:
   int InitAlgoInterface();
   void Cleanup();
   int mRequestId = 0;
@@ -109,4 +114,4 @@ private:
   int mHeight;
 };
 
-#endif // ALGOINTERFACEMANAGER_H
+#endif  // ALGOINTERFACEMANAGER_H
