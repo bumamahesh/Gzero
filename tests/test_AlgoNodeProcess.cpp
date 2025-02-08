@@ -143,9 +143,55 @@ TEST_F(AlgoProcessTest, AlgoNodeProcessTest) {
       usleep(50);
     }
 
-    // @Todo fails here fix me
     // Check Processed algos
     int ExpectedFlag = ALGO_MASK(Algoid);
+    ASSERT_EQ(g_ProcessedFlagAlgoProcessTest, ExpectedFlag);
+  }
+}
+
+TEST_F(AlgoProcessTest, TestComboNodes) {
+  std::vector<std::vector<AlgoId>> AlgoCobo = {
+      {ALGO_HDR, ALGO_BOKEH},
+      {ALGO_HDR, ALGO_WATERMARK, ALGO_SWJPEG},
+      {ALGO_BOKEH, ALGO_SWJPEG},
+      {ALGO_HDR, ALGO_SWJPEG},
+      {ALGO_WATERMARK, ALGO_SWJPEG},
+      {ALGO_HDR, ALGO_BOKEH, ALGO_WATERMARK},
+      {ALGO_HDR, ALGO_BOKEH, ALGO_SWJPEG},
+      {ALGO_HDR, ALGO_WATERMARK},
+      {ALGO_BOKEH, ALGO_WATERMARK},
+      {ALGO_HDR, ALGO_BOKEH, ALGO_WATERMARK, ALGO_SWJPEG},
+  };
+  for (int id = 0; id < (int)AlgoCobo.size(); id++) {
+
+    g_AlgoProcessTestCallback      = 0;
+    g_ProcessedFlagAlgoProcessTest = 0;
+    // Create a mock AlgoRequest
+    std::vector<unsigned char> yuvData(WIDTH * HEIGHT * 3 /
+                                       2);  // YUV420 format
+    auto request        = std::make_shared<AlgoRequest>();
+    request->mRequestId = 123;
+    int rc              = request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT,
+                                            std::move(yuvData));
+    ASSERT_EQ(rc, 0);
+    // Clear Process flags
+    rc = request->mMetadata.SetMetadata(ALGO_PROCESS_DONE, 0x00);
+    ASSERT_EQ(rc, 0);
+
+    // Process the request
+    int status = AlgoInterfaceProcess(&algoHandle, request, AlgoCobo[id]);
+    ASSERT_EQ(status, 0) << "AlgoInterfaceProcess failed with status:"
+                         << status;
+
+    while (g_AlgoProcessTestCallback == 0) {
+      usleep(50);
+    }
+
+    // Check Processed algos
+    int ExpectedFlag = 0x00;
+    for (auto id : AlgoCobo[id]) {
+      ExpectedFlag |= ALGO_MASK(id);
+    }
     ASSERT_EQ(g_ProcessedFlagAlgoProcessTest, ExpectedFlag);
   }
 }
