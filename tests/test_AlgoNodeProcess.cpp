@@ -29,12 +29,20 @@ int g_ProcessedFlagAlgoProcessTest = 0x00;
 int AlgoProcessTestResponseCallback(std::shared_ptr<AlgoRequest> input) {
   // Simulate callback logic
   g_AlgoProcessTestCallback++;
+
   if (input) {
-    input->mMetadata.GetMetadata(ALGO_PROCESS_DONE,
-                                 g_ProcessedFlagAlgoProcessTest);
+
+    int rc = input->mMetadata.GetMetadata(ALGO_PROCESS_DONE,
+                                          g_ProcessedFlagAlgoProcessTest);
+    /*std::cerr << "Output Format ::" << (int)input->GetImage(0)->GetFormat()
+              << "rc =" << rc << "g_ProcessedFlagAlgoProcessTest::"
+              << g_ProcessedFlagAlgoProcessTest << std::endl;*/
+    if (rc != 0) {
+      return -1;
+    }
   }
   if (input && input->GetImage(0)->GetFormat() == ImageFormat::JPEG) {
-    std::cerr << "we have Jpeg Image " << std::endl;
+    //std::cerr << "we have Jpeg Image " << std::endl;
     std::ofstream outFile("output.jpeg", std::ios::binary);
     if (outFile.is_open()) {
       outFile.write(
@@ -108,12 +116,9 @@ class AlgoProcessTest : public ::testing::Test {
 
 TEST_F(AlgoProcessTest, AlgoNodeProcessTest) {
 
-  // for (int id = ALGO_START; id < ALGO_END; id++)
-  //for (int id = 0; id < 1; id++)
-  //@Todo for loop fail , suspect number of pipline  getting created and callbacks
-  int id = ALGO_OFFSET(ALGO_SWJPEG);
-  {
-    std::cerr << "Test Algo::" << algoName[id] << std::endl;
+  for (int id = ALGO_START; id < ALGO_END; id++) {
+    // int id = ALGO_OFFSET(ALGO_SWJPEG);
+    // std::cerr << "Test Algo::" << algoName[id] << std::endl;
     g_AlgoProcessTestCallback      = 0;
     g_ProcessedFlagAlgoProcessTest = 0;
     ALGOID Algoid                  = static_cast<ALGOID>(ALGO_BASE_ID + id);
@@ -140,8 +145,7 @@ TEST_F(AlgoProcessTest, AlgoNodeProcessTest) {
 
     // @Todo fails here fix me
     // Check Processed algos
-    // int ExpectedFlag = ALGO_MASK(Algoid);
-    // ASSERT_EQ(g_ProcessedFlagAlgoProcessTest, ExpectedFlag)
-    //     << "ExpectedFlag Mismatch ::" << ALGO_OFFSET(Algoid);
+    int ExpectedFlag = ALGO_MASK(Algoid);
+    ASSERT_EQ(g_ProcessedFlagAlgoProcessTest, ExpectedFlag);
   }
 }

@@ -20,15 +20,15 @@
  * THE SOFTWARE.
  */
 #include "AlgoSession.h"
-#include "Log.h"
 #include <cassert>
+#include "Log.h"
 
 /**
  * @brief Construct a new Algo Session:: Algo Session object
  *
  */
 AlgoSession::AlgoSession(INTERFACECALLBACK pInterfaceCallBackHandler,
-                         void *pCtx) {
+                         void* pCtx) {
   this->pInterfaceCallBackHandler = pInterfaceCallBackHandler;
   this->pInterfaceCtx             = pCtx;
 }
@@ -37,7 +37,9 @@ AlgoSession::AlgoSession(INTERFACECALLBACK pInterfaceCallBackHandler,
  * @brief Destroy the Algo Session:: Algo Session object
  *
  */
-AlgoSession::~AlgoSession() { SessionStop(); }
+AlgoSession::~AlgoSession() {
+  SessionStop();
+}
 
 /**
  * @brief Stop Session
@@ -47,7 +49,7 @@ AlgoSession::~AlgoSession() { SessionStop(); }
  */
 bool AlgoSession::SessionStop() {
   LOG(INFO, ALGOSESSION, "AlgoSession::SessionStop E");
-  for (auto &pipeline : mPipelines) {
+  for (auto& pipeline : mPipelines) {
     pipeline->WaitForQueueCompetion();
   }
   mPipelines.clear();
@@ -64,7 +66,7 @@ bool AlgoSession::SessionStop() {
  * @return true
  * @return false
  */
-bool AlgoSession::SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline) {
+bool AlgoSession::SessionAddPipeline(std::shared_ptr<AlgoPipeline>& pipeline) {
   LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionAddPipeline E");
   if (pipeline == nullptr) {
     return false;
@@ -72,7 +74,9 @@ bool AlgoSession::SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline) {
   size_t pipelineId = mNextPipelineId++;
   mPipelines.push_back(pipeline);
   mPipelineMap[pipelineId] = pipeline;
-  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionAddPipeline X");
+  LOG(VERBOSE, ALGOSESSION,
+      "AlgoSession::SessionAddPipeline X mPipelines.size() = %ld",
+      mPipelines.size());
   return true;
 }
 
@@ -111,6 +115,8 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input,
   LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess E");
   std::lock_guard<std::mutex> lock(mSessionMutex);
   int pipelineId = SessionGetpipelineId(algoList);
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess pipelineId = %d",
+      pipelineId);
   if (pipelineId == -1) {
     auto lPipeline = std::make_shared<AlgoPipeline>(
         &AlgoSession::PiplineCallBackHandler, this);
@@ -120,11 +126,17 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input,
       return false;
     }
     SessionAddPipeline(lPipeline);
-    pipelineId = 0;
+    pipelineId = SessionGetpipelineId(algoList);
+    //new pipline so id should exist
+    assert(pipelineId != -1);
+    if (pipelineId == -1) {
+      return false;
+    }
   }
 
   bool rc = SessionProcess(pipelineId, input);
-  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess X rc = %d", (int)rc);
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess X rc = %d Id = %d",
+      (int)rc, pipelineId);
   return rc;
 }
 
@@ -166,7 +178,7 @@ size_t AlgoSession::SessionGetPipelineCount() const {
  */
 std::vector<size_t> AlgoSession::SessionGetPipelineIds() const {
   std::vector<size_t> ids;
-  for (const auto &pair : mPipelineMap) {
+  for (const auto& pair : mPipelineMap) {
     ids.push_back(pair.first);
   }
   return ids;
@@ -200,8 +212,8 @@ int AlgoSession::SessionGetpipelineId(std::vector<AlgoId> algoList) {
  * @param pipelineId
  * @return std::shared_ptr<AlgoPipeline>
  */
-std::shared_ptr<AlgoPipeline>
-AlgoSession::SessionGetPipeline(size_t pipelineId) {
+std::shared_ptr<AlgoPipeline> AlgoSession::SessionGetPipeline(
+    size_t pipelineId) {
   auto it = mPipelineMap.find(pipelineId);
   if (it == mPipelineMap.end()) {
     return nullptr;
@@ -214,9 +226,9 @@ AlgoSession::SessionGetPipeline(size_t pipelineId) {
  *
  * @param input
  */
-void AlgoSession::PiplineCallBackHandler(void *pctx,
+void AlgoSession::PiplineCallBackHandler(void* pctx,
                                          std::shared_ptr<AlgoRequest> input) {
-  AlgoSession *pSession = static_cast<AlgoSession *>(pctx);
+  AlgoSession* pSession = static_cast<AlgoSession*>(pctx);
   if (pSession) {
     if (pSession->pInterfaceCallBackHandler) {
       std::lock_guard<std::mutex> lock(pSession->mCallbackMutex);

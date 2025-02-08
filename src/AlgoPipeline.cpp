@@ -20,14 +20,14 @@
  * THE SOFTWARE.
  */
 #include "AlgoPipeline.h"
-#include "Log.h"
 #include <assert.h>
+#include "Log.h"
 /**
 @brief Constructs a new AlgoPipeline object with a list of algorithm IDs
  *
  * @param algoList
  */
-AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
+AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void* pCtx) {
   LOG(INFO, ALGOPIPELINE, "AlgoPipeline::AlgoPipeline E");
   mProcessedFrames             = 0;
   mState                       = AlgoPipelineState::Initialised;
@@ -45,7 +45,7 @@ AlgoPipeline::AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler, void *pCtx) {
  */
 AlgoPipeline::~AlgoPipeline() {
   LOG(INFO, ALGOPIPELINE, "AlgoPipeline::~AlgoPipeline E");
-  for (auto &algo : mAlgos) {
+  for (auto& algo : mAlgos) {
     algo->WaitForQueueCompetion();
   }
   pEventHandlerThread->stop();
@@ -60,7 +60,9 @@ AlgoPipeline::~AlgoPipeline() {
  *
  * @return AlgoPipelineState
  */
-AlgoPipelineState AlgoPipeline::GetState() const { return mState; }
+AlgoPipelineState AlgoPipeline::GetState() const {
+  return mState;
+}
 
 /**
  * @brief  Set state of pipeline
@@ -78,7 +80,9 @@ AlgoPipelineState AlgoPipeline::SetState(AlgoPipelineState state) {
  *
  * @return std::vector<size_t>
  */
-std::vector<AlgoId> AlgoPipeline::GetAlgoListId() const { return mAlgoListId; }
+std::vector<AlgoId> AlgoPipeline::GetAlgoListId() const {
+  return mAlgoListId;
+}
 
 /**
  * @brief  Configure Pipeline with Provided algo List
@@ -86,8 +90,8 @@ std::vector<AlgoId> AlgoPipeline::GetAlgoListId() const { return mAlgoListId; }
  * @param algoList
  * @return AlgoPipelineState
  */
-AlgoPipelineState
-AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
+AlgoPipelineState AlgoPipeline::ConfigureAlgoPipeline(
+    std::vector<AlgoId>& algoList) {
 
   LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld ",
       algoList.size());
@@ -117,7 +121,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
       previousAlgo     = algo;
       mAlgoMap[algoId] = algo;
     }
-    previousAlgo->bIslastNode = true; // lets mark last  node
+    previousAlgo->bIslastNode = true;  // lets mark last  node
     SetState(AlgoPipelineState::ConfiguredWithId);
   } else {
     LOG(ERROR, ALGOPIPELINE,
@@ -133,8 +137,8 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<AlgoId> &algoList) {
  * @param algoList
  * @return AlgoPipelineState
  */
-AlgoPipelineState
-AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
+AlgoPipelineState AlgoPipeline::ConfigureAlgoPipeline(
+    std::vector<std::string>& algoList) {
 
   LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld ",
       algoList.size());
@@ -163,7 +167,7 @@ AlgoPipeline::ConfigureAlgoPipeline(std::vector<std::string> &algoList) {
       previousAlgo                = algo;
       mAlgoMap[algo->GetAlgoId()] = algo;
     }
-    previousAlgo->bIslastNode = true; // lets mark last  node
+    previousAlgo->bIslastNode = true;  // lets mark last  node
     SetState(AlgoPipelineState::ConfiguredWithName);
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Configure");
@@ -200,7 +204,8 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
     }
     task->timeoutMs = mAlgos[0]->GetTimeout();
     mAlgos[0]->EnqueueRequest(task);
-
+    LOG(INFO, ALGOPIPELINE, "Request Enqueded on ::%s",
+        mAlgos[0]->GetAlgorithmName().c_str());
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Process");
   }
@@ -214,13 +219,13 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
  * @param msg
  */
 void AlgoPipeline::NodeEventHandler(
-    void *ctx, std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+    void* ctx, std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
   // static lockguard
   // static std::mutex mCallbackMutex;
   // std::lock_guard<std::mutex> lock(mCallbackMutex);
   assert(msg != nullptr);
   assert(ctx != nullptr);
-  auto plPipeline = reinterpret_cast<AlgoPipeline *>(ctx);
+  auto plPipeline = reinterpret_cast<AlgoPipeline*>(ctx);
   assert(plPipeline != nullptr);
   assert(plPipeline->mAlgoMap.find(msg->mAlgoId) != plPipeline->mAlgoMap.end());
   auto algo = plPipeline->mAlgoMap.at(msg->mAlgoId);
@@ -229,66 +234,66 @@ void AlgoPipeline::NodeEventHandler(
       msg->mRequest->request->mRequestId, msg->mRequest->request->mProcessCnt,
       plPipeline->mAlgoMap.size(), (int)msg->mType);*/
   switch (msg->mType) {
-  case AlgoBase::AlgoMessageType::ProcessingCompleted: {
-    /*some node */
-    // LOG(VERBOSE, ALGOPIPELINE, "Node Processing Completed:: %d by node %s",
-    //    msg->mRequest->request->mRequestId, algo->GetAlgorithmName().c_str());
-    std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
-    if (NextAlgo) {
-      /**fecth and update timeout for processing this request on Next algo */
-      msg->mRequest->timeoutMs = NextAlgo->GetTimeout();
-      NextAlgo->EnqueueRequest(msg->mRequest);
-    }
-  } break;
-  case AlgoBase::AlgoMessageType::ProcessDone: {
-    /**last node  */
-    std::shared_ptr<AlgoRequest> Output = msg->mRequest->request;
-
-    if (Output) {
-      if (Output->mProcessCnt != plPipeline->mAlgos.size()) {
-        LOG(ERROR, ALGOPIPELINE, "Output is not complete  %ld ,%ld",
-            Output->mProcessCnt, plPipeline->mAlgos.size());
+    case AlgoBase::AlgoMessageType::ProcessingCompleted: {
+      /*some node */
+      // LOG(VERBOSE, ALGOPIPELINE, "Node Processing Completed:: %d by node %s",
+      //    msg->mRequest->request->mRequestId, algo->GetAlgorithmName().c_str());
+      std::shared_ptr<AlgoBase> NextAlgo = algo->GetNextAlgo().lock();
+      if (NextAlgo) {
+        /**fecth and update timeout for processing this request on Next algo */
+        msg->mRequest->timeoutMs = NextAlgo->GetTimeout();
+        NextAlgo->EnqueueRequest(msg->mRequest);
       }
-    }
+    } break;
+    case AlgoBase::AlgoMessageType::ProcessDone: {
+      /**last node  */
+      std::shared_ptr<AlgoRequest> Output = msg->mRequest->request;
 
-    {
-      /*request is processed remove from request Quew*/
-      std::lock_guard<std::mutex> lock(plPipeline->mRequesteMapMutex);
-      auto callbackRequestId = msg->mRequest->request->mRequestId;
-      if (plPipeline->mRequesteMap.find(callbackRequestId) !=
-          plPipeline->mRequesteMap.end()) {
-        /*LOG(VERBOSE, ALGOPIPELINE,
+      if (Output) {
+        if (Output->mProcessCnt != plPipeline->mAlgos.size()) {
+          LOG(ERROR, ALGOPIPELINE, "Output is not complete  %ld ,%ld",
+              Output->mProcessCnt, plPipeline->mAlgos.size());
+        }
+      }
+
+      {
+        /*request is processed remove from request Quew*/
+        std::lock_guard<std::mutex> lock(plPipeline->mRequesteMapMutex);
+        auto callbackRequestId = msg->mRequest->request->mRequestId;
+        if (plPipeline->mRequesteMap.find(callbackRequestId) !=
+            plPipeline->mRequesteMap.end()) {
+          /*LOG(VERBOSE, ALGOPIPELINE,
             "[%p][%6ld]Processing Completed for Request ID: %d::%p ",
             plPipeline, plPipeline->mProcessedFrames, callbackRequestId,
             Output.get());*/
-        // Remove processed request
-        plPipeline->mRequesteMap.erase(callbackRequestId);
-      } else {
-        LOG(ERROR, ALGOPIPELINE, "Request not present is Q Fatal ::%d",
-            callbackRequestId);
+          // Remove processed request
+          plPipeline->mRequesteMap.erase(callbackRequestId);
+        } else {
+          LOG(ERROR, ALGOPIPELINE, "Request not present is Q Fatal ::%d",
+              callbackRequestId);
+        }
+        plPipeline->mCondition.notify_all();  // Notify waiting threads
       }
-      plPipeline->mCondition.notify_all(); // Notify waiting threads
-    }
 
-    if (plPipeline->pSesionCallBackHandler) {
-      plPipeline->pSesionCallBackHandler(plPipeline->pSessionCtx, Output);
-    }
-    plPipeline->mProcessedFrames++;
-  } break;
-  case AlgoBase::AlgoMessageType::ProcessingFailed:
-    LOG(ERROR, ALGOPIPELINE, "Processing Failed");
-    plPipeline->mState = AlgoPipelineState::FailedToProcess;
-    break;
-  case AlgoBase::AlgoMessageType::ProcessingTimeout:
-    LOG(ERROR, ALGOPIPELINE, "Processing Timeout");
-    plPipeline->mState = AlgoPipelineState::FailedToProcess;
-    break;
-  case AlgoBase::AlgoMessageType::ProcessingPartial:
-    LOG(ERROR, ALGOPIPELINE, "Partial Processing");
-    break;
-  default:
-    LOG(ERROR, ALGOPIPELINE, "Unknown Message Type");
-    break;
+      if (plPipeline->pSesionCallBackHandler) {
+        plPipeline->pSesionCallBackHandler(plPipeline->pSessionCtx, Output);
+      }
+      plPipeline->mProcessedFrames++;
+    } break;
+    case AlgoBase::AlgoMessageType::ProcessingFailed:
+      LOG(ERROR, ALGOPIPELINE, "Processing Failed");
+      plPipeline->mState = AlgoPipelineState::FailedToProcess;
+      break;
+    case AlgoBase::AlgoMessageType::ProcessingTimeout:
+      LOG(ERROR, ALGOPIPELINE, "Processing Timeout");
+      plPipeline->mState = AlgoPipelineState::FailedToProcess;
+      break;
+    case AlgoBase::AlgoMessageType::ProcessingPartial:
+      LOG(ERROR, ALGOPIPELINE, "Partial Processing");
+      break;
+    default:
+      LOG(ERROR, ALGOPIPELINE, "Unknown Message Type");
+      break;
   }
 }
 
@@ -334,7 +339,9 @@ void AlgoPipeline::WaitForQueueCompetion() {
  *
  * @return size_t
  */
-size_t AlgoPipeline::GetProcessedFrames() const { return mProcessedFrames; }
+size_t AlgoPipeline::GetProcessedFrames() const {
+  return mProcessedFrames;
+}
 
 /**
  * @brief Dump pipline info in Log

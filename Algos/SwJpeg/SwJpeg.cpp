@@ -102,7 +102,6 @@ void ConvertYUVToRGB(const unsigned char* yuvData, unsigned char* rgbData,
  */
 AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
   std::lock_guard<std::mutex> lock(mutex_);
-  LOG(ERROR, ALGOBASE, "SWJPEG Process E");
   if (!req || req->GetImageCount() == 0) {
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
@@ -126,9 +125,7 @@ AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
     ConvertYUVToRGB(inputData, rgbData.data(), width, height, inputFormat);
     inputData = rgbData.data();
   }
-  LOG(ERROR, ALGOBASE, "Before Process E");
   if (CanProcessFormat(inputFormat, ImageFormat::JPEG)) {
-    LOG(ERROR, ALGOBASE, "inside Process E");
     std::vector<unsigned char> jpegData;
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
