@@ -23,23 +23,25 @@
 #define LOG_H
 #pragma once
 
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
+extern std::ofstream logFile;
 // Logging levels
 // Updated LogLevel enum class with VERBOSE included
 enum class LogLevel {
-  L_TRACE = 0, // Logs even more detailed than DEBUG  //more logs
-  L_FATAL,     // Critical errors, often resulting in termination //less logs
-  L_ERROR,     // Errors during execution
-  L_DEBUG,     // Debugging information
-  L_VERBOSE,   // More detailed logs than DEBUG, often for diagnostics
-  L_INFO,      // General informational messages
-  L_WARNING,   // Warnings about potentially harmful situations
+  L_TRACE = 0,  // Logs even more detailed than DEBUG  //more logs
+  L_FATAL,      // Critical errors, often resulting in termination //less logs
+  L_ERROR,      // Errors during execution
+  L_DEBUG,      // Debugging information
+  L_VERBOSE,    // More detailed logs than DEBUG, often for diagnostics
+  L_INFO,       // General informational messages
+  L_WARNING,    // Warnings about potentially harmful situations
 
 };
-
+extern LogLevel logLevel;
 // Updated macro definitions linked to LogLevel values
 #define TRACE static_cast<int>(LogLevel::L_TRACE)
 #define DEBUG static_cast<int>(LogLevel::L_DEBUG)
@@ -67,34 +69,52 @@ std::string getCurrentTime();
 std::string getCurrentThreadId();
 std::string getLogLevelAbbreviation(LogLevel level);
 // Macro to log message with log component, log level, and variable parameters
-#define LOG(level, component, fmt, ...)                                        \
-  do {                                                                         \
-    if (Log::GetLevel() >= static_cast<LogLevel>(level)) {                     \
-      char buffer[1024];                                                       \
-      std::snprintf(buffer, sizeof(buffer), fmt, ##__VA_ARGS__);               \
-      std::stringstream ss;                                                    \
-      ss << "[" << getCurrentTime() << "]"                                     \
-         << "[" << std::left << std::setw(15) << component << "]"              \
-         << "[" << getLogLevelAbbreviation(static_cast<LogLevel>(level))       \
-         << "]"                                                                \
-         << "[" << __func__ << "]"                                             \
-         << "[" << __LINE__ << "]"                                             \
-         << "[" << getCurrentThreadId() << "] " << buffer << std::endl;        \
-      std::cerr << ss.str();                                                   \
-    }                                                                          \
+#define LOG(level, component, fmt, ...)                                  \
+  do {                                                                   \
+    if (Log::GetLevel() >= static_cast<LogLevel>(level)) {               \
+      char buffer[1024];                                                 \
+      std::snprintf(buffer, sizeof(buffer), fmt, ##__VA_ARGS__);         \
+      std::ostringstream ss;                                             \
+      ss << "[" << getCurrentTime() << "]"                               \
+         << "[" << std::left << std::setw(15) << component << "]"        \
+         << "[" << getLogLevelAbbreviation(static_cast<LogLevel>(level)) \
+         << "]"                                                          \
+         << "[" << __func__ << "]"                                       \
+         << "[" << __LINE__ << "]"                                       \
+         << "[" << getCurrentThreadId() << "] " << buffer << std::endl;  \
+      std::cerr << ss.str();                                             \
+      /*logFile << ss.str();*/                                           \
+      /*logFile.flush();*/                                               \
+    }                                                                    \
   } while (0)
 
 // Overload the << operator for LogLevel enum class
-std::ostream &operator<<(std::ostream &os, const LogLevel &level);
+std::ostream& operator<<(std::ostream& os, const LogLevel& level);
 
 // Log class for managing log levels
 class Log {
-public:
+ public:
+  Log() {
+    logFile.open("Somelogfile.txt", std::ios::app);
+    if (logFile.is_open()) {
+      logToFile = true;
+    } else {
+      std::cerr << "Error: Could not open log file. Logging to console instead."
+                << std::endl;
+      logToFile = false;
+    }
+  }
+  ~Log() {
+    if (logFile.is_open()) {
+      logFile.close();
+    }
+  }
   static void SetLevel(LogLevel level);
   static LogLevel GetLevel();
+  void SetLogOutput(const std::string& filename);
+  bool logToFile = false;  // Default: log to console
 
-private:
-  static LogLevel logLevel;
+ private:
 };
 
-#endif // LOG_H
+#endif  // LOG_H

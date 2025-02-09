@@ -37,7 +37,7 @@ TEST(AlgoMetadataTest, GetSetMetadataInt) {
   ASSERT_EQ(value, 1080);
 
   // Get non-existent metadata
-  ASSERT_EQ(metadata.GetMetadata(MetaId::CAMERA_MAKE, value), -1);
+  ASSERT_EQ(metadata.GetMetadata(MetaId::MODIFICATION_HISTORY, value), -1);
 }
 
 TEST(AlgoMetadataTest, GetSetMetadataFloat) {
@@ -52,5 +52,5 @@ TEST(AlgoMetadataTest, GetSetMetadataFloat) {
   ASSERT_EQ(value, 123.45f);
 
   // Get non-existent metadata
-  ASSERT_EQ(metadata.GetMetadata(MetaId::FOCAL_LENGTH, value), -1);
+  ASSERT_EQ(metadata.GetMetadata(MetaId::MODIFICATION_HISTORY, value), -1);
 }

@@ -20,10 +20,12 @@
  * THE SOFTWARE.
  */
 #include "../include/Log.h"
-#include <chrono>
-#include <iomanip>
-//#include <thread>
 #include <pthread.h>
+#include <chrono>
+#include <fstream>
+#include <iomanip>
+std::ofstream logFile;
+LogLevel logLevel = LogLevel::L_VERBOSE;
 // Function to get current time
 std::string getCurrentTime() {
   auto now          = std::chrono::system_clock::now();
@@ -97,9 +99,6 @@ std::string getLogLevelAbbreviation(LogLevel level) {
       return "?";  // Unknown level
   }
 }
-
-// Log class static member definition and implementation
-LogLevel Log::logLevel = LogLevel::L_VERBOSE;  // Initialize static member
 
 void Log::SetLevel(LogLevel level) {
   logLevel = level;
