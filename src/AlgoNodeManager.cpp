@@ -20,18 +20,17 @@
  * THE SOFTWARE.
  */
 #include "AlgoNodeManager.h"
-#include "AlgoLibraryLoader.h"
-#include "Log.h"
 #include <algorithm>
 #include <cassert>
 #include <filesystem>
-#include <regex>
 #include <string>
 #include <vector>
+#include "AlgoLibraryLoader.h"
+#include "Log.h"
 
 namespace fs = std::filesystem;
 
-AlgoNodeManager &AlgoNodeManager::Getinstance() {
+AlgoNodeManager& AlgoNodeManager::Getinstance() {
   static AlgoNodeManager instance;
   return instance;
 }
@@ -43,19 +42,19 @@ AlgoNodeManager &AlgoNodeManager::Getinstance() {
 AlgoNodeManager::AlgoNodeManager() {
   LOG(INFO, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager E");
   mLibraryPath =
-      "/home/uma/workspace/Gzero/cmake/lib/"; // "@todo get from xml later
-  /*open path and prepeare a list of shared librbary of format com.Algo.*.so*/
+      "/home/uma/workspace/Gzero/cmake/lib/";  // "@todo get from xml later
+  /* Open the path and prepare a list of shared libraries with the format com.Algo.*.so */
 
   try {
     if (!fs::exists(mLibraryPath) || !fs::is_directory(mLibraryPath)) {
       throw std::runtime_error("Invalid library path: " + mLibraryPath);
     }
 
-    std::regex sharedLibraryPattern(R"(com\.Algo\..*\.so)");
-    for (const auto &entry : fs::directory_iterator(mLibraryPath)) {
+    for (const auto& entry : fs::directory_iterator(mLibraryPath)) {
       if (entry.is_regular_file()) {
-        const auto &fileName = entry.path().filename().string();
-        if (std::regex_match(fileName, sharedLibraryPattern)) {
+        const auto& fileName = entry.path().filename().string();
+        if (fileName.find("com.Algo.") == 0 &&
+            fileName.find(".so") == fileName.size() - 3) {
           mSharedLibrariesPath.push_back(entry.path().string());
         }
       }
@@ -65,14 +64,14 @@ AlgoNodeManager::AlgoNodeManager() {
       LOG(WARNING, ALGOMANAGER, "No matching shared libraries found in %s",
           mLibraryPath.c_str());
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     LOG(ERROR, ALGOMANAGER, "Error initializing AlgoNodeManager: %s", e.what());
   }
 
   mIdLoaderMap.clear();
   mIdToAlgoNameMap.clear();
   /* retrive algo id and name and save , algo objects are not created here */
-  for (auto &lib : mSharedLibrariesPath) {
+  for (auto& lib : mSharedLibrariesPath) {
     LOG(INFO, ALGOMANAGER, "E Loading library: %s", lib.c_str());
     std::shared_ptr<AlgoLibraryLoader> pAlgoLoader = nullptr;
 
@@ -82,7 +81,7 @@ AlgoNodeManager::AlgoNodeManager() {
       mIdToAlgoNameMap[pAlgoLoader->GetAlgoId()] =
           pAlgoLoader->GetAlgorithmName();
       mIdLoaderMap[pAlgoLoader->GetAlgoId()] = pAlgoLoader;
-    } catch (const std::bad_alloc &e) {
+    } catch (const std::bad_alloc& e) {
       LOG(ERROR, ALGOMANAGER,
           "Failed to allocate memory for AlgoLibraryLoader");
       assert(pAlgoLoader);
@@ -106,10 +105,10 @@ AlgoNodeManager::~AlgoNodeManager() {
   mIdToAlgoNameMap.clear();
 
   // Explicitly clear and release resources before destruction
-  for (auto &entry : mIdLoaderMap) {
-    entry.second.reset(); // Reset shared pointers to ensure proper cleanup
+  for (auto& entry : mIdLoaderMap) {
+    entry.second.reset();  // Reset shared pointers to ensure proper cleanup
   }
-  mIdLoaderMap.clear(); // Clear the map after releasing resources
+  mIdLoaderMap.clear();  // Clear the map after releasing resources
   LOG(INFO, ALGOMANAGER, "~AlgoNodeManager X");
 }
 
@@ -131,10 +130,10 @@ bool AlgoNodeManager::IsAlgoAvailable(AlgoId algoId) const {
  * @return true
  * @return false
  */
-bool AlgoNodeManager::IsAlgoAvailable(std::string &algoName) const {
+bool AlgoNodeManager::IsAlgoAvailable(std::string& algoName) const {
   return std::any_of(
       mIdToAlgoNameMap.begin(), mIdToAlgoNameMap.end(),
-      [&algoName](const auto &algo) { return algo.second == algoName; });
+      [&algoName](const auto& algo) { return algo.second == algoName; });
 }
 
 /**
@@ -158,11 +157,11 @@ std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(AlgoId algoId) {
  * @param algoName
  * @return std::shared_ptr<AlgoBase>
  */
-std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string &algoName) {
+std::shared_ptr<AlgoBase> AlgoNodeManager::CreateAlgo(std::string& algoName) {
   std::lock_guard<std::mutex> lock(mAlgoCreationMutex);
   auto it = std::find_if(
       mIdToAlgoNameMap.begin(), mIdToAlgoNameMap.end(),
-      [&algoName](const auto &algo) { return algo.second == algoName; });
+      [&algoName](const auto& algo) { return algo.second == algoName; });
 
   if (it != mIdToAlgoNameMap.end()) {
     return mIdLoaderMap[it->first]->GetAlgoMethod();

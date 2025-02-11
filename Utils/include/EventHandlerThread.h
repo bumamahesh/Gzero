@@ -23,19 +23,20 @@
 #define EVENTHANDLERTHREAD_H
 #pragma once
 
+#include <pthread.h>
 #include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <pthread.h>
 #include <queue>
 
-template <typename T> class EventHandlerThread {
-public:
-  using EventHandler = std::function<void(void *, std::shared_ptr<T>)>;
+template <typename T>
+class EventHandlerThread {
+ public:
+  using EventHandler = std::function<void(void*, std::shared_ptr<T>)>;
 
   // Constructor
-  EventHandlerThread(EventHandler handler, void *context)
+  EventHandlerThread(EventHandler handler, void* context)
       : mHandler(handler), mContext(context), mRunning(false) {
     pthread_create(&mPthread, nullptr, &EventHandlerThread::threadFunc, this);
     pthread_setname_np(mPthread, "EventHandlerThread");
@@ -66,10 +67,10 @@ public:
     mCv.notify_one();
   }
 
-private:
+ private:
   // The function executed by the thread
-  static void *threadFunc(void *arg) {
-    auto self = static_cast<EventHandlerThread *>(arg);
+  static void* threadFunc(void* arg) {
+    auto self      = static_cast<EventHandlerThread*>(arg);
     self->mRunning = true;
     while (true) {
       std::shared_ptr<T> event = nullptr;
@@ -92,13 +93,13 @@ private:
     return nullptr;
   }
 
-  EventHandler mHandler;
-  void *mContext;
+  EventHandler mHandler = nullptr;
+  void* mContext        = nullptr;
   pthread_t mPthread;
-  bool mRunning;
+  bool mRunning = false;
   std::queue<std::shared_ptr<T>> mEventQueue;
   std::mutex mMutex;
   std::condition_variable mCv;
 };
 
-#endif // EVENTHANDLERTHREAD_H
+#endif  // EVENTHANDLERTHREAD_H
