@@ -105,6 +105,7 @@ int LdcAlgorithm::GetTimeout() {
 
 CameraIntrinsics LdcAlgorithm::ComputeCameraIntrinsics(
     const std::vector<std::shared_ptr<ImageData>>& yuvImages) {
+  (void)yuvImages;
   // Placeholder for actual camera intrinsics computation logic
   CameraIntrinsics intrinsics;
   intrinsics.focalLength      = {1000.0, 1000.0};

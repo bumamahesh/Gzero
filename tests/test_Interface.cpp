@@ -19,23 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../include/AlgoDefs.h"
-#include "../include/AlgoRequest.h"
 #include <dlfcn.h>
 #include <gtest/gtest.h>
 #include <memory>
+#include "../include/AlgoDefs.h"
+#include "../include/AlgoRequest.h"
 // Type aliases for function pointers
-typedef int (*InitAlgoInterfaceFunc)(void **);
-typedef int (*DeInitAlgoInterfaceFunc)(void **);
-typedef int (*AlgoInterfaceProcessFunc)(void **, std::shared_ptr<AlgoRequest>,
+typedef int (*InitAlgoInterfaceFunc)(void**);
+typedef int (*DeInitAlgoInterfaceFunc)(void**);
+typedef int (*AlgoInterfaceProcessFunc)(void**, std::shared_ptr<AlgoRequest>,
                                         std::vector<AlgoId>);
-typedef int (*RegisterCallbackFunc)(void **,
+typedef int (*RegisterCallbackFunc)(void**,
                                     int (*)(std::shared_ptr<AlgoRequest>));
 
 // Test Fixture Class
 class SharedLibTest : public ::testing::Test {
-protected:
-  void *libhandle = nullptr;
+ protected:
+  void* libhandle = nullptr;
 
   // Function pointers
   InitAlgoInterfaceFunc InitAlgoInterface       = nullptr;
@@ -82,15 +82,16 @@ protected:
 // Callback function for testing
 int g_cbs = 0;
 int TestCallback(std::shared_ptr<AlgoRequest> input) {
+  (void)(input);
   // Simulate callback logic
   g_cbs++;
-  return 0; // Return success
+  return 0;  // Return success
 }
 
 // Test Cases
 
 TEST_F(SharedLibTest, InitDeInitTest) {
-  void *algoHandle = nullptr;
+  void* algoHandle = nullptr;
 
   // Test initialization
   int status = InitAlgoInterface(&algoHandle);
@@ -105,7 +106,7 @@ TEST_F(SharedLibTest, InitDeInitTest) {
 }
 
 TEST_F(SharedLibTest, RegisterCallbackTest) {
-  void *algoHandle = nullptr;
+  void* algoHandle = nullptr;
 
   // Initialize the library
   int status = InitAlgoInterface(&algoHandle);
@@ -125,12 +126,13 @@ TEST_F(SharedLibTest, RegisterCallbackTest) {
 
 int cb_cnt = 0;
 int ImageCallback(std::shared_ptr<AlgoRequest> input) {
+  (void)(input);
   // Simulate callback logic
   cb_cnt++;
-  return 0; // Return success
+  return 0;  // Return success
 }
 TEST_F(SharedLibTest, AlgoInterfaceProcessTest) {
-  void *algoHandle = nullptr;
+  void* algoHandle = nullptr;
 
   // Initialize the library
   int status = InitAlgoInterface(&algoHandle);
@@ -142,10 +144,11 @@ TEST_F(SharedLibTest, AlgoInterfaceProcessTest) {
 
   cb_cnt = 0;
   // Create a mock AlgoRequest
-  std::vector<unsigned char> yuvData(WIDTH * HEIGHT * 3 / 2); // YUV420 format
+  std::vector<unsigned char> yuvData(WIDTH * HEIGHT * 3 / 2);  // YUV420 format
   auto request        = std::make_shared<AlgoRequest>();
   request->mRequestId = 123;
-  int rc              = request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, std::move(yuvData));
+  int rc =
+      request->AddImage(ImageFormat::YUV420, WIDTH, HEIGHT, std::move(yuvData));
   ASSERT_EQ(rc, 0);
 
   // Process the request

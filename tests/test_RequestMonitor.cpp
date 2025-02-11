@@ -19,20 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <gtest/gtest.h>
+#include <future>
+#include <thread>
 #include "../include/RequestMonitor.h"
 #include "Task.h"
-#include <future>
-#include <gtest/gtest.h>
-#include <thread>
 
 class RequestMonitorTest : public ::testing::Test {
-protected:
+ protected:
   // This will be run before each test
   void SetUp() override {
     // Set up necessary test data, if needed
     for (int i = 0; i < 10; i++) {
-      auto task = std::make_shared<Task_t>();
-      task->request = std::make_shared<AlgoRequest>();
+      auto task                 = std::make_shared<Task_t>();
+      task->request             = std::make_shared<AlgoRequest>();
       task->request->mRequestId = 1;
       taskVector.push_back(task);
     }
@@ -43,14 +43,14 @@ protected:
     // Clean up if needed
   }
 
-public:
+ public:
   bool callbackCalled = false;
   std::vector<std::shared_ptr<Task_t>> taskVector;
 };
-void mockCallback(void *pContext, std::shared_ptr<Task_t> task) {
-
-  RequestMonitorTest *test = static_cast<RequestMonitorTest *>(pContext);
-  test->callbackCalled = true;
+void mockCallback(void* pContext, std::shared_ptr<Task_t> task) {
+  (void)(task);
+  RequestMonitorTest* test = static_cast<RequestMonitorTest*>(pContext);
+  test->callbackCalled     = true;
 }
 
 // Test case for starting and stopping a request
@@ -118,7 +118,7 @@ TEST_F(RequestMonitorTest, RequestExceedsTimeoutWithoutStop) {
   // was not called The callback is triggered by the monitor thread, not the
   // stopRequest method
   std::this_thread::sleep_for(
-      std::chrono::seconds(1)); // Ensure callback has been processed
+      std::chrono::seconds(1));  // Ensure callback has been processed
 
   EXPECT_TRUE(callbackCalled);
 }
@@ -157,27 +157,29 @@ TEST_F(RequestMonitorTest, RequestTimeoutNoStop) {
 
   // The callback should be triggered because the request was not stopped
   std::this_thread::sleep_for(
-      std::chrono::seconds(1)); // Allow callback processing
+      std::chrono::seconds(1));  // Allow callback processing
 
   EXPECT_TRUE(callbackCalled);
 }
 
 //-----------------------------------------------------------
 int callbackCounter = 0;
-void Callback(void *pContext, std::shared_ptr<Task_t> task) {
+void Callback(void* pContext, std::shared_ptr<Task_t> task) {
+  (void)(task);
+  (void)(pContext);
   callbackCounter++;
 }
 
 class RequestMonitorStressTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     callbackCounter = 0;
-    monitor = new RequestMonitor();
+    monitor         = new RequestMonitor();
     monitor->SetCallback(Callback, this);
 
     for (int i = 0; i < 10; i++) {
-      auto task = std::make_shared<Task_t>();
-      task->request = std::make_shared<AlgoRequest>();
+      auto task                 = std::make_shared<Task_t>();
+      task->request             = std::make_shared<AlgoRequest>();
       task->request->mRequestId = 1;
       taskVector.push_back(task);
     }
@@ -185,15 +187,15 @@ protected:
 
   void TearDown() override { delete monitor; }
 
-  RequestMonitor *monitor = nullptr;
+  RequestMonitor* monitor = nullptr;
   std::vector<std::shared_ptr<Task_t>> taskVector;
 };
 
 TEST_F(RequestMonitorStressTest, NoCallbackForProcessingWithinTolerance) {
-  const int timeout = 33;                  // 33ms timeout
-  const int tolerance = 3;                 // 3ms tolerance
-  const int minTime = timeout - tolerance; // 30ms
-  const int maxTime = timeout + tolerance; // 36ms
+  const int timeout     = 33;                   // 33ms timeout
+  const int tolerance   = 3;                    // 3ms tolerance
+  const int minTime     = timeout - tolerance;  // 30ms
+  const int maxTime     = timeout + tolerance;  // 36ms
   const int totalFrames = 10;
 
   // Vector to store futures for asynchronous tasks
@@ -212,7 +214,7 @@ TEST_F(RequestMonitorStressTest, NoCallbackForProcessingWithinTolerance) {
   }
 
   // Wait for all tasks to complete
-  for (auto &task : tasks) {
+  for (auto& task : tasks) {
     task.get();
   }
 

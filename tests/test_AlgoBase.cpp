@@ -19,22 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../include/AlgoBase.h"
-#include "EventHandlerThread.h"
 #include <gtest/gtest.h>
 #include <string>
+#include "../include/AlgoBase.h"
+#include "EventHandlerThread.h"
 
 /**
  * @class MockDerivedAlgo
  * @brief Mock implementation of AlgoBase for testing purposes.
  */
 class MockDerivedAlgo : public AlgoBase {
-public:
+ public:
   /**
    * @brief Constructor for MockDerivedAlgo.
    * @param name Name of the algorithm.
    */
-  explicit MockDerivedAlgo(const char *name) : AlgoBase(name) {}
+  explicit MockDerivedAlgo(const char* name) : AlgoBase(name) {}
 
   /**
    * @brief Destructor for MockDerivedAlgo.
@@ -52,6 +52,7 @@ public:
    * @return Status of the operation.
    */
   AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
+    (void)(req);
     SetStatus(AlgoStatus::SUCCESS);
     return GetAlgoStatus();
   }
@@ -73,7 +74,7 @@ public:
    */
   int GetTimeout() override { return 1000; }
 
-private:
+ private:
 };
 
 /**
@@ -106,16 +107,17 @@ TEST(AlgoBaseTest, CallBackTest) {
   EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithm");
   g_callbacks = 0;
 
-  auto callback = [](void *ctx,
+  auto callback = [](void* ctx,
                      std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+    (void)(ctx);
     assert(msg != nullptr);
     switch (msg->mType) {
-    case AlgoBase::AlgoMessageType::ProcessingCompleted:
-      g_callbacks++;
-      break;
-    default:
-      assert(true);
-      break;
+      case AlgoBase::AlgoMessageType::ProcessingCompleted:
+        g_callbacks++;
+        break;
+      default:
+        assert(true);
+        break;
     }
   };
   auto eventHandler =
@@ -127,9 +129,9 @@ TEST(AlgoBaseTest, CallBackTest) {
   node->SetEventThread(eventHandler);
 
   for (int i = 0; i < 500; i++) {
-    auto task = std::make_shared<Task_t>();
+    auto task                                = std::make_shared<Task_t>();
     std::shared_ptr<AlgoRequest> algoRequest = std::make_shared<AlgoRequest>();
-    task->request = algoRequest;
+    task->request                            = algoRequest;
     node->EnqueueRequest(task);
   }
   node->WaitForQueueCompetion();
@@ -141,12 +143,12 @@ TEST(AlgoBaseTest, CallBackTest) {
  * @brief Mock implementation of AlgoBase for testing purposes.
  */
 class MockDerivedAlgoFail : public AlgoBase {
-public:
+ public:
   /**
    * @brief Constructor for MockDerivedAlgo.
    * @param name Name of the algorithm.
    */
-  explicit MockDerivedAlgoFail(const char *name) : AlgoBase(name) {}
+  explicit MockDerivedAlgoFail(const char* name) : AlgoBase(name) {}
 
   /**
    * @brief Destructor for MockDerivedAlgoFail.
@@ -168,7 +170,7 @@ public:
    * @return Status of the operation.
    */
   AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
-
+    (void)(req);
     SetStatus(AlgoStatus::INTERNAL_ERROR);
     return GetAlgoStatus();
   }
@@ -190,7 +192,7 @@ public:
    */
   int GetTimeout() override { return 1000; }
 
-private:
+ private:
 };
 
 size_t g_Failcallbacks = 0;
@@ -201,16 +203,17 @@ TEST(AlgoBaseTest, CallBackTestFail) {
   EXPECT_EQ(node->GetAlgorithmName(), "TestAlgorithmFail");
   g_Failcallbacks = 0;
 
-  auto callback = [](void *ctx,
+  auto callback = [](void* ctx,
                      std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+    (void)(ctx);
     assert(msg != nullptr);
     switch (msg->mType) {
-    case AlgoBase::AlgoMessageType::ProcessingFailed:
-      g_Failcallbacks++;
-      break;
-    default:
-      assert(true);
-      break;
+      case AlgoBase::AlgoMessageType::ProcessingFailed:
+        g_Failcallbacks++;
+        break;
+      default:
+        assert(true);
+        break;
     }
   };
   auto eventHandler =
@@ -219,7 +222,7 @@ TEST(AlgoBaseTest, CallBackTestFail) {
   node->SetEventThread(eventHandler);
 
   for (int i = 0; i < 500; i++) {
-    auto task = std::make_shared<Task_t>();
+    auto task     = std::make_shared<Task_t>();
     task->request = nullptr;
     node->EnqueueRequest(task);
   }
@@ -232,12 +235,12 @@ TEST(AlgoBaseTest, CallBackTestFail) {
  * @brief Mock implementation of AlgoBase for testing purposes.
  */
 class MockDerivedAlgoTimeOutCallback : public AlgoBase {
-public:
+ public:
   /**
    * @brief Constructor for MockDerivedAlgo.
    * @param name Name of the algorithm.
    */
-  explicit MockDerivedAlgoTimeOutCallback(const char *name) : AlgoBase(name) {}
+  explicit MockDerivedAlgoTimeOutCallback(const char* name) : AlgoBase(name) {}
 
   /**
    * @brief Destructor for MockDerivedAlgoFail.
@@ -259,9 +262,9 @@ public:
    * @return Status of the operation.
    */
   AlgoStatus Process(std::shared_ptr<AlgoRequest> req) override {
-
+    (void)(req);
     SetStatus(AlgoStatus::INTERNAL_ERROR);
-    usleep(20 * 1000); // 100 ms
+    usleep(20 * 1000);  // 100 ms
 
     return GetAlgoStatus();
   }
@@ -283,7 +286,7 @@ public:
    */
   int GetTimeout() override { return 5; }
 
-private:
+ private:
 };
 
 size_t g_Timeoutcallbacks = 0;
@@ -295,16 +298,17 @@ TEST(AlgoBaseTest, AlgoTimeOutCallback) {
 
     EXPECT_EQ(node->GetAlgorithmName(), "MockDerivedAlgoTimeOutCallback");
     g_Timeoutcallbacks = 0;
-    auto callback = [](void *ctx,
+    auto callback      = [](void* ctx,
                        std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+      (void)(ctx);
       assert(msg != nullptr);
       switch (msg->mType) {
-      case AlgoBase::AlgoMessageType::ProcessingTimeout:
-        g_Timeoutcallbacks++;
-        break;
-      default:
-        assert(true);
-        break;
+        case AlgoBase::AlgoMessageType::ProcessingTimeout:
+          g_Timeoutcallbacks++;
+          break;
+        default:
+          assert(true);
+          break;
       }
     };
     auto eventHandler =
@@ -313,9 +317,9 @@ TEST(AlgoBaseTest, AlgoTimeOutCallback) {
     node->SetEventThread(eventHandler);
 
     for (int i = 0; i < 100; i++) {
-      auto task = std::make_shared<Task_t>();
-      task->timeoutMs = node->GetTimeout();
-      task->request = std::make_shared<AlgoRequest>();
+      auto task                 = std::make_shared<Task_t>();
+      task->timeoutMs           = node->GetTimeout();
+      task->request             = std::make_shared<AlgoRequest>();
       task->request->mRequestId = i;
       node->EnqueueRequest(task);
     }

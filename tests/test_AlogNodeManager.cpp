@@ -110,6 +110,7 @@ TEST_F(AlgoNodeManagerTest, TryMandelbrotSetProcess) {
 
   auto callback = [](void* ctx,
                      std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+    (void)(ctx);
     assert(msg != nullptr);
     switch (msg->mType) {
       case AlgoBase::AlgoMessageType::ProcessingCompleted: {

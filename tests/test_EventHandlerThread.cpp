@@ -19,13 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "EventHandlerThread.h"
-#include <atomic>
 #include <gtest/gtest.h>
+#include <atomic>
+#include "EventHandlerThread.h"
 
 typedef struct AlgoEvent {
-  void *arg = nullptr;
-  AlgoEvent(void *arg = nullptr) : arg(arg) {}
+  void* arg = nullptr;
+  AlgoEvent(void* arg = nullptr) : arg(arg) {}
 } AlgoEvent;
 
 TEST(EventHandlerThreadTest, BasicTest) {
@@ -36,11 +36,12 @@ TEST(EventHandlerThreadTest, BasicTest) {
   std::condition_variable cv;
   bool done = false;
 
-  auto handler = [&](void *context, std::shared_ptr<AlgoEvent>) {
+  auto handler = [&](void* context, std::shared_ptr<AlgoEvent>) {
+    (void)context;
     counter++;
     {
       std::lock_guard<std::mutex> lock(mtx);
-      if (counter == 10) { // If we processed 10 events, notify the main thread
+      if (counter == 10) {  // If we processed 10 events, notify the main thread
         done = true;
         cv.notify_one();
       }

@@ -19,20 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "AlgoPipeline.h" // Include the header file for your class
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <mutex>
+#include "AlgoPipeline.h"  // Include the header file for your class
 #define STRESS_CNT 10000
 
 // Test fixture
 class AlgoPipelineTest : public ::testing::Test {
-protected:
+ protected:
 };
 
 TEST_F(AlgoPipelineTest, CtorDtorID) {
   std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
-  auto algoPipeline = std::make_shared<AlgoPipeline>();
+  auto algoPipeline            = std::make_shared<AlgoPipeline>();
   EXPECT_EQ(algoPipeline->GetState(), AlgoPipelineState::Initialised);
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoList.size(), 2);
@@ -42,7 +42,7 @@ TEST_F(AlgoPipelineTest, CtorDtorID) {
 
 TEST_F(AlgoPipelineTest, CtorDtorName) {
   std::vector<std::string> algoList = {"HdrAlgorithm", "BokehAlgorithm"};
-  auto algoPipeline = std::make_shared<AlgoPipeline>();
+  auto algoPipeline                 = std::make_shared<AlgoPipeline>();
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), AlgoPipelineState::Initialised);
   EXPECT_EQ(algoList.size(), 2);
@@ -55,12 +55,14 @@ TEST_F(AlgoPipelineTest, Processtest) {
 
   std::vector<AlgoId> algoList = {ALGO_HDR, ALGO_BOKEH};
 
-  auto pipelineCallback = [](void *ctx, std::shared_ptr<AlgoRequest> input) {
+  auto pipelineCallback = [](void* ctx, std::shared_ptr<AlgoRequest> input) {
+    (void)(ctx);
+    (void)(input);
     static std::mutex cbmux;
     std::lock_guard<std::mutex> lock(cbmux);
     ProcessedFrame++;
   };
-  ProcessedFrame = 0;
+  ProcessedFrame    = 0;
   auto algoPipeline = std::make_shared<AlgoPipeline>(pipelineCallback);
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), AlgoPipelineState::Initialised);
@@ -69,7 +71,7 @@ TEST_F(AlgoPipelineTest, Processtest) {
 
   for (int i = 0; i < STRESS_CNT; i++) {
     std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
-    input->mRequestId = i;
+    input->mRequestId                  = i;
     algoPipeline->Process(input);
   }
 
@@ -80,10 +82,12 @@ TEST_F(AlgoPipelineTest, Processtest) {
 
 TEST_F(AlgoPipelineTest, ProcesstestFail) {
   std::vector<AlgoId> algoList = {ALGO_MAX};
-  auto pipelineCallback = [](void *ctx, std::shared_ptr<AlgoRequest> input) {
+  auto pipelineCallback = [](void* ctx, std::shared_ptr<AlgoRequest> input) {
+    (void)(ctx);
+    (void)(input);
     ProcessedFrame++;
   };
-  ProcessedFrame = 0;
+  ProcessedFrame    = 0;
   auto algoPipeline = std::make_shared<AlgoPipeline>(pipelineCallback);
   EXPECT_NE(algoPipeline, nullptr);
   EXPECT_EQ(algoPipeline->GetState(), AlgoPipelineState::Initialised);
@@ -91,7 +95,7 @@ TEST_F(AlgoPipelineTest, ProcesstestFail) {
   EXPECT_EQ(algoPipeline->GetState(), AlgoPipelineState::FailedToConfigure);
 
   std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
-  input->mRequestId = 0x100;
+  input->mRequestId                  = 0x100;
   algoPipeline->Process(input);
 
   algoPipeline->WaitForQueueCompetion();

@@ -20,10 +20,10 @@
  * THE SOFTWARE.
  */
 #include "../include/RequestMonitor.h"
-#include "../include/Log.h"
+#include <unistd.h>
 #include <cassert>
 #include <chrono>
-#include <unistd.h>
+#include "../include/Log.h"
 /**
  * @brief Construct a new Request Monitor:: Request Monitor object
  *
@@ -48,7 +48,7 @@ RequestMonitor::RequestMonitor() : running_(true) {
 RequestMonitor::~RequestMonitor() {
   running_ = false;
   if (monitorThread_) {
-    pthread_join(monitorThread_, nullptr); // Wait for monitor thread to finish
+    pthread_join(monitorThread_, nullptr);  // Wait for monitor thread to finish
   }
 
   // Destroy mutex
@@ -61,9 +61,9 @@ RequestMonitor::~RequestMonitor() {
  * @param Callback
  * @param context
  */
-void RequestMonitor::SetCallback(TASKCALLBACK Callback, void *context) {
+void RequestMonitor::SetCallback(TASKCALLBACK Callback, void* context) {
   pCallback = Callback;
-  pcontext = context;
+  pcontext  = context;
 }
 
 void RequestMonitor::StartRequestMonitoring(std::shared_ptr<Task_t> task,
@@ -72,15 +72,15 @@ void RequestMonitor::StartRequestMonitoring(std::shared_ptr<Task_t> task,
 
   if (requests_.find(task) != requests_.end()) {
     LOG(VERBOSE, REQUESTMONITOR, "Request %p is already being monitored.",
-        task.get());
+        (void*)task.get());
     pthread_mutex_unlock(&mutex_);
     return;
   }
 
-  requests_[task].start = std::chrono::high_resolution_clock::now();
-  requests_[task].timeout = std::chrono::milliseconds(timeoutMs);
+  requests_[task].start     = std::chrono::high_resolution_clock::now();
+  requests_[task].timeout   = std::chrono::milliseconds(timeoutMs);
   requests_[task].isStopped = false;
-  LOG(INFO, REQUESTMONITOR, "Started monitoring request %p", task.get());
+  LOG(INFO, REQUESTMONITOR, "Started monitoring request %p", (void*)task.get());
 
   pthread_mutex_unlock(&mutex_);
 }
@@ -95,11 +95,11 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
   auto it = requests_.find(task);
   if (it == requests_.end()) {
     LOG(WARNING, REQUESTMONITOR, "task %p was not being monitored.",
-        task.get());
+        (void*)task.get());
     pthread_mutex_unlock(&mutex_);
     return;
   }
-  it->second.stop = std::chrono::high_resolution_clock::now();
+  it->second.stop      = std::chrono::high_resolution_clock::now();
   it->second.isStopped = true;
   mdeltas += (it->second.stop - it->second.start);
   mtotalRequest++;
@@ -107,7 +107,7 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
 
   LOG(INFO, REQUESTMONITOR, "AVERAGE FPS %f delta %ld", averagfps,
       (it->second.stop - it->second.start).count());
-  requests_.erase(task); // Remove request from tracking as it's completed
+  requests_.erase(task);  // Remove request from tracking as it's completed
   pthread_mutex_unlock(&mutex_);
 }
 
@@ -117,8 +117,8 @@ void RequestMonitor::StopRequestMonitoring(std::shared_ptr<Task_t> task) {
  * @param arg
  * @return void*
  */
-void *RequestMonitor::monitorTimeouts(void *arg) {
-  RequestMonitor *monitor = static_cast<RequestMonitor *>(arg);
+void* RequestMonitor::monitorTimeouts(void* arg) {
+  RequestMonitor* monitor = static_cast<RequestMonitor*>(arg);
 
   LOG(INFO, REQUESTMONITOR, "Entering Monitor Thread");
   monitor->bThreadStarted = true;
@@ -126,13 +126,13 @@ void *RequestMonitor::monitorTimeouts(void *arg) {
   while (monitor->running_) {
     // std::this_thread::sleep_for(std::chrono::seconds(1)); // Check every
     // second
-    usleep(10); // do not choke cpu
+    usleep(10);  // do not choke cpu
     pthread_mutex_lock(&monitor->mutex_);
     auto now = std::chrono::high_resolution_clock::now();
 
     for (auto it = monitor->requests_.begin();
          it != monitor->requests_.end();) {
-      auto &request = it->second;
+      auto& request = it->second;
 
       if (!request.isStopped) {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -143,9 +143,9 @@ void *RequestMonitor::monitorTimeouts(void *arg) {
               elapsed.count(), request.timeout.count());
           if (monitor->pCallback) {
             monitor->pCallback(monitor->pcontext,
-                               it->first); // Trigger the callback
+                               it->first);  // Trigger the callback
           }
-          it = monitor->requests_.erase(it); // Remove from the tracking map
+          it = monitor->requests_.erase(it);  // Remove from the tracking map
         } else {
           ++it;
         }

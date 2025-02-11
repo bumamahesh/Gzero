@@ -199,7 +199,7 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
         mRequesteMap.insert({input->mRequestId, input});
       } else {
         LOG(ERROR, ALGOPIPELINE, "Error Duplicate Request ID: %d::%p",
-            input->mRequestId, input.get());
+            input->mRequestId, (void*)input.get());
       }
     }
     task->timeoutMs = mAlgos[0]->GetTimeout();
@@ -353,7 +353,8 @@ void AlgoPipeline::Dump() {
     return;
   }
 
-  LOG(VERBOSE, ALGOPIPELINE, "--------AlgoPipeline Dump[%p]--------", this);
+  LOG(VERBOSE, ALGOPIPELINE, "--------AlgoPipeline Dump[%p]--------",
+      (void*)this);
   LOG(VERBOSE, ALGOPIPELINE, "Number of Algos: %ld", mAlgos.size());
   for (auto algo : mAlgos) {
     LOG(VERBOSE, ALGOPIPELINE, "Algo ID: %x", (unsigned int)algo->GetAlgoId());

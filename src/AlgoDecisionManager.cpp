@@ -53,6 +53,7 @@ uint32_t AlgoDecisionManager::SetAlgoFlag(AlgoId algoId) {
  */
 std::vector<AlgoId> AlgoDecisionManager::ParseMetadata(
     std::shared_ptr<AlgoRequest> req) {
+  (void)(req);
   std::vector<AlgoId> algos;
 
   for (int i = (int)ALGO_BASE_ID; i <= (int)ALGO_MAX; ++i) {

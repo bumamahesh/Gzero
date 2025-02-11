@@ -19,15 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <gtest/gtest.h>
 #include "../Utils/include/TaskQueue.h"
 #include "../include/AlgoRequest.h"
-#include <gtest/gtest.h>
 
 #define STRESS_CNT 100
 size_t gCallback = 0;
 
-auto funcTask = [](void *ctx, std::shared_ptr<Task_t> task) { usleep(10000); };
-auto funcCb = [](void *ctx, std::shared_ptr<Task_t> task) { gCallback++; };
+auto funcTask = [](void* ctx, std::shared_ptr<Task_t> task) {
+  (void)(ctx);
+  (void)(task);
+  usleep(10000);
+};
+auto funcCb = [](void* ctx, std::shared_ptr<Task_t> task) {
+  (void)(ctx);
+  (void)(task);
+  gCallback++;
+};
 
 TEST(TaskQueueTest, WaitForQueueCompletion) {
   gCallback = 0;
@@ -53,11 +61,14 @@ TEST(TaskQueueTest, StopWorkerThread) {
 }
 
 /**test timout callback with long processing time and short timeout register */
-auto longTask = [](void *ctx, std::shared_ptr<Task_t> task) {
-  usleep(30 * 1000); // wait for 30 ms
+auto longTask = [](void* ctx, std::shared_ptr<Task_t> task) {
+  (void)(task);
+  (void)(ctx);
+  usleep(30 * 1000);  // wait for 30 ms
 };
 bool bTimeoutCallback = false;
-auto timeoutCallback = [](void *, std::shared_ptr<Task_t> task) {
+auto timeoutCallback  = [](void*, std::shared_ptr<Task_t> task) {
+  (void)(task);
   bTimeoutCallback = true;
 };
 
@@ -66,9 +77,9 @@ TEST(TaskQueueTest, TestTimeoutCallback) {
   TaskQueue queue(longTask, funcCb, this);
   queue.monitor->SetCallback(timeoutCallback, this);
   // prepare a request
-  auto task = std::make_shared<Task_t>();
-  task->timeoutMs = 10;
-  task->request = std::make_shared<AlgoRequest>();
+  auto task                 = std::make_shared<Task_t>();
+  task->timeoutMs           = 10;
+  task->request             = std::make_shared<AlgoRequest>();
   task->request->mRequestId = 1;
   queue.Enqueue(task);
   queue.WaitForQueueCompetion();

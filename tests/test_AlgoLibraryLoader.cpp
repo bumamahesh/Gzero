@@ -19,14 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "../Utils/include/EventHandlerThread.h"
-#include "../include/AlgoLibraryLoader.h" // Include the header file for your class
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include "../Utils/include/EventHandlerThread.h"
+#include "../include/AlgoLibraryLoader.h"  // Include the header file for your class
 
 // Test fixture
 class AlgoLibraryLoaderTest : public ::testing::Test {
-protected:
+ protected:
   // Path to a mock shared library (this would be a path to a real or test
   // library)
   const std::string validLibraryPath =
@@ -57,9 +57,9 @@ TEST_F(AlgoLibraryLoaderTest, LoadValidLibrary) {
     ASSERT_EQ(algo->GetAlgoId(), loader->GetAlgoId());
     ASSERT_EQ(algo->GetAlgorithmName(), loader->GetAlgorithmName());
     // algo->WaitForQueueCompetion();
-    algo = nullptr;
+    algo   = nullptr;
     loader = nullptr;
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     FAIL() << "Exception thrown: " << e.what();
   }
 }
@@ -74,15 +74,16 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   std::shared_ptr<AlgoBase> algo = loader.GetAlgoMethod();
   ASSERT_NE(algo, nullptr);
 
-  auto callback = [](void *ctx,
+  auto callback = [](void* ctx,
                      std::shared_ptr<AlgoBase::AlgoCallbackMessage> msg) {
+    (void)(ctx);
     assert(msg != nullptr);
     switch (msg->mType) {
-    case AlgoBase::AlgoMessageType::ProcessingCompleted:
-      break;
-    default:
-      assert(true);
-      break;
+      case AlgoBase::AlgoMessageType::ProcessingCompleted:
+        break;
+      default:
+        assert(true);
+        break;
     }
   };
   auto eventHandler =
@@ -106,8 +107,8 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
   int i = 0;
   while (i < 500) {
     std::string msg = std::string("GSD");
-    auto task = std::make_shared<Task_t>();
-    task->request = nullptr; // make a request here  @todo
+    auto task       = std::make_shared<Task_t>();
+    task->request   = nullptr;  // make a request here  @todo
     algo->EnqueueRequest(task);
     i++;
   }
@@ -120,9 +121,9 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
 
 TEST_F(AlgoLibraryLoaderTest, VerifyAllAlgosInterface) {
   try {
-    for (const auto &[AlgoId, libname] : IdAlgoNameMap) {
+    for (const auto& [AlgoId, libname] : IdAlgoNameMap) {
       std::string lib = "/home/uma/workspace/Gzero/cmake/lib/";
-      lib = lib + libname;
+      lib             = lib + libname;
       std::cout << lib << std::endl;
       auto loader = std::make_shared<AlgoLibraryLoader>(lib);
       ASSERT_NE(loader, nullptr);
@@ -136,10 +137,10 @@ TEST_F(AlgoLibraryLoaderTest, VerifyAllAlgosInterface) {
       ASSERT_EQ(algo->GetAlgoId(), loader->GetAlgoId());
       ASSERT_EQ(algo->GetAlgorithmName(), loader->GetAlgorithmName());
       // algo->WaitForQueueCompetion();
-      algo = nullptr;
+      algo   = nullptr;
       loader = nullptr;
     }
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     FAIL() << "Exception thrown: " << e.what();
   }
 }

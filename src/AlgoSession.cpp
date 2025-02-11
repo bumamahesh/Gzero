@@ -245,7 +245,8 @@ void AlgoSession::Dump() {
   LOG(VERBOSE, ALGOSESSION, "AlgoSession Dump");
   LOG(VERBOSE, ALGOSESSION, "Number of Pipelines: %ld", mPipelines.size());
   for (size_t i = 0; i < mPipelines.size(); ++i) {
-    LOG(VERBOSE, ALGOSESSION, "Pipeline ID: %ld::%p", i, mPipelines[i].get());
+    LOG(VERBOSE, ALGOSESSION, "Pipeline ID: %ld::%p", i,
+        (void*)mPipelines[i].get());
     mPipelines[i]->Dump();
   }
 }

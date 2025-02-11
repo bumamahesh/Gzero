@@ -20,16 +20,16 @@
  * THE SOFTWARE.
  */
 #include "AlgoLibraryLoader.h"
-#include "Log.h"
-#include <cassert>
 #include <dlfcn.h>
+#include <cassert>
+#include "Log.h"
 
 /**
 @brief Construct a new Algo Library Loader:: Algo Library Loader object
  *
  * @param libraryPath
  */
-AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
+AlgoLibraryLoader::AlgoLibraryLoader(const std::string& libraryPath) {
   LOG(INFO, ALGOLIBLOADER, "AlgoLibraryLoader::AlgoLibraryLoader E");
   // Attempt to load the shared library
   plibHandle = dlopen(libraryPath.c_str(), RTLD_NOW | RTLD_NODELETE);
@@ -70,7 +70,7 @@ AlgoLibraryLoader::AlgoLibraryLoader(const std::string &libraryPath) {
  */
 AlgoLibraryLoader::~AlgoLibraryLoader() {
   LOG(INFO, ALGOLIBLOADER, "%s::[%p]Total Algo Instances %ld plibHandle:: %p",
-      GetAlgorithmName().c_str(), this, mTotalAlgoInstances, plibHandle);
+      GetAlgorithmName().c_str(), (void*)this, mTotalAlgoInstances, plibHandle);
   if (plibHandle) {
     std::lock_guard<std::mutex> lock(mlibMutex);
     mTotalAlgoInstances = 0;

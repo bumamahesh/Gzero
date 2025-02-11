@@ -71,6 +71,7 @@ AlgoBase::AlgoStatus SwJpeg::Open() {
  */
 void ConvertYUVToRGB(const unsigned char* yuvData, unsigned char* rgbData,
                      int width, int height, ImageFormat format) {
+  (void)(format);
   int frameSize               = width * height;
   const unsigned char* yPlane = yuvData;
   const unsigned char* uPlane = yuvData + frameSize;
