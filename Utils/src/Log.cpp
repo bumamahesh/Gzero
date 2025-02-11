@@ -25,7 +25,7 @@
 #include <fstream>
 #include <iomanip>
 std::ofstream logFile;
-LogLevel logLevel = LogLevel::L_VERBOSE;
+LogLevel glogLevel = LogLevel::L_VERBOSE;
 // Function to get current time
 std::string getCurrentTime() {
   auto now          = std::chrono::system_clock::now();
@@ -100,10 +100,29 @@ std::string getLogLevelAbbreviation(LogLevel level) {
   }
 }
 
-void Log::SetLevel(LogLevel level) {
-  logLevel = level;
+void SetLevel(LogLevel level) {
+  glogLevel = level;
 }
 
-LogLevel Log::GetLevel() {
-  return logLevel;
+LogLevel GetLevel() {
+  return glogLevel;
+}
+
+void LOG(LogLevel level, const std::string& component, const char* fmt, ...) {
+  if (GetLevel() >= level) {
+    char buffer[1024];
+    va_list args;
+    va_start(args, fmt);
+    std::vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+
+    std::ostringstream ss;
+    ss << "[" << getCurrentTime() << "]"
+       << "[" << std::left << std::setw(15) << component << "]"
+       << "[" << getLogLevelAbbreviation(level) << "]"
+       << "[" << __func__ << "]"
+       << "[" << __LINE__ << "]"
+       << "[" << getCurrentThreadId() << "] " << buffer << std::endl;
+    std::cerr << ss.str();
+  }
 }

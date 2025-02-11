@@ -116,6 +116,7 @@ CameraIntrinsics LdcAlgorithm::ComputeCameraIntrinsics(
 
 CameraExtrinsics LdcAlgorithm::ComputeCameraExtrinsics(
     const std::vector<std::shared_ptr<ImageData>>& yuvImages) {
+  (void)yuvImages;
   // Placeholder for actual camera extrinsics computation logic
   CameraExtrinsics extrinsics;
   extrinsics.rotationMatrix = {
@@ -125,6 +126,9 @@ CameraExtrinsics LdcAlgorithm::ComputeCameraExtrinsics(
 }
 
 void LdcAlgorithm::CalculateCalibrationData(std::shared_ptr<AlgoRequest> req) {
+  if (!req) {
+    return;
+  }
   // Ensure that there are images to process
   if (req->GetImageCount() == 0) {
     SetStatus(AlgoStatus::FAILURE);
