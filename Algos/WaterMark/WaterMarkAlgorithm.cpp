@@ -33,7 +33,10 @@ WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   ConfigParser parser;
-  parser.loadFile("/home/uma/workspace/Gzero/Config/WaterMarkAlgorithm.config");
+  mConfigFile = CONFIGPATH;
+  mConfigFile += AlgoBase::GetAlgorithmName();
+  mConfigFile += ".config";
+  parser.loadFile(mConfigFile.c_str());
   std::string watermark_ = parser.getValue("Watermark");
   if (parser.getErrorCode() == 0) {
     watermarkText = watermark_;

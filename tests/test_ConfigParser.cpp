@@ -1,9 +1,8 @@
-#include "../include/ConfigParser.h"
-#include <fstream>
-#include <gtest/gtest.h>
 
+#include <fstream>
+#include "test_common.h"
 class ConfigParserTest : public ::testing::Test {
-protected:
+ protected:
   // Setup method, called before each test
   void SetUp() override {
     // Create a temporary configuration file for testing
@@ -59,9 +58,9 @@ TEST_F(ConfigParserTest, TestErrorCode) {
 
 // Test parsing arrays
 TEST_F(ConfigParserTest, TestParseArray) {
-  ConfigParser parser = loadConfig();
+  ConfigParser parser               = loadConfig();
   std::vector<std::string> expected = {"apple", "banana", "orange"};
-  std::vector<std::string> result = parser.parseArray("apple,banana,orange");
+  std::vector<std::string> result   = parser.parseArray("apple,banana,orange");
   EXPECT_EQ(result.size(), expected.size());
   EXPECT_EQ(result, expected);
 }
@@ -86,8 +85,7 @@ std::string ConfigList[] = {
 TEST_F(ConfigParserTest, TestAllConfigFiles) {
   for (auto config : ConfigList) {
     ConfigParser parser;
-    std::string ConfigFileFullpath =
-        "/home/uma/workspace/Gzero/Config/" + std::string(config);
+    std::string ConfigFileFullpath = CONFIGPATH + std::string(config);
     EXPECT_TRUE(parser.loadFile(ConfigFileFullpath.c_str()));
     EXPECT_EQ(parser.getErrorCode(), 0);
     EXPECT_EQ(parser.getValue("MAGIC_NUMBER"), "0XCAFEBABE");

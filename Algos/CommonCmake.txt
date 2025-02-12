@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 # Set common output directories
 set(CMAKE_SHARED_LIBRARY_PREFIX "com.Algo.")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/cmake/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/build/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/build/lib)
 
 # Common include directories
 set(COMMON_INCLUDE_DIRS

@@ -23,14 +23,13 @@
 #include <gtest/gtest.h>
 #include "../Utils/include/EventHandlerThread.h"
 #include "../include/AlgoLibraryLoader.h"  // Include the header file for your class
-
+#include "test_common.h"
 // Test fixture
 class AlgoLibraryLoaderTest : public ::testing::Test {
  protected:
   // Path to a mock shared library (this would be a path to a real or test
   // library)
-  const std::string validLibraryPath =
-      "/home/uma/workspace/Gzero/cmake/lib/com.Algo.Hdr.so";
+  const std::string validLibraryPath = ALGOLIBPATH + "com.Algo.Hdr.so";
   const std::map<ALGOID, std::string> IdAlgoNameMap = {
       {ALGO_HDR, "com.Algo.Hdr.so"},
       {ALGO_BOKEH, "com.Algo.Bokeh.so"},
@@ -122,7 +121,7 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
 TEST_F(AlgoLibraryLoaderTest, VerifyAllAlgosInterface) {
   try {
     for (const auto& [AlgoId, libname] : IdAlgoNameMap) {
-      std::string lib = "/home/uma/workspace/Gzero/cmake/lib/";
+      std::string lib = ALGOLIBPATH;
       lib             = lib + libname;
       std::cout << lib << std::endl;
       auto loader = std::make_shared<AlgoLibraryLoader>(lib);

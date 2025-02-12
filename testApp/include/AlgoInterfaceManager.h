@@ -32,7 +32,7 @@
 #include "../../include/AlgoDefs.h"
 #include "../../include/AlgoRequest.h"
 
-#define ALGOLIB_PATH "/home/uma/workspace/Gzero/cmake/lib/libAlgoLib.so"
+#define ALGOLIB_PATH "/home/uma/workspace/Gzero/build/lib/libAlgoLib.so"
 #define LOAD_SYM(FUNC) reinterpret_cast<FUNC##Func>(getSymbol(#FUNC))
 
 using InitAlgoInterfaceFunc    = int (*)(void**);

@@ -33,7 +33,10 @@ FilterAlgorithm::FilterAlgorithm() : AlgoBase(FILTER_NAME) {
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   ConfigParser parser;
-  parser.loadFile("/home/uma/workspace/Gzero/Config/FilterAlgorithm.config");
+  mConfigFile = CONFIGPATH;
+  mConfigFile += AlgoBase::GetAlgorithmName();
+  mConfigFile += ".config";
+  parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
     LOG(VERBOSE, ALGOBASE, "Filter Algo Version: %s", Version.c_str());

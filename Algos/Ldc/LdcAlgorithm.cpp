@@ -35,7 +35,10 @@ LdcAlgorithm::LdcAlgorithm() : AlgoBase(LDC_NAME) {
   SupportedFormatsMap.push_back(
       {ImageFormat::GRAYSCALE, ImageFormat::GRAYSCALE});
   ConfigParser parser;
-  parser.loadFile("/home/uma/workspace/Gzero/Config/LdcAlgorithm.config");
+  mConfigFile = CONFIGPATH;
+  mConfigFile += AlgoBase::GetAlgorithmName();
+  mConfigFile += ".config";
+  parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
     LOG(VERBOSE, ALGOBASE, "Ldc Algo Version: %s", Version.c_str());

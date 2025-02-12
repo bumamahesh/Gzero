@@ -35,7 +35,10 @@ SwJpeg::SwJpeg() : AlgoBase(SWJPEG_NAME) {
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::JPEG});
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::JPEG});
   ConfigParser parser;
-  parser.loadFile("/home/uma/workspace/Gzero/Config/SwJpegAlgorithm.config");
+  mConfigFile = CONFIGPATH;
+  mConfigFile += AlgoBase::GetAlgorithmName();
+  mConfigFile += ".config";
+  parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
     LOG(VERBOSE, ALGOBASE, "SwJpeg Algo Version: %s", Version.c_str());

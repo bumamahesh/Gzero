@@ -29,6 +29,7 @@
 #include "../include/AlgoDefs.h"
 #include "../include/AlgoMetadata.h"
 #include "../include/AlgoRequest.h"
+#include "../include/ConfigParser.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -39,5 +40,9 @@ typedef int (*DeInit)(void**);
 typedef int (*Process)(void**, std::shared_ptr<AlgoRequest>,
                        std::vector<AlgoId>);
 typedef int (*Callback)(void**, int (*)(std::shared_ptr<AlgoRequest>));
+
+const std::string ALGOLIBPATH     = "/home/uma/workspace/Gzero/build/lib/";
+const std::string ALGOLIBNAME     = "libAlgoLib.so";
+const std::string FULLALGOLIBPATH = ALGOLIBPATH + ALGOLIBNAME;
 
 #endif  // TEST_COMMON_H

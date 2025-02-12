@@ -23,40 +23,40 @@
 #ifndef ALGO_BASE_H
 #define ALGO_BASE_H
 
+#include <pthread.h>
+#include <memory>
+#include <string>
 #include "AlgoDefs.h"
 #include "AlgoRequest.h"
 #include "EventHandlerThread.h"
 #include "KpiMonitor.h"
 #include "TaskQueue.h"
-#include <memory>
-#include <pthread.h>
-#include <string>
 
 class AlgoBase {
-public:
+ public:
   enum class AlgoStatus {
-    SUCCESS = 0,
-    NOT_INITIALIZED = 1,
-    ALREADY_OPEN = 2,
-    ALREADY_CLOSED = 3,
-    INVALID_INPUT = 4,
+    SUCCESS              = 0,
+    NOT_INITIALIZED      = 1,
+    ALREADY_OPEN         = 2,
+    ALREADY_CLOSED       = 3,
+    INVALID_INPUT        = 4,
     RESOURCE_UNAVAILABLE = 5,
-    TIMEOUT = 6,
-    OPERATION_FAILED = 7,
-    OUT_OF_MEMORY = 8,
-    PERMISSION_DENIED = 9,
-    NOT_SUPPORTED = 10,
-    INTERNAL_ERROR = 11,
+    TIMEOUT              = 6,
+    OPERATION_FAILED     = 7,
+    OUT_OF_MEMORY        = 8,
+    PERMISSION_DENIED    = 9,
+    NOT_SUPPORTED        = 10,
+    INTERNAL_ERROR       = 11,
     FAILURE
   };
 
   enum class AlgoMessageType {
-    ProcessingCompleted, // A generic processing completion
-    ProcessingFailed,    // Processing failed
-    ProcessingTimeout,   // Processing timed out
-    ProcessingPartial,   // An intermediate processing step completed (not the
-                         // last)
-    ProcessDone          // All nodes are done Processing
+    ProcessingCompleted,  // A generic processing completion
+    ProcessingFailed,     // Processing failed
+    ProcessingTimeout,    // Processing timed out
+    ProcessingPartial,    // An intermediate processing step completed (not the
+                          // last)
+    ProcessDone           // All nodes are done Processing
   };
 
   typedef struct AlgoCallbackMessage {
@@ -71,19 +71,19 @@ public:
 
   struct AlgorithmOperations {
     std::string mAlgoName;
-    void *pctx = nullptr;
+    void* pctx = nullptr;
   };
   // Constructors
   AlgoBase();
   // Constructor
-  explicit AlgoBase(const char *name);
+  explicit AlgoBase(const char* name);
   // Destructor
   virtual ~AlgoBase();
   // Public member functions
-  virtual AlgoStatus Open() = 0;
+  virtual AlgoStatus Open()                                    = 0;
   virtual AlgoStatus Process(std::shared_ptr<AlgoRequest> req) = 0;
-  virtual AlgoStatus Close() = 0;
-  virtual int GetTimeout() = 0;
+  virtual AlgoStatus Close()                                   = 0;
+  virtual int GetTimeout()                                     = 0;
   void StopAlgoThread();
   AlgoStatus GetAlgoStatus() const;
   std::string GetStatusString() const;
@@ -100,23 +100,23 @@ public:
   bool bIslastNode = false;
   bool CanProcessFormat(ImageFormat Iformat, ImageFormat Oformat);
 
-protected:
+ protected:
   AlgorithmOperations mAlgoOperations;
   AlgoStatus mCurrentStatus = AlgoStatus::SUCCESS;
   std::shared_ptr<TaskQueue> mAlgoThread;
   AlgoId mAlgoId = ALGO_MAX;
   void SetStatus(AlgoStatus status);
-
+  std::string mConfigFile;
   /*Linked list */
   std::weak_ptr<AlgoBase> mNextAlgo;
   std::shared_ptr<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>
       pEventHandlerThread = nullptr;
   std::vector<std::pair<ImageFormat, ImageFormat>> SupportedFormatsMap;
 
-private:
-  static void ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task);
-  static void ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task);
-  static void ProcessTimeoutCallback(void *Ctx, std::shared_ptr<Task_t> task);
+ private:
+  static void ThreadFunction(void* Ctx, std::shared_ptr<Task_t> task);
+  static void ThreadCallback(void* Ctx, std::shared_ptr<Task_t> task);
+  static void ProcessTimeoutCallback(void* Ctx, std::shared_ptr<Task_t> task);
 };
 
-#endif // ALGO_BASE_H
+#endif  // ALGO_BASE_H

@@ -19,11 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <dlfcn.h>
-#include <gtest/gtest.h>
-#include <memory>
-#include "../include/AlgoDefs.h"
-#include "../include/AlgoRequest.h"
+#include "test_common.h"
+
 // Type aliases for function pointers
 typedef int (*InitAlgoInterfaceFunc)(void**);
 typedef int (*DeInitAlgoInterfaceFunc)(void**);
@@ -45,8 +42,7 @@ class SharedLibTest : public ::testing::Test {
 
   void SetUp() override {
     // Load the shared library
-    libhandle =
-        dlopen("/home/uma/workspace/Gzero/cmake/lib/libAlgoLib.so", RTLD_LAZY);
+    libhandle = dlopen(FULLALGOLIBPATH.c_str(), RTLD_LAZY);
     ASSERT_NE(libhandle, nullptr)
         << "Failed to load shared library: " << dlerror();
 

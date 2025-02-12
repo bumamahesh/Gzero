@@ -7,25 +7,26 @@
 #include <sstream>
 #include <unordered_map>
 #include <vector>
-using namespace std;
 
+const std::string CONFIGPATH = "/home/uma/workspace/Gzero/Config/";
 class ConfigParser {
-private:
-  unordered_map<string, string> keyValueStore;
-  unordered_map<string, vector<string>> arrayStore;
+ private:
+  std::unordered_map<std::string, std::string> keyValueStore;
+  std::unordered_map<std::string, std::vector<std::string>> arrayStore;
   int errorCode;
 
-public:
+ public:
   ConfigParser();
-  bool loadFile(const string &filename);
-  string getValue(const string &key);
-  int getIntValue(const string &key);
+  bool loadFile(const std::string& filename);
+  std::string getValue(const std::string& key);
+  int getIntValue(const std::string& key);
   int getErrorCode() const;
 
-  string trim(const string &str);
-  vector<string> parseArray(const string &value);
-  void parseKeyValue(const string &line);
-  string join(const vector<string> &vec, const string &delimiter);
+  std::string trim(const std::string& str);
+  std::vector<std::string> parseArray(const std::string& value);
+  void parseKeyValue(const std::string& line);
+  std::string join(const std::vector<std::string>& vec,
+                   const std::string& delimiter);
 };
 
-#endif // CONFIGPARSER_H
+#endif  // CONFIGPARSER_H

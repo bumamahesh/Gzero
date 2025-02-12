@@ -68,8 +68,7 @@ class AlgoProcessTest : public ::testing::Test {
 
   void SetUp() override {
     // Load the shared library
-    libhandle =
-        dlopen("/home/uma/workspace/Gzero/cmake/lib/libAlgoLib.so", RTLD_LAZY);
+    libhandle = dlopen(FULLALGOLIBPATH.c_str(), RTLD_LAZY);
     ASSERT_NE(libhandle, nullptr)
         << "Failed to load shared library: " << dlerror();
 

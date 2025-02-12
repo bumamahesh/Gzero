@@ -59,7 +59,10 @@ MandelbrotSet::MandelbrotSet()
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
-  parser.loadFile("/home/uma/workspace/Gzero/Config/MandelbrotSet.config");
+  mConfigFile = CONFIGPATH;
+  mConfigFile += AlgoBase::GetAlgorithmName();
+  mConfigFile += ".config";
+  parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
     LOG(VERBOSE, ALGOBASE, "MandelbrotSet Algo Version: %s", Version.c_str());

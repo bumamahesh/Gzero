@@ -42,7 +42,7 @@ AlgoNodeManager& AlgoNodeManager::Getinstance() {
 AlgoNodeManager::AlgoNodeManager() {
   LOG(INFO, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager E");
   mLibraryPath =
-      "/home/uma/workspace/Gzero/cmake/lib/";  // "@todo get from xml later
+      "/home/uma/workspace/Gzero/build/lib/";  // "@todo get from xml later
   /* Open the path and prepare a list of shared libraries with the format com.Algo.*.so */
 
   try {

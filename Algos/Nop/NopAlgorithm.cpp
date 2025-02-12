@@ -33,7 +33,10 @@ NopAlgorithm::NopAlgorithm() : AlgoBase(NOP_NAME) {
   /*
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   ConfigParser parser;
-  parser.loadFile("/home/uma/workspace/Gzero/Config/NopAlgorithm.config");
+  mConfigFile = CONFIGPATH;
+  mConfigFile += AlgoBase::GetAlgorithmName();
+  mConfigFile += ".config";
+  parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
     LOG(VERBOSE, ALGOBASE, "Nop Algo Version: %s", Version.c_str());
