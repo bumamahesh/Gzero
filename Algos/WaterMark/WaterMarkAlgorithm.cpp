@@ -53,7 +53,7 @@ WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
     watermarkLogoPath = watermarkLogoPath_;
     LOG(VERBOSE, ALGOBASE, "watermarkLogoPath: %s", watermarkLogoPath.c_str());
   } else {
-    watermarkLogoPath = "/home/uma/workspace/Gzero/Algos/res/Logo.png";
+    watermarkLogoPath = CONFIGPATH + "../res/Logo.png";
     LOG(VERBOSE, ALGOBASE, "watermarkLogoPath: %s errcode %d",
         watermarkLogoPath.c_str(), parser.getErrorCode());
   }

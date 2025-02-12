@@ -2,13 +2,13 @@
 #ifdef __RENDER__
 #include "include/Renderer.h"
 #endif
+#include <pthread.h>
+#include <unistd.h>
 #include <atomic>
 #include <cstring>
 #include <iostream>
 #include <memory>
-#include <pthread.h>
 #include <thread>
-#include <unistd.h>
 
 extern std::atomic<bool> g_quit;
 extern bool g_HdrEnabled;
@@ -22,13 +22,13 @@ struct YUVFile {
   int height;
 };
 
-const YUVFile yuvFiles[] = {
-    {"/home/uma/workspace/Gzero/res/lena.yuv", 352, 288},
-    {"/home/uma/workspace/Gzero/res/test_yuv420p_320x180.yuv", 320, 180},
-    {"/home/uma/workspace/Gzero/res/1920x1080.yuv", 1920, 1080},
-    {"/home/uma/workspace/Gzero/res/video_test_vector.yuv", 1280, 720}};
+const std::string RESOURCE_PATH = "/home/uma/workspace/Gzero/res/";
+const YUVFile yuvFiles[]        = {{"lena.yuv", 352, 288},
+                                   {"test_yuv420p_320x180.yuv", 320, 180},
+                                   {"1920x1080.yuv", 1920, 1080},
+                                   {"video_test_vector.yuv", 1280, 720}};
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << " <index>" << std::endl;
     return 1;
@@ -43,20 +43,24 @@ int main(int argc, char *argv[]) {
 
   int idx;
 
-  char *endptr;
+  char* endptr;
   long idx_long = strtol(argv[1], &endptr, 10);
-  if (*endptr != '\0' || errno == ERANGE || idx_long < 0 || idx_long >= (long)(sizeof(yuvFiles) / sizeof(YUVFile))) {
+  if (*endptr != '\0' || errno == ERANGE || idx_long < 0 ||
+      idx_long >= (long)(sizeof(yuvFiles) / sizeof(YUVFile))) {
     std::cerr << "Invalid index, defaulting to 0" << std::endl;
     idx = 0;
   } else {
     idx = static_cast<int>(idx_long);
   }
 
-  int width                                                   = yuvFiles[idx].width;
-  int height                                                  = yuvFiles[idx].height;
-  std::shared_ptr<AlgoInterfaceManager> pAlgoInterfaceManager = std::make_shared<AlgoInterfaceManager>(yuvFiles[idx].filePath, width, height);
+  int width  = yuvFiles[idx].width;
+  int height = yuvFiles[idx].height;
+  std::shared_ptr<AlgoInterfaceManager> pAlgoInterfaceManager =
+      std::make_shared<AlgoInterfaceManager>(
+          RESOURCE_PATH + yuvFiles[idx].filePath, width, height);
 #ifdef __RENDER__
-  std::shared_ptr<Renderer> pRenderer = std::make_shared<Renderer>(width, height);
+  std::shared_ptr<Renderer> pRenderer =
+      std::make_shared<Renderer>(width, height);
 #endif
   g_HdrEnabled           = false;
   g_WatermarkEnabled     = false;
@@ -84,7 +88,10 @@ int main(int argc, char *argv[]) {
       std::cerr << "Unknown algorithm flag: " << argv[i] << std::endl;
     }
   }
-  std::cerr << "g_HdrEnabled = " << g_HdrEnabled << " g_WatermarkEnabled = " << g_WatermarkEnabled << " g_MandlebrotSetEnabled = " << g_MandlebrotSetEnabled << " g_FilterEnabled = " << g_FilterEnabled << std::endl;
+  std::cerr << "g_HdrEnabled = " << g_HdrEnabled
+            << " g_WatermarkEnabled = " << g_WatermarkEnabled
+            << " g_MandlebrotSetEnabled = " << g_MandlebrotSetEnabled
+            << " g_FilterEnabled = " << g_FilterEnabled << std::endl;
 #ifdef SYNC_THREAD
   pRenderer->RenderLoop(pAlgoInterfaceManager);
 #else
@@ -107,7 +114,7 @@ int main(int argc, char *argv[]) {
   } else {
     while (!g_quit.load()) {
       std::string name;
-      std::getline(std::cin, name); // Reads the entire line
+      std::getline(std::cin, name);  // Reads the entire line
       if (name == "e") {
         g_quit.store(true);
       }
