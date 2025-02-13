@@ -22,12 +22,11 @@
 #ifndef ALGO_PIPELINE_H
 #define ALGO_PIPELINE_H
 
+#include <vector>
 #include "AlgoBase.h"
 #include "AlgoDefs.h"
 #include "AlgoNodeManager.h"
 #include "EventHandlerThread.h"
-#include <memory>
-#include <vector>
 
 enum class AlgoPipelineState {
   NotInitialised = 0,
@@ -40,19 +39,19 @@ enum class AlgoPipelineState {
   FailedToProcess
 };
 
-typedef void (*SESSIONCALLBACK)(void *cntx, std::shared_ptr<AlgoRequest> input);
+typedef void (*SESSIONCALLBACK)(void* cntx, std::shared_ptr<AlgoRequest> input);
 
 class AlgoPipeline {
-public:
+ public:
   AlgoPipeline(SESSIONCALLBACK pSesionCallBackHandler = nullptr,
-               void *pCtx = nullptr);
+               void* pCtx                             = nullptr);
   ~AlgoPipeline();
 
-  AlgoPipelineState ConfigureAlgoPipeline(std::vector<AlgoId> &algoList);
-  AlgoPipelineState ConfigureAlgoPipeline(std::vector<std::string> &algoList);
+  AlgoPipelineState ConfigureAlgoPipeline(std::vector<AlgoId>& algoList);
+  AlgoPipelineState ConfigureAlgoPipeline(std::vector<std::string>& algoList);
 
   void Process(std::shared_ptr<AlgoRequest> input);
-  static void NodeEventHandler(void *,
+  static void NodeEventHandler(void*,
                                std::shared_ptr<AlgoBase::AlgoCallbackMessage>);
   void WaitForQueueCompetion();
   size_t GetProcessedFrames() const;
@@ -63,7 +62,7 @@ public:
   std::vector<AlgoId> GetAlgoListId() const;
 
   SESSIONCALLBACK pSesionCallBackHandler = nullptr;
-  void *pSessionCtx = nullptr;
+  void* pSessionCtx                      = nullptr;
 
   void Dump();
 
@@ -72,8 +71,8 @@ public:
   std::condition_variable mCondition;
   std::unordered_map<int, std::shared_ptr<AlgoRequest>> mRequesteMap;
 
-private:
-  AlgoNodeManager *mAlgoNodeMgr = nullptr;
+ private:
+  AlgoNodeManager* mAlgoNodeMgr = nullptr;
   std::vector<std::shared_ptr<AlgoBase>> mAlgos;
 
   std::vector<AlgoId> mAlgoListId;
@@ -84,4 +83,4 @@ private:
   std::shared_ptr<EventHandlerThread<AlgoBase::AlgoCallbackMessage>>
       pEventHandlerThread;
 };
-#endif // ALGO_PIPELINE_H
+#endif  // ALGO_PIPELINE_H

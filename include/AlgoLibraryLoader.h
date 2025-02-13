@@ -23,17 +23,16 @@
 #define ALGO_LIBRARY_LOADER_H
 
 #include "AlgoBase.h"
-#include <string>
 
 // All exposed api of libs
-typedef AlgoBase *(*GetAlgoMethodFunc)();
-typedef const char *(*GetAlgorithmNameFunc)();
+typedef AlgoBase* (*GetAlgoMethodFunc)();
+typedef const char* (*GetAlgorithmNameFunc)();
 typedef AlgoId (*GetAlgoIdFunc)();
 
 class AlgoLibraryLoader {
-public:
+ public:
   // Constructor to load the shared library
-  explicit AlgoLibraryLoader(const std::string &libraryPath);
+  explicit AlgoLibraryLoader(const std::string& libraryPath);
 
   // Destructor to unload the shared library
   ~AlgoLibraryLoader();
@@ -47,14 +46,14 @@ public:
   // Function to get the algorithm ID
   AlgoId GetAlgoId() const;
 
-private:
-  void *plibHandle = nullptr;     // Handle to the shared library
-  std::mutex mlibMutex;           // Mutex to protect the shared library handle
-  size_t mTotalAlgoInstances = 0; // Total Algo Instanced Opned
+ private:
+  void* plibHandle = nullptr;      // Handle to the shared library
+  std::mutex mlibMutex;            // Mutex to protect the shared library handle
+  size_t mTotalAlgoInstances = 0;  // Total Algo Instanced Opned
 
   GetAlgoMethodFunc mGetAlgoMethod  = nullptr;
   GetAlgorithmNameFunc mGetAlgoName = nullptr;
   GetAlgoIdFunc mGetAlgoId          = nullptr;
 };
 
-#endif // ALGO_LIBRARY_LOADER_H
+#endif  // ALGO_LIBRARY_LOADER_H
