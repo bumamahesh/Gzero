@@ -74,10 +74,9 @@ AlgoNodeManager::AlgoNodeManager() {
   for (auto& lib : mSharedLibrariesPath) {
     LOG(INFO, ALGOMANAGER, "E Loading library: %s", lib.c_str());
     std::shared_ptr<AlgoLibraryLoader> pAlgoLoader = nullptr;
-
     try {
       pAlgoLoader = std::make_shared<AlgoLibraryLoader>(lib);
-      auto algo   = pAlgoLoader->GetAlgoMethod();
+      //auto algo   = pAlgoLoader->GetAlgoMethod();
       mIdToAlgoNameMap[pAlgoLoader->GetAlgoId()] =
           pAlgoLoader->GetAlgorithmName();
       mIdLoaderMap[pAlgoLoader->GetAlgoId()] = pAlgoLoader;
