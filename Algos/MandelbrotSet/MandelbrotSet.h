@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef HDR_ALGORITHM_H
-#define HDR_ALGORITHM_H
+#ifndef MANDELBROTSET_ALGORITHM_H
+#define MANDELBROTSET_ALGORITHM_H
 
 #include "AlgoBase.h"
 const char *MANDELBROTSET_NAME = "MandelbrotSetAlgorithm";
@@ -97,4 +97,4 @@ private:
  */
 extern "C" AlgoBase *GetAlgoMethod();
 
-#endif // HDR_ALGORITHM_H
+#endif // MANDELBROTSET_ALGORITHM_H

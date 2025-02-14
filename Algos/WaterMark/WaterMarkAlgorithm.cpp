@@ -77,7 +77,17 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::Open() {
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
-
+#ifdef _CV_ENABLED_
+/**
+ * @brief Get the Watermark Position object
+ * 
+ * @param position 
+ * @param imageWidth 
+ * @param imageHeight 
+ * @param logoWidth 
+ * @param logoHeight 
+ * @return cv::Point 
+ */
 cv::Point GetWatermarkPosition(WatermarkPosition position, int imageWidth,
                                int imageHeight, int logoWidth, int logoHeight) {
   int padding = 40;  // Padding from the edges
@@ -96,9 +106,11 @@ cv::Point GetWatermarkPosition(WatermarkPosition position, int imageWidth,
                                     padding);  // Default to bottom-left
   }
 }
+#endif
 
 AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessRGB(
     std::shared_ptr<AlgoRequest> req) {
+#ifdef _CV_ENABLED_
   auto inputImage = req->GetImage(0);
   if (!inputImage) {
     LOG(ERROR, ALGOBASE, "Input image is null.");
@@ -209,10 +221,14 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessRGB(
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
   }
+#else
+  (void)req;
+#endif
   return GetAlgoStatus();
 }
 AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessYUV(
     std::shared_ptr<AlgoRequest> req) {
+#ifdef _CV_ENABLED_
   auto inputImage = req->GetImage(0);
   if (!inputImage) {
     LOG(ERROR, ALGOBASE, "Input image is null.");
@@ -330,6 +346,9 @@ AlgoBase::AlgoStatus WaterMarkAlgorithm::ProcessYUV(
       SetStatus(AlgoStatus::FAILURE);
     }
   }
+#else
+  (void)req;
+#endif
   return GetAlgoStatus();
 }
 /**

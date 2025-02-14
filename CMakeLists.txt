@@ -6,7 +6,12 @@ cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/build/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_SOURCE_DIR}/build/lib)
-add_compile_options(-Wall -Wextra -Wpedantic -Wmaybe-uninitialized)
+if (MSVC)
+    add_compile_options(/W4)  # Equivalent to -Wextra in GCC/Clang
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic -Wmaybe-uninitialized)
+endif()
+
 # Set the project name and version
 project(AlgoLib VERSION 1.0)
 

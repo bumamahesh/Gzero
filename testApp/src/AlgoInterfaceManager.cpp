@@ -147,6 +147,7 @@ AlgoInterfaceManager::~AlgoInterfaceManager() {
 #include <iostream>
 int totalFrames = 0;
 std::chrono::steady_clock::time_point Lasttime;
+std::chrono::duration<double> totalElapsed(0);
 // Callback Function
 /**
  * @brief
@@ -163,9 +164,10 @@ int ProcessCallback(std::shared_ptr<AlgoRequest> request) {
     totalFrames++;
 
     auto Currenttime = std::chrono::steady_clock::now();
-    std::chrono::duration<double> totalElapsed = Currenttime - Lasttime;
-    Lasttime                                   = Currenttime;
-    if (totalElapsed.count() >= 1.0) {  // Compute average FPS after 1 seconds
+    totalElapsed += (Currenttime - Lasttime);
+    Lasttime = Currenttime;
+    //if (totalElapsed.count() >= 1.0)
+    if (totalFrames % 10 == 0) {  // Compute average FPS after 1 seconds
       double avgFPS = totalFrames / totalElapsed.count();
       std::cout << "[" << totalFrames << "] Average FPS: " << avgFPS << "\r"
                 << std::flush;

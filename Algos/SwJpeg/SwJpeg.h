@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef HDR_ALGORITHM_H
-#define HDR_ALGORITHM_H
+#ifndef SWJPEG_ALGORITHM_H
+#define SWJPEG_ALGORITHM_H
 
 #include "AlgoBase.h"
 const char* SWJPEG_NAME = "SwJpegAlgorithm";
@@ -79,4 +79,4 @@ class SwJpeg : public AlgoBase {
  */
 extern "C" AlgoBase* GetAlgoMethod();
 
-#endif  // HDR_ALGORITHM_H
+#endif  // SWJPEG_ALGORITHM_H

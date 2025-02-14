@@ -2,3 +2,4 @@ build
 cmake
 .cache
 res/video_test_vector.yuv
+Release

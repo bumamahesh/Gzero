@@ -1,9 +1,9 @@
 #include "../include/Renderer.h"
+#include <unistd.h>
 #include <atomic>
 #include <condition_variable>
 #include <iostream>
 #include <queue>
-#include <unistd.h>
 
 extern std::mutex g_ResultQueueMutex;
 extern std::condition_variable g_ResultQueueCondVar;
@@ -14,7 +14,18 @@ extern std::atomic<bool> g_quit;
  * @brief Construct a new Renderer:: Renderer object
  *
  */
-Renderer::Renderer(int width, int height) : mWindow(nullptr), mRenderer(nullptr), mTexture(nullptr), mWidth(width), mHeight(height) {
+Renderer::Renderer(int width, int height)
+#ifdef __RENDER__
+    : mWindow(nullptr),
+      mRenderer(nullptr),
+      mTexture(nullptr),
+      mWidth(width),
+      mHeight(height)
+#else
+    : mWidth(width),
+      mHeight(height)
+#endif
+{
   if (!Initialize()) {
     std::cerr << "Failed to initialize Renderer." << std::endl;
     Cleanup();
@@ -36,36 +47,44 @@ Renderer::~Renderer() {
  * @return false
  */
 bool Renderer::Initialize() {
+#ifdef __RENDER__
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+    std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError()
+              << std::endl;
     return false;
   }
 
-  mWindow = SDL_CreateWindow("GZero Test App", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, SDL_WINDOW_SHOWN);
+  mWindow = SDL_CreateWindow("GZero Test App", SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight,
+                             SDL_WINDOW_SHOWN);
   if (!mWindow) {
-    std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+    std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError()
+              << std::endl;
     SDL_Quit();
     return false;
   }
 
   mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED);
   if (!mRenderer) {
-    std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+    std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError()
+              << std::endl;
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
     return false;
   }
 
   Uint32 format = (isYUV) ? SDL_PIXELFORMAT_IYUV : SDL_PIXELFORMAT_RGB24;
-  mTexture      = SDL_CreateTexture(mRenderer, format, SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
+  mTexture = SDL_CreateTexture(mRenderer, format, SDL_TEXTUREACCESS_STREAMING,
+                               mWidth, mHeight);
   if (!mTexture) {
-    std::cerr << "Texture could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+    std::cerr << "Texture could not be created! SDL_Error: " << SDL_GetError()
+              << std::endl;
     SDL_DestroyRenderer(mRenderer);
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
     return false;
   }
-
+#endif
   return true;
 }
 
@@ -77,6 +96,7 @@ bool Renderer::Initialize() {
  * @param inputFilePath
  */
 void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
+#ifdef __RENDER__
   SDL_Event event;
   // const int targetFPS  = 120;
   // const int frameDelay = 1000 / targetFPS; // ms per frame
@@ -92,7 +112,8 @@ void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
       }
     }
 
-    std::shared_ptr<AlgoRequest> request; // Try to lock, and avoid blocking forever
+    std::shared_ptr<AlgoRequest>
+        request;  // Try to lock, and avoid blocking forever
     {
       std::unique_lock<std::mutex> lock(g_ResultQueueMutex);
       if (g_ResultQueue.empty()) {
@@ -113,10 +134,12 @@ void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
         std::cerr << "Error: Image data is null or size is zero." << std::endl;
         continue;
       }
-      bool isrgb              = (image->GetFormat() == ImageFormat::RGB) ? true : false;
-      size_t Width            = image->GetWidth();
-      size_t Height           = image->GetHeight();
-      size_t OutputBufferSize = (isrgb) ? (Width * Height * 3) : (Width * Height * 3 / 2); // either RGB or YUV
+      bool isrgb    = (image->GetFormat() == ImageFormat::RGB) ? true : false;
+      size_t Width  = image->GetWidth();
+      size_t Height = image->GetHeight();
+      size_t OutputBufferSize =
+          (isrgb) ? (Width * Height * 3)
+                  : (Width * Height * 3 / 2);  // either RGB or YUV
 
       // Check if the image data size is correct
       if (image->GetData().size() < OutputBufferSize) {
@@ -126,14 +149,14 @@ void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
       }
     }
 
-    unsigned char *OutputBuffer = image->GetData().data();
+    unsigned char* OutputBuffer = image->GetData().data();
     if (image->GetFormat() == ImageFormat::YUV420) {
 
       // YUV420p format requires separate planes
-      SDL_UpdateYUVTexture(mTexture, nullptr,
-                           OutputBuffer, mWidth,                                   // Y plane
-                           OutputBuffer + (mWidth * mHeight), mWidth / 2,          // U plane
-                           OutputBuffer + (mWidth * mHeight * 5 / 4), mWidth / 2); // V plane
+      SDL_UpdateYUVTexture(
+          mTexture, nullptr, OutputBuffer, mWidth,                 // Y plane
+          OutputBuffer + (mWidth * mHeight), mWidth / 2,           // U plane
+          OutputBuffer + (mWidth * mHeight * 5 / 4), mWidth / 2);  // V plane
     } else {
       SDL_UpdateTexture(mTexture, nullptr, OutputBuffer, mWidth * 3);
     }
@@ -147,16 +170,19 @@ void Renderer::RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface) {
     pAlgoInteface->SubmitRequest();
   }
 
-  // Limit the frame rate to targetFPS
-  // Uint32 frameEnd  = SDL_GetTicks();
-  // Uint32 frameTime = frameEnd - frameStart;
-  // if (frameTime < frameDelay) {
-  // SDL_Delay(frameDelay - frameTime);
-  //}
+// Limit the frame rate to targetFPS
+// Uint32 frameEnd  = SDL_GetTicks();
+// Uint32 frameTime = frameEnd - frameStart;
+// if (frameTime < frameDelay) {
+// SDL_Delay(frameDelay - frameTime);
+//}
+#else
+  (void)pAlgoInteface;
+#endif
 }
 
 void Renderer::Cleanup() {
-
+#ifdef __RENDER__
   SDL_DestroyTexture(mTexture);
   SDL_DestroyRenderer(mRenderer);
   SDL_DestroyWindow(mWindow);
@@ -164,4 +190,5 @@ void Renderer::Cleanup() {
   mWindow   = nullptr;
   mRenderer = nullptr;
   mTexture  = nullptr;
+#endif
 }

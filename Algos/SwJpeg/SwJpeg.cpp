@@ -20,7 +20,9 @@
  * THE SOFTWARE.
  */
 #include "SwJpeg.h"
+#ifdef __JPEGLIB__
 #include <jpeglib.h>
+#endif
 #include <algorithm>
 #include <map>
 #include <string>
@@ -101,6 +103,7 @@ void ConvertYUVToRGB(const unsigned char* yuvData, unsigned char* rgbData,
   }
 }
 
+#ifdef __JPEGLIB__
 /**
 @brief  Compose metadata for Jpeg
  * 
@@ -140,8 +143,11 @@ static int ComposeMetadata(std::shared_ptr<AlgoRequest> req,
     jpeg_write_marker(&cinfo, JPEG_COM, (unsigned char*)entry.second.c_str(),
                       entry.second.length());
   }
+
   return 0;
 }
+#endif
+
 /**
  * @brief Process the SWJPEG algorithm, simulating input validation and
  * ShJpeg computation.
@@ -149,6 +155,7 @@ static int ComposeMetadata(std::shared_ptr<AlgoRequest> req,
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
+#ifdef __JPEGLIB__
   std::lock_guard<std::mutex> lock(mutex_);
   if (!req || req->GetImageCount() == 0) {
     SetStatus(AlgoStatus::FAILURE);
@@ -219,7 +226,7 @@ AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
       SetStatus(AlgoStatus::FAILURE);
     }
   }
-
+#else
   int reqdone = 0x00;
   if (req &&
       (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
@@ -227,6 +234,7 @@ AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
     req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
 
+#endif
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }

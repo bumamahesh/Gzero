@@ -24,25 +24,29 @@
 #define RENDERER_H
 #pragma once
 #include "AlgoInterfaceManager.h"
+#ifdef __RENDER__
 #include <SDL2/SDL.h>
-#include <memory>
+#endif
 #include <unistd.h>
+#include <memory>
 
 class Renderer {
-public:
+ public:
   Renderer(int width, int height);
   ~Renderer();
   void RenderLoop(std::shared_ptr<AlgoInterfaceManager> pAlgoInteface);
 
-private:
+ private:
   bool Initialize();
   void Cleanup();
-  SDL_Window *mWindow;
-  SDL_Renderer *mRenderer;
-  SDL_Texture *mTexture;
+#ifdef __RENDER__
+  SDL_Window* mWindow;
+  SDL_Renderer* mRenderer;
+  SDL_Texture* mTexture;
+#endif
   int mWidth;
   int mHeight;
   bool isYUV = true;
 };
 
-#endif // RENDERER_H
+#endif  // RENDERER_H

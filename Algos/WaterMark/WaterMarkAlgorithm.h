@@ -23,7 +23,9 @@
 #define WATERMARK_ALGORITHM_H
 
 #include "AlgoBase.h"
+#ifdef _CV_ENABLED_
 #include <opencv2/opencv.hpp>
+#endif
 #include <string>
 const char *WATERMARK_NAME = "WaterMarkAlgorithm";
 
@@ -77,8 +79,10 @@ public:
 
 private:
   mutable std::mutex mutex_;     // Mutex to protect the shared state
+#ifdef _CV_ENABLED_
   cv::Mat image_;                // Original image
   cv::Mat watermark_;            // Watermark (text or image)
+#endif
   std::string watermarkText;     // If you want to apply text watermark
   std::string watermarkLogoPath; // If you want to apply logo
 
