@@ -21,13 +21,7 @@
  */
 
 #include "../include/ThreadWrapper.h"
-
-#ifdef _WIN32
-/*need toimplement window api @TODO*/
-#else
 #include <iostream>
-#include "ThreadWrapper.h"
-
 /**
 @brief Construct a new Thread Wrapper:: Thread Wrapper object
  * 
@@ -35,6 +29,7 @@
  * @param arg 
  */
 ThreadWrapper::ThreadWrapper(void* (*start_routine)(void*), void* arg) {
+#ifdef __linux__
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   int ret = pthread_create(&thread, &attr, start_routine, arg);
@@ -42,6 +37,10 @@ ThreadWrapper::ThreadWrapper(void* (*start_routine)(void*), void* arg) {
   if (ret != 0) {
     std::cerr << "Error creating thread: " << ret << std::endl;
   }
+#else
+  (void)start_routine;
+  (void)arg;
+#endif
 }
 
 /**
@@ -49,7 +48,9 @@ ThreadWrapper::ThreadWrapper(void* (*start_routine)(void*), void* arg) {
  * 
  */
 void ThreadWrapper::join() {
+#ifdef __linux__
   pthread_join(thread, nullptr);
+#endif
 }
 
 /**
@@ -61,11 +62,13 @@ ThreadWrapper::~ThreadWrapper() {
 }
 
 void ThreadWrapper::ThreadSetname(const char* name) {
+#ifdef __linux__
   if (name != nullptr) {
     pthread_setname_np(thread, name);
   } else {
     std::cerr << "Error Setting thread Name" << std::endl;
   }
-}
-
+#else
+  (void)(name);
 #endif
+}

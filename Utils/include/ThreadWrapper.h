@@ -19,13 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+#ifndef THREADWRAPPER_H
+#define THREADWRAPPER_H
+#pragma once
 #ifdef _WIN32
 /*@todo windows api implemntaion*/
 #else
-#pragma once
 #include <pthread.h>
-
+#endif
 class ThreadWrapper {
  public:
   ThreadWrapper(void* (*start_routine)(void*), void* arg);
@@ -34,7 +35,9 @@ class ThreadWrapper {
   void join();
 
  private:
+#ifdef __linux__
   pthread_t thread;
   pthread_attr_t attr;
-};
 #endif
+};
+#endif  // THREADWRAPPER_H
