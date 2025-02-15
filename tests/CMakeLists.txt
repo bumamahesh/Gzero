@@ -48,7 +48,7 @@ endif()
 target_compile_options(GzeroUnitTest PRIVATE -O1 -g)
 
 # Link libraries
-target_link_libraries(GzeroUnitTest PRIVATE GTest::GTest GTest::Main pthread)
+target_link_libraries(GzeroUnitTest PRIVATE GTest::GTest GTest::Main)
 
 # Register the test executable with CTest
 add_test(NAME GzeroUnitTest COMMAND GzeroUnitTest)

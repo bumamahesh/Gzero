@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(../include/ ..//Utils/include include/ )
 # Find the SDL2 package
-find_package(SDL2 REQUIRED)
+find_package(SDL2)
 
 # Define the source files
 set(SOURCES
