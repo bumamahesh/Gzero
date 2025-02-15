@@ -115,9 +115,9 @@ TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void* pTaskCtx) {
 
   bIsRunning = false;
   // Create a worker thread
-  int result = pthread_create(&mWorkerThread, nullptr,
-                              &TaskQueue::WorkerThreadFuction, this);
-  if (result != 0) {
+  mWorkerThread =
+      std::make_shared<ThreadWrapper>(&TaskQueue::WorkerThreadFuction, this);
+  if (!mWorkerThread) {
     throw std::runtime_error("Failed to create worker thread");
   }
   /*wait for thread to be start executing*/
@@ -141,7 +141,7 @@ TaskQueue::~TaskQueue() {
  * @param name
  */
 void TaskQueue::SetThread(const std::string& name) {
-  pthread_setname_np(mWorkerThread, name.c_str());
+  mWorkerThread->ThreadSetname(name.c_str());
 }
 
 /**
@@ -201,8 +201,7 @@ void TaskQueue::StopWorkerThread() {
     bIsRunning.store(false);
     // Notify the worker thread to wake up and exit
     mConditionVar.notify_all();
-    pthread_join(mWorkerThread, nullptr);
-    mWorkerThread = 0;
+    mWorkerThread->join();
     // Discard all remaining tasks in the queue
     {
       std::lock_guard<std::mutex> lock(mTaskQMux);

@@ -25,13 +25,13 @@
 #include <atomic>
 #include <chrono>
 #include <memory>
-#include <pthread.h>
 #include <unordered_map>
+#include "ThreadWrapper.h"
 
 struct Task_t;
-typedef void (*TASKCALLBACK)(void *Ctx, std::shared_ptr<Task_t> task);
+typedef void (*TASKCALLBACK)(void* Ctx, std::shared_ptr<Task_t> task);
 class RequestMonitor {
-public:
+ public:
   // Constructor that accepts tolerance and callback
   RequestMonitor();
 
@@ -45,46 +45,46 @@ public:
   void StopRequestMonitoring(std::shared_ptr<Task_t> task);
 
   // set callback and its conext
-  void SetCallback(TASKCALLBACK Callback, void *context);
+  void SetCallback(TASKCALLBACK Callback, void* context);
 
   double GetAverageFPS() { return averagfps; }
 
-private:
+ private:
   // Structure to store request start time, stop time, timeout and stopped
   // status
   struct Request {
     std::chrono::high_resolution_clock::time_point start;
     std::chrono::high_resolution_clock::time_point stop;
-    std::chrono::milliseconds timeout; // Timeout in milliseconds
+    std::chrono::milliseconds timeout;  // Timeout in milliseconds
 
-    bool isStopped; // Flag to check if the request has been stopped
+    bool isStopped;  // Flag to check if the request has been stopped
   };
 
   // Method to monitor timeouts for requests in a separate thread
-  static void *monitorTimeouts(void *arg);
+  static void* monitorTimeouts(void* arg);
 
   // Mutex for thread safety
   pthread_mutex_t mutex_;
 
   // Callback to trigger if timeout or tolerance exceeded
   TASKCALLBACK pCallback = nullptr;
-  void *pcontext = nullptr;
+  void* pcontext         = nullptr;
 
   // Flag to indicate if the monitor is still running
   std::atomic<bool> running_;
 
   // Thread for monitoring timeouts
-  pthread_t monitorThread_;
+  std::shared_ptr<ThreadWrapper> monitorThread_;
 
   bool bThreadStarted = false;
 
   // fps monitor
   std::chrono::duration<double, std::milli> mdeltas;
   std::size_t mtotalRequest = 0;
-  double averagfps = 0;
+  double averagfps          = 0;
 
   // Map to store requests being monitored
   std::unordered_map<std::shared_ptr<Task_t>, Request> requests_;
 };
 
-#endif // REQUEST_MONITOR_H
+#endif  // REQUEST_MONITOR_H

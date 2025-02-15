@@ -19,35 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-// ConfigParser.h
-#ifndef CONFIGPARSER_H
-#define CONFIGPARSER_H
+#include <gtest/gtest.h>
+#include <atomic>
+#include <memory>
+#include "../Utils/include/ThreadWrapper.h"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <unordered_map>
-#include <vector>
-
-const std::string CONFIGPATH = "/home/uma/workspace/Gzero/Config/";
-class ConfigParser {
- private:
-  std::unordered_map<std::string, std::string> keyValueStore;
-  std::unordered_map<std::string, std::vector<std::string>> arrayStore;
-  int errorCode;
-
- public:
-  ConfigParser();
-  bool loadFile(const std::string& filename);
-  std::string getValue(const std::string& key);
-  int getIntValue(const std::string& key);
-  int getErrorCode() const;
-
-  std::string trim(const std::string& str);
-  std::vector<std::string> parseArray(const std::string& value);
-  void parseKeyValue(const std::string& line);
-  std::string join(const std::vector<std::string>& vec,
-                   const std::string& delimiter);
+std::atomic<bool> g_threadFinished(false);
+void* threadFunc(void*) {
+  g_threadFinished = true;
+  return nullptr;
 };
+TEST(ThreadWrapperTest, CreateAndJoinThread) {
 
-#endif  // CONFIGPARSER_H
+  g_threadFinished = false;
+
+  auto thread = std::make_shared<ThreadWrapper>(threadFunc, nullptr);
+  thread->join();
+  ASSERT_TRUE(g_threadFinished.load());
+}

@@ -33,8 +33,8 @@ RequestMonitor::RequestMonitor() : running_(true) {
   pthread_mutex_init(&mutex_, nullptr);
 
   // Create the monitoring thread
-  pthread_create(&monitorThread_, nullptr, &RequestMonitor::monitorTimeouts,
-                 this);
+  monitorThread_ =
+      std::make_shared<ThreadWrapper>(&RequestMonitor::monitorTimeouts, this);
   while (!bThreadStarted) {
     usleep(50);
   }
@@ -48,7 +48,7 @@ RequestMonitor::RequestMonitor() : running_(true) {
 RequestMonitor::~RequestMonitor() {
   running_ = false;
   if (monitorThread_) {
-    pthread_join(monitorThread_, nullptr);  // Wait for monitor thread to finish
+    monitorThread_->join();  // Wait for monitor thread to finish
   }
 
   // Destroy mutex

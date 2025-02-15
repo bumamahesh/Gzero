@@ -23,7 +23,6 @@
 #ifndef ALGO_BASE_H
 #define ALGO_BASE_H
 
-#include <pthread.h>
 #include <memory>
 #include <string>
 #include "AlgoDefs.h"

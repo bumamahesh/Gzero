@@ -23,12 +23,12 @@
 #define EVENTHANDLERTHREAD_H
 #pragma once
 
-#include <pthread.h>
 #include <condition_variable>
 #include <functional>
 #include <memory>
 #include <mutex>
 #include <queue>
+#include "ThreadWrapper.h"
 
 template <typename T>
 class EventHandlerThread {
@@ -38,8 +38,10 @@ class EventHandlerThread {
   // Constructor
   EventHandlerThread(EventHandler handler, void* context)
       : mHandler(handler), mContext(context), mRunning(false) {
-    pthread_create(&mPthread, nullptr, &EventHandlerThread::threadFunc, this);
-    pthread_setname_np(mPthread, "EventHandlerThread");
+
+    mPthread =
+        std::make_shared<ThreadWrapper>(&EventHandlerThread::threadFunc, this);
+    mPthread->ThreadSetname("EventHandlerThread");
   }
 
   // Destructor
@@ -55,7 +57,7 @@ class EventHandlerThread {
       mRunning = false;
     }
     mCv.notify_one();
-    pthread_join(mPthread, nullptr);
+    mPthread->join();
   }
 
   // Set an event to be handled by the thread
@@ -93,10 +95,10 @@ class EventHandlerThread {
     return nullptr;
   }
 
-  EventHandler mHandler = nullptr;
-  void* mContext        = nullptr;
-  pthread_t mPthread;
-  bool mRunning = false;
+  EventHandler mHandler                   = nullptr;
+  void* mContext                          = nullptr;
+  std::shared_ptr<ThreadWrapper> mPthread = nullptr;
+  bool mRunning                           = false;
   std::queue<std::shared_ptr<T>> mEventQueue;
   std::mutex mMutex;
   std::condition_variable mCv;

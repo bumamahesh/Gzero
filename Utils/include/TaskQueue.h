@@ -22,35 +22,34 @@
 #ifndef TASK_QUEUE_H
 #define TASK_QUEUE_H
 #pragma once
-#include "AlgoRequest.h"
-#include "RequestMonitor.h"
-#include "Task.h"
 #include <atomic>
 #include <condition_variable>
 #include <memory>
 #include <mutex>
-#include <pthread.h>
 #include <queue>
+#include "AlgoRequest.h"
+#include "RequestMonitor.h"
+#include "Task.h"
 
-typedef void (*TASKFUNC)(void *Ctx, std::shared_ptr<Task_t> task);
+typedef void (*TASKFUNC)(void* Ctx, std::shared_ptr<Task_t> task);
 class TaskQueue {
-public:
+ public:
   // Constructor
-  explicit TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx);
+  explicit TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void* pTaskCtx);
 
   // Destructor
   ~TaskQueue();
 
   // Set the thread name
-  void SetThread(const std::string &name);
+  void SetThread(const std::string& name);
 
   // Enqueue a payload
   void Enqueue(std::shared_ptr<Task_t> payload);
 
   // Task and callback
-  TASKFUNC pExecute = nullptr;
+  TASKFUNC pExecute  = nullptr;
   TASKFUNC pCallback = nullptr;
-  void *pTaskCtx = nullptr;
+  void* pTaskCtx     = nullptr;
 
   // Wait for queue to complete
   void WaitForQueueCompetion();
@@ -60,22 +59,23 @@ public:
 
   /*for tracking/debug */
   size_t mEnQRequestSize = 0;
-  size_t mProcessSize = 0;
-  size_t mCallbackSize = 0;
+  size_t mProcessSize    = 0;
+  size_t mCallbackSize   = 0;
   std::shared_ptr<RequestMonitor> monitor;
 
-private:
+ private:
   // Internal worker thread function
-  static void *WorkerThreadFuction(void *arg);
+  static void* WorkerThreadFuction(void* arg);
 
   // Member variables
   // Queue to hold tasks
-  std::queue<std::shared_ptr<Task_t>> mTaskQueue; // Queue to hold tasks
-  std::mutex mTaskQMux;         // Mutex for accessing taskQueue
-  pthread_t mWorkerThread;      // Thread handle
-  std::atomic<bool> bIsRunning; // Atomic flag to check if the thread should run
+  std::queue<std::shared_ptr<Task_t>> mTaskQueue;  // Queue to hold tasks
+  std::mutex mTaskQMux;  // Mutex for accessing taskQueue
+  std::shared_ptr<ThreadWrapper> mWorkerThread;  // Thread handle
+  std::atomic<bool>
+      bIsRunning;  // Atomic flag to check if the thread should run
   std::condition_variable
-      mConditionVar; // Condition variable for synchronization
+      mConditionVar;  // Condition variable for synchronization
 };
 
-#endif // TASK_QUEUE_H
+#endif  // TASK_QUEUE_H

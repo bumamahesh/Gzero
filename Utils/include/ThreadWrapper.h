@@ -19,35 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-// ConfigParser.h
-#ifndef CONFIGPARSER_H
-#define CONFIGPARSER_H
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <unordered_map>
-#include <vector>
+#ifdef _WIN32
+/*@todo windows api implemntaion*/
+#else
+#pragma once
+#include <pthread.h>
 
-const std::string CONFIGPATH = "/home/uma/workspace/Gzero/Config/";
-class ConfigParser {
- private:
-  std::unordered_map<std::string, std::string> keyValueStore;
-  std::unordered_map<std::string, std::vector<std::string>> arrayStore;
-  int errorCode;
-
+class ThreadWrapper {
  public:
-  ConfigParser();
-  bool loadFile(const std::string& filename);
-  std::string getValue(const std::string& key);
-  int getIntValue(const std::string& key);
-  int getErrorCode() const;
+  ThreadWrapper(void* (*start_routine)(void*), void* arg);
+  ~ThreadWrapper();
+  void ThreadSetname(const char* name);
+  void join();
 
-  std::string trim(const std::string& str);
-  std::vector<std::string> parseArray(const std::string& value);
-  void parseKeyValue(const std::string& line);
-  std::string join(const std::vector<std::string>& vec,
-                   const std::string& delimiter);
+ private:
+  pthread_t thread;
+  pthread_attr_t attr;
 };
-
-#endif  // CONFIGPARSER_H
+#endif

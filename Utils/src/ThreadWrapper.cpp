@@ -19,35 +19,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-// ConfigParser.h
-#ifndef CONFIGPARSER_H
-#define CONFIGPARSER_H
 
-#include <fstream>
+#include "../include/ThreadWrapper.h"
+
+#ifdef _WIN32
+/*need toimplement window api @TODO*/
+#else
 #include <iostream>
-#include <sstream>
-#include <unordered_map>
-#include <vector>
+#include "ThreadWrapper.h"
 
-const std::string CONFIGPATH = "/home/uma/workspace/Gzero/Config/";
-class ConfigParser {
- private:
-  std::unordered_map<std::string, std::string> keyValueStore;
-  std::unordered_map<std::string, std::vector<std::string>> arrayStore;
-  int errorCode;
+/**
+@brief Construct a new Thread Wrapper:: Thread Wrapper object
+ * 
+ * @param start_routine 
+ * @param arg 
+ */
+ThreadWrapper::ThreadWrapper(void* (*start_routine)(void*), void* arg) {
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  int ret = pthread_create(&thread, &attr, start_routine, arg);
+  pthread_attr_destroy(&attr);
+  if (ret != 0) {
+    std::cerr << "Error creating thread: " << ret << std::endl;
+  }
+}
 
- public:
-  ConfigParser();
-  bool loadFile(const std::string& filename);
-  std::string getValue(const std::string& key);
-  int getIntValue(const std::string& key);
-  int getErrorCode() const;
+/**
+@brief  join thread 
+ * 
+ */
+void ThreadWrapper::join() {
+  pthread_join(thread, nullptr);
+}
 
-  std::string trim(const std::string& str);
-  std::vector<std::string> parseArray(const std::string& value);
-  void parseKeyValue(const std::string& line);
-  std::string join(const std::vector<std::string>& vec,
-                   const std::string& delimiter);
-};
+/**
+@brief Destroy the Thread Wrapper:: Thread Wrapper object
+ * 
+ */
+ThreadWrapper::~ThreadWrapper() {
+  // join();
+}
 
-#endif  // CONFIGPARSER_H
+void ThreadWrapper::ThreadSetname(const char* name) {
+  if (name != nullptr) {
+    pthread_setname_np(thread, name);
+  } else {
+    std::cerr << "Error Setting thread Name" << std::endl;
+  }
+}
+
+#endif

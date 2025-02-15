@@ -6,6 +6,7 @@ add_library(AlgoUtils STATIC
     src/RequestMonitor.cpp
  #   src/TaskQueue.cpp
     src/Utils.cpp
+    src/ThreadWrapper.cpp
 )
 
 set_target_properties(AlgoUtils PROPERTIES POSITION_INDEPENDENT_CODE ON)

@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 #include "../include/Log.h"
-#include <pthread.h>
 #include <chrono>
 #include <fstream>
 #include <iomanip>
@@ -37,13 +36,6 @@ std::string getCurrentTime() {
   std::stringstream ss;
   ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S");
   ss << '.' << std::setfill('0') << std::setw(3) << milliseconds.count();
-  return ss.str();
-}
-
-// Function to get current thread id
-std::string getCurrentThreadId() {
-  std::stringstream ss;
-  ss << pthread_self();
   return ss.str();
 }
 
@@ -121,8 +113,10 @@ void LOG(LogLevel level, const std::string& component, const char* fmt, ...) {
        << "[" << std::left << std::setw(15) << component << "]"
        << "[" << getLogLevelAbbreviation(level) << "]"
        << "[" << __func__ << "]"
-       << "[" << __LINE__ << "]"
-       << "[" << getCurrentThreadId() << "] " << buffer << std::endl;
+       << "[" << __LINE__
+       << "]"
+       /*<< "[" << getCurrentThreadId() << "] "*/
+       << buffer << std::endl;
     std::cerr << ss.str();
   }
 }
