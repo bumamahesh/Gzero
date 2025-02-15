@@ -23,37 +23,14 @@
 #define LDC_ALGORITHM_H
 
 #include "AlgoBase.h"
-const char *LDC_NAME = "LdcAlgorithm";
-
-struct CameraIntrinsics {
-  std::pair<double, double> focalLength;    // fx, fy
-  std::pair<double, double> principalPoint; // cx, cy
-  std::vector<double> distortionCoeffs;     // k1, k2, p1, p2, k3
-};
-
-struct CameraExtrinsics {
-  std::vector<std::vector<double>> rotationMatrix; // 3x3 rotation matrix
-  std::vector<double> translationVector;           // tx, ty, tz
-};
-
-struct CalibrationData {
-  CameraIntrinsics intrinsics; // Camera intrinsic parameters
-  CameraExtrinsics extrinsics; // Camera extrinsic parameters
-
-  bool IsValid() const {
-    // Check if intrinsics and extrinsics have been initialized properly
-    return !intrinsics.distortionCoeffs.empty() &&
-           extrinsics.rotationMatrix.size() == 3 &&
-           extrinsics.rotationMatrix[0].size() == 3;
-  }
-};
+const char* LDC_NAME = "LdcAlgorithm";
 
 /**
  * @brief LdcAlgorithm class derived from AlgoBase to perform LDC-specific
  * operations.
  */
 class LdcAlgorithm : public AlgoBase {
-public:
+ public:
   /**
    * @brief Constructor for LdcAlgorithm.
    *
@@ -91,28 +68,14 @@ public:
    */
   int GetTimeout() override;
 
-  CameraIntrinsics ComputeCameraIntrinsics(
-      const std::vector<std::shared_ptr<ImageData>> &yuvImages);
-
-  CameraExtrinsics ComputeCameraExtrinsics(
-      const std::vector<std::shared_ptr<ImageData>> &yuvImages);
-
-  void CalculateCalibrationData(std::shared_ptr<AlgoRequest> req);
-
-private:
-  mutable std::mutex mutex_; // Mutex to protect the shared state
-
-  bool CalculateDistortionCoefficients(
-      const std::vector<std::vector<std::vector<uint8_t>>> &calibrationImages);
-
-  double m_k1 = 0.0, m_k2 = 0.0, m_k3 = 0.0,
-         m_k4 = 0.0; // Distortion coefficients
+ private:
+  mutable std::mutex mutex_;  // Mutex to protect the shared state
 };
 
 /**
  * @brief Factory function to expose LdcAlgorithm via shared library.
  * @return A pointer to the LdcAlgorithm instance.
  */
-extern "C" AlgoBase *GetAlgoMethod();
+extern "C" AlgoBase* GetAlgoMethod();
 
-#endif // LDC_ALGORITHM_H
+#endif  // LDC_ALGORITHM_H

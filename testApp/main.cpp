@@ -15,6 +15,7 @@ extern bool g_HdrEnabled;
 extern bool g_WatermarkEnabled;
 extern bool g_MandlebrotSetEnabled;
 extern bool g_FilterEnabled;
+extern bool g_LdcEnabled;
 bool g_DisplayEnable = false;
 struct YUVFile {
   std::string filePath;
@@ -81,6 +82,9 @@ int main(int argc, char* argv[]) {
     } else if (strcmp(argv[i], "h") == 0) {
       g_HdrEnabled = true;
       std::cout << "ALGO_HDR  is set" << std::endl;
+    } else if (strcmp(argv[i], "l") == 0) {
+      g_LdcEnabled = true;
+      std::cout << "ALGO_LDC  is set" << std::endl;
     } else if (strcmp(argv[i], "D") == 0) {
       g_DisplayEnable = true;
       std::cout << "Display is set" << std::endl;
@@ -91,7 +95,8 @@ int main(int argc, char* argv[]) {
   std::cerr << "g_HdrEnabled = " << g_HdrEnabled
             << " g_WatermarkEnabled = " << g_WatermarkEnabled
             << " g_MandlebrotSetEnabled = " << g_MandlebrotSetEnabled
-            << " g_FilterEnabled = " << g_FilterEnabled << std::endl;
+            << " g_FilterEnabled = " << g_FilterEnabled
+            << " g_LdcEnabled = " << g_LdcEnabled << std::endl;
 #ifdef SYNC_THREAD
   pRenderer->RenderLoop(pAlgoInterfaceManager);
 #else
@@ -104,6 +109,7 @@ int main(int argc, char* argv[]) {
         g_quit.store(true);
       }
     }
+    std::cerr << "Exiting submit thread" << std::endl;
   };
 
   std::thread t2(submit);

@@ -22,13 +22,14 @@
 #ifndef ALGO_INTERFACE_H
 #define ALGO_INTERFACE_H
 
-#include "AlgoSession.h"
 #include <atomic>
+#include "AlgoSession.h"
 
 #define MAX_HOLD_REQUESTS 20
-const size_t MAX_MEMORY_USAGE_KB = 500 * 1024; // 500MB
+const size_t MAX_MEMORY_USAGE_KB =
+    500 * 1024 * 100;  // 500 *100 MB //let make high
 class AlgoInterface {
-public:
+ public:
   AlgoInterface();
   ~AlgoInterface();
   bool Process(std::shared_ptr<AlgoRequest> request,
@@ -39,9 +40,9 @@ public:
   std::atomic<int> mResultCnt{0};
   mutable std::mutex mCallbackMutex;
 
-private:
+ private:
   std::shared_ptr<AlgoSession> mSession;
-  static void SessionCallbackHandler(void *pctx,
+  static void SessionCallbackHandler(void* pctx,
                                      std::shared_ptr<AlgoRequest> input);
 };
-#endif // ALGO_INTERFACE_H
+#endif  // ALGO_INTERFACE_H

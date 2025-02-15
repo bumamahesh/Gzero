@@ -88,6 +88,13 @@ class DecisionManager : public AlgoDecisionManager {
         AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_MANDELBROTSET);
       }
     }
+    bool algo_ldc_enabled = false;
+    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_LDC_ENABLED,
+                                        algo_ldc_enabled)) {
+      if (algo_ldc_enabled) {
+        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_LDC);
+      }
+    }
 
     ret = AlgoDecisionManager::ParseMetadata(req);
     return ret;

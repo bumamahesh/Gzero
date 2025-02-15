@@ -22,20 +22,20 @@
 #include "../include/TaskQueue.h"
 #include "../include/Log.h"
 
+#include <unistd.h>
 #include <cassert>
 #include <stdexcept>
-#include <unistd.h>
 /***
  * @brief Worker thread function that processes tasks from the queue
  */
-void *TaskQueue::WorkerThreadFuction(void *arg) {
+void* TaskQueue::WorkerThreadFuction(void* arg) {
 
-  TaskQueue *pTaskQObj = static_cast<TaskQueue *>(arg);
+  TaskQueue* pTaskQObj = static_cast<TaskQueue*>(arg);
   // LOG(VERBOSE, TASKQUEUE, "Worker thread Launched .....");
   assert(pTaskQObj != nullptr);
   assert(pTaskQObj->pExecute != nullptr);
   pTaskQObj->bIsRunning = true;
-  bool bShouldMonitor = false;
+  bool bShouldMonitor   = false;
   while (true) {
     std::shared_ptr<Task_t> task = nullptr;
     // Lock the queue and wait until a task is available
@@ -69,7 +69,7 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
       bShouldMonitor = false;
       if ((pTaskQObj->monitor.get() != nullptr) && (task.get() != nullptr) &&
           (task->request.get() != nullptr)) {
-        bShouldMonitor = true;
+        bShouldMonitor = false;
       } /*else {
         LOG(ERROR, TASKQUEUE, "task is not monitored");
       }*/
@@ -102,16 +102,16 @@ void *TaskQueue::WorkerThreadFuction(void *arg) {
 @brief Construct a new Task Queue::is Running object
  *
  */
-TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx) {
+TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void* pTaskCtx) {
 
   if (!pExecute || !pCallback || !pTaskCtx) {
     LOG(ERROR, TASKQUEUE, "Invalid function pointer or context");
     std::abort();
   }
 
-  this->pExecute = pExecute;
+  this->pExecute  = pExecute;
   this->pCallback = pCallback;
-  this->pTaskCtx = pTaskCtx;
+  this->pTaskCtx  = pTaskCtx;
 
   bIsRunning = false;
   // Create a worker thread
@@ -131,14 +131,16 @@ TaskQueue::TaskQueue(TASKFUNC pExecute, TASKFUNC pCallback, void *pTaskCtx) {
 @brief Destroy the Task Queue:: Task Queue object
  *
  */
-TaskQueue::~TaskQueue() { StopWorkerThread(); }
+TaskQueue::~TaskQueue() {
+  StopWorkerThread();
+}
 
 /**
 @brief Set the Thread object
  *
  * @param name
  */
-void TaskQueue::SetThread(const std::string &name) {
+void TaskQueue::SetThread(const std::string& name) {
   pthread_setname_np(mWorkerThread, name.c_str());
 }
 

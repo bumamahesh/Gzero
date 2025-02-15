@@ -22,6 +22,10 @@
 #include "LdcAlgorithm.h"
 #include "ConfigParser.h"
 #include "Log.h"
+#ifdef __OPENCV_ENABLE__
+#include <cmath>
+#include <opencv2/opencv.hpp>
+#endif
 
 /**
  * @brief Constructor for LdcAlgorithm.
@@ -64,24 +68,145 @@ AlgoBase::AlgoStatus LdcAlgorithm::Open() {
   return GetAlgoStatus();
 }
 
+#if __OPENCV_ENABLE__
+/**
+ * @brief Get the Transformation Matrix object
+ * 
+ * @param scale 
+ * @param rotationDeg 
+ * @param tx 
+ * @param ty 
+ * @return cv::Mat 
+ */
+cv::Mat GetTransformationMatrix(float scale = 1.0, float rotationDeg = 0.0,
+                                float tx = 0.0, float ty = 0.0) {
+  // Define source points (original image corners)
+  cv::Point2f srcPoints[4] = {
+      cv::Point2f(0, 0),  // Top-left
+      cv::Point2f(1, 0),  // Top-right
+      cv::Point2f(1, 1),  // Bottom-right
+      cv::Point2f(0, 1)   // Bottom-left
+  };
+
+  // Convert rotation from degrees to radians
+  float rotationRad = rotationDeg * (CV_PI / 180.0);
+
+  // Compute transformed destination points
+  cv::Point2f dstPoints[4];
+  for (int i = 0; i < 4; ++i) {
+    // Apply scaling and rotation
+    float x = srcPoints[i].x - 0.5;  // Centering
+    float y = srcPoints[i].y - 0.5;
+
+    float xNew = scale * (x * cos(rotationRad) - y * sin(rotationRad));
+    float yNew = scale * (x * sin(rotationRad) + y * cos(rotationRad));
+
+    // Apply translation
+    dstPoints[i] = cv::Point2f(xNew + 0.5 + tx, yNew + 0.5 + ty);
+  }
+
+  // Compute perspective transformation matrix
+  return cv::getPerspectiveTransform(srcPoints, dstPoints);
+}
+
+#endif
+
 /**
  * @brief Process the ldc algorithm, simulating input validation and ldc
  * computation.
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus LdcAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
+  std::lock_guard<std::mutex> lock(mutex_);
 
-  // Perform calibration data calculation
-  CalculateCalibrationData(req);
+  if (!req || req->GetImageCount() == 0) {
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
+  }
+#ifdef __OPENCV_ENABLE__
+  auto inputImage = req->GetImage(0);  // Assume first image as input
+  if (!inputImage) {
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
+  }
 
-  // Perform image undistortion
-  // UndistortImages(req);
+  const ImageFormat inputFormat = inputImage->GetFormat();
+  const int width               = inputImage->GetWidth();
+  const int height              = inputImage->GetHeight();
+
+  if (CanProcessFormat(inputFormat, inputFormat)) {
+    // Extract YUV data from the input image
+    std::vector<unsigned char> yuvData = inputImage->GetData();
+    if (yuvData.empty()) {
+      SetStatus(AlgoStatus::FAILURE);
+      return GetAlgoStatus();
+    }
+
+    // Split Y, U, and V planes (Assuming YUV420 format)
+    cv::Mat yPlane(height, width, CV_8UC1, yuvData.data());
+    cv::Mat uPlane(height / 2, width / 2, CV_8UC1,
+                   yuvData.data() + width * height);
+    cv::Mat vPlane(
+        height / 2, width / 2, CV_8UC1,
+        yuvData.data() + width * height + (width / 2) * (height / 2));
+
+    // Get transformation matrix (Assume it’s precomputed)
+    static float scale     = 0.0f;
+    constexpr float delta  = 0.01f;
+    static bool increasing = true;
+
+    if (req->mRequestId % 10 == 0) {
+      if (scale >= 1.0f) {
+        scale      = 1.0f;
+        increasing = false;
+      } else if (scale <= 0.0f) {
+        scale      = 0.0f;
+        increasing = true;
+      }
+
+      // Adjust scale based on direction
+      scale += (increasing ? delta : -delta);
+    }
+
+    cv::Mat transformationMatrix = GetTransformationMatrix(scale, 0.0, 0, 0);
+
+    // Apply LDC transformation on the Y channel
+    cv::Mat yPlaneWarped;
+    cv::warpPerspective(yPlane, yPlaneWarped, transformationMatrix,
+                        yPlane.size());
+
+    // Apply LDC transformation on UV channels using lower resolution
+    cv::Mat uPlaneWarped, vPlaneWarped;
+    cv::warpPerspective(uPlane, uPlaneWarped, transformationMatrix,
+                        uPlane.size());
+    cv::warpPerspective(vPlane, vPlaneWarped, transformationMatrix,
+                        vPlane.size());
+
+    // Merge back into YUV buffer
+    std::vector<unsigned char> outputData(yuvData.size());
+    std::memcpy(outputData.data(), yPlaneWarped.data, width * height);
+    std::memcpy(outputData.data() + width * height, uPlaneWarped.data,
+                (width / 2) * (height / 2));
+    std::memcpy(outputData.data() + width * height + (width / 2) * (height / 2),
+                vPlaneWarped.data, (width / 2) * (height / 2));
+
+    // Replace input image with transformed YUV image
+    req->ClearImages();
+    if (req->AddImage(ImageFormat::YUV420, width, height,
+                      std::move(outputData))) {
+      LOG(ERROR, ALGOBASE, "Error Filling Output data");
+      SetStatus(AlgoStatus::FAILURE);
+    }
+  }
+#endif
+  // Update metadata to mark process completion
   int reqdone = 0x00;
   if (req &&
       (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= ALGO_MASK(mAlgoId);
     req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
+
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }
@@ -104,57 +229,6 @@ AlgoBase::AlgoStatus LdcAlgorithm::Close() {
  */
 int LdcAlgorithm::GetTimeout() {
   return 1000;
-}
-
-CameraIntrinsics LdcAlgorithm::ComputeCameraIntrinsics(
-    const std::vector<std::shared_ptr<ImageData>>& yuvImages) {
-  (void)yuvImages;
-  // Placeholder for actual camera intrinsics computation logic
-  CameraIntrinsics intrinsics;
-  intrinsics.focalLength      = {1000.0, 1000.0};
-  intrinsics.principalPoint   = {640.0, 480.0};
-  intrinsics.distortionCoeffs = {0.1, -0.05, 0.0, 0.0, 0.0};
-  return intrinsics;
-}
-
-CameraExtrinsics LdcAlgorithm::ComputeCameraExtrinsics(
-    const std::vector<std::shared_ptr<ImageData>>& yuvImages) {
-  (void)yuvImages;
-  // Placeholder for actual camera extrinsics computation logic
-  CameraExtrinsics extrinsics;
-  extrinsics.rotationMatrix = {
-      {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
-  extrinsics.translationVector = {0.0, 0.0, 0.0};
-  return extrinsics;
-}
-
-void LdcAlgorithm::CalculateCalibrationData(std::shared_ptr<AlgoRequest> req) {
-  if (!req) {
-    return;
-  }
-  // Ensure that there are images to process
-  if (req->GetImageCount() == 0) {
-    SetStatus(AlgoStatus::FAILURE);
-    throw std::runtime_error("No images available for calibration.");
-  }
-
-  // Example: Use only YUV images for calibration
-  auto yuvImages = req->GetYUVImages();
-  if (yuvImages.empty()) {
-    SetStatus(AlgoStatus::FAILURE);
-    throw std::runtime_error("No YUV images available for calibration.");
-  }
-
-  // Perform the calibration algorithm (e.g., camera intrinsics, extrinsics)
-  CalibrationData calibrationData;
-  calibrationData.intrinsics = ComputeCameraIntrinsics(yuvImages);
-  calibrationData.extrinsics = ComputeCameraExtrinsics(yuvImages);
-
-  // Store calibration data for later usage
-  // req->SetCalibrationData(calibrationData);
-
-  // Log progress
-  // Log("Calibration data calculation completed successfully.");
 }
 
 // Public Exposed API for ldc

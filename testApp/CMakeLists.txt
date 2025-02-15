@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 include_directories(../include/ ..//Utils/include include/ )
 # Find the SDL2 package
-#find_package(SDL2 REQUIRED)
+find_package(SDL2 REQUIRED)
 
 # Define the source files
 set(SOURCES
@@ -21,8 +21,11 @@ set(SOURCES
 # Create an executable from the source files
 add_executable(test_app ${SOURCES})
 
+if(SDL2_FOUND)
+add_definitions(-D__RENDER__=1)
 # Link SDL2 to the executable
-#target_link_libraries(test_app SDL2::SDL2)
+target_link_libraries(test_app SDL2::SDL2)
+endif()
 
 option(ENABLE_ASAN "Enable AddressSanitizer (ASAN)" ON)
 if(ENABLE_ASAN)

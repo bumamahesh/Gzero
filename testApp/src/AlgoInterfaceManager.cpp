@@ -20,6 +20,7 @@ bool g_HdrEnabled           = false;
 bool g_WatermarkEnabled     = false;
 bool g_MandlebrotSetEnabled = false;
 bool g_FilterEnabled        = false;
+bool g_LdcEnabled           = false;
 
 template <typename T>
 T clamp(T value, T min, T max) {
@@ -207,6 +208,7 @@ void SetMetadata(std::shared_ptr<AlgoRequest> request) {
                                    g_MandlebrotSetEnabled);
     request->mMetadata.SetMetadata(MetaId::ALGO_FILTER_ENABLED,
                                    g_FilterEnabled);
+    request->mMetadata.SetMetadata(MetaId::ALGO_LDC_ENABLED, g_LdcEnabled);
   }
 }
 

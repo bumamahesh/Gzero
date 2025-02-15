@@ -60,6 +60,7 @@ enum class MetaId {
   ALGO_WATERMARK_ENABLED,  // flag for watermark processing
   ALGO_MANDELBROTSET_ENABLED,  // flag for mandlebrot set processing
   ALGO_FILTER_ENABLED,         // flag for filter processing
+  ALGO_LDC_ENABLED,            // flag for ldc processing
   ALGO_JPEG_ENABLE,            // JPEG quality setting
   ALGO_PROCESS_DONE,           // algo has done processing
   ALGO_REQUSET_NUMBER,         // Image frame Number

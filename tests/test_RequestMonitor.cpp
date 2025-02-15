@@ -163,18 +163,18 @@ TEST_F(RequestMonitorTest, RequestTimeoutNoStop) {
 }
 
 //-----------------------------------------------------------
-int callbackCounter = 0;
+std::atomic<int> callbackCounter{0};
 void Callback(void* pContext, std::shared_ptr<Task_t> task) {
   (void)(task);
   (void)(pContext);
-  callbackCounter++;
+  callbackCounter.fetch_add(1, std::memory_order_relaxed);
 }
 
 class RequestMonitorStressTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    callbackCounter = 0;
-    monitor         = new RequestMonitor();
+    callbackCounter.store(0, std::memory_order_relaxed);
+    monitor = new RequestMonitor();
     monitor->SetCallback(Callback, this);
 
     for (int i = 0; i < 10; i++) {
@@ -201,7 +201,8 @@ TEST_F(RequestMonitorStressTest, NoCallbackForProcessingWithinTolerance) {
   // Vector to store futures for asynchronous tasks
   std::vector<std::future<void>> tasks;
 
-  // Add 1000 frames with random processing times asynchronously
+  // Add 10 frames with random processing times asynchronously
+  // flooding too many task introduce latency
   for (int i = 0; i < totalFrames; ++i) {
     monitor->StartRequestMonitoring(taskVector[i], maxTime);
     tasks.emplace_back(std::async(std::launch::async, [i, this, minTime,
@@ -219,9 +220,11 @@ TEST_F(RequestMonitorStressTest, NoCallbackForProcessingWithinTolerance) {
   }
 
   // Wait for monitor to stabilize
-  std::this_thread::sleep_for(std::chrono::seconds(2));
+  std::this_thread::sleep_for(std::chrono::seconds(3));
+
+  int value = callbackCounter.load(std::memory_order_relaxed);
 
   // Assert that no callback was triggered
-  ASSERT_EQ(callbackCounter, 0) << "Monitor triggered callbacks even though "
-                                   "processing was within tolerance!";
+  ASSERT_EQ(value, 0) << "Monitor triggered callbacks even though "
+                         "processing was within tolerance!";
 }

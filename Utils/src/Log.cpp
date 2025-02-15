@@ -25,7 +25,7 @@
 #include <fstream>
 #include <iomanip>
 std::ofstream logFile;
-LogLevel glogLevel = LogLevel::L_VERBOSE;
+volatile LogLevel glogLevel = LogLevel::L_VERBOSE;
 // Function to get current time
 std::string getCurrentTime() {
   auto now          = std::chrono::system_clock::now();

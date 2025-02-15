@@ -66,7 +66,7 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
       usleep(sleepDurationMs * 1000);
       currentMemoryUsage = GetMemoryUsage();  // Update memory usage
 
-      LOG(WARNING, ALGOINTERFACE, "Memory usage high: %zu KB, waiting...",
+      LOG(ERROR, ALGOINTERFACE, "Memory usage high: %zu KB, waiting...",
           currentMemoryUsage);
     }
 
@@ -80,7 +80,6 @@ bool AlgoInterface::Process(std::shared_ptr<AlgoRequest> request,
       GetMemoryUsage());
 
   if ((mRequestCnt - mResultCnt) > MAX_HOLD_REQUESTS) {
-    usleep(33 * 1000);  // 33 ms assume 1 frame delay)
     LOG(VERBOSE, ALGOINTERFACE, "[Req::%d Res::%d] processed[%d]",
         mRequestCnt.load(), mResultCnt.load(),
         (mRequestCnt.load() - mResultCnt.load()));
