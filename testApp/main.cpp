@@ -2,7 +2,6 @@
 #ifdef __RENDER__
 #include "include/Renderer.h"
 #endif
-#include <pthread.h>
 #include <unistd.h>
 #include <atomic>
 #include <cstring>
