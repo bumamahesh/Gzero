@@ -26,10 +26,10 @@
 
 /**
  * @brief Constructor for FilterAlgorithm.
- * @param name Name of the Nop algorithm.
+ * @param name Name of the Filter algorithm.
  */
 FilterAlgorithm::FilterAlgorithm() : AlgoBase(FILTER_NAME) {
-  mAlgoId = ALGO_FILTER;  // Unique ID for Nop algorithm
+  mAlgoId = ALGO_FILTER;  // Unique ID for Filter algorithm
   SupportedFormatsMap.push_back({ImageFormat::RGB, ImageFormat::RGB});
   SupportedFormatsMap.push_back({ImageFormat::YUV420, ImageFormat::YUV420});
   ConfigParser parser;
@@ -52,7 +52,7 @@ FilterAlgorithm::~FilterAlgorithm() {
 };
 
 /**
- * @brief Open the Nop algorithm, simulating resource checks.
+ * @brief Open the Filter algorithm, simulating resource checks.
  * @return Status of the operation.
  */
 AlgoBase::AlgoStatus FilterAlgorithm::Open() {
@@ -166,7 +166,7 @@ AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv(
 }
 
 /**
- * @brief Process the Nop algorithm, simulating input validation and Nop
+ * @brief Process the Filter algorithm, simulating input validation and Filter
  * computation.
  * @return Status of the operation.
  */
@@ -232,7 +232,7 @@ int FilterAlgorithm::GetTimeout() {
   return 5000;
 }
 
-// Public Exposed API for Nop
+// Public Exposed API for Filter
 /**
  * @brief Factory function to expose FilterAlgorithm via shared library.
  * @return A pointer to the FilterAlgorithm instance.
