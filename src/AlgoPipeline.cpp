@@ -93,8 +93,7 @@ std::vector<AlgoId> AlgoPipeline::GetAlgoListId() const {
 AlgoPipelineState AlgoPipeline::ConfigureAlgoPipeline(
     std::vector<AlgoId>& algoList) {
 
-  LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld ",
-      algoList.size());
+  LOG(INFO, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld ", algoList.size());
 
   if (GetState() == AlgoPipelineState::Initialised) {
     if (algoList.size() == 0) {

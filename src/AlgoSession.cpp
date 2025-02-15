@@ -133,6 +133,16 @@ bool AlgoSession::SessionProcess(std::shared_ptr<AlgoRequest> input,
       return false;
     }
   }
+  if (lastPipelinedId != pipelineId) {
+    lastPipelinedId = pipelineId;
+
+    std::string algosConfigured;
+    for (auto id : algoList) {
+      algosConfigured += "[" + algoName[ALGO_OFFSET(id)] + "]";
+    }
+    LOG(ERROR, ALGOSESSION, "Configured pipeline Algos::%s",
+        algosConfigured.c_str());
+  }
 
   bool rc = SessionProcess(pipelineId, input);
   LOG(INFO, ALGOSESSION, "AlgoSession::SessionProcess X rc = %d Id = %d",

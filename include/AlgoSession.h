@@ -22,19 +22,19 @@
 #ifndef ALGO_SESSION_H
 #define ALGO_SESSION_H
 
-#include "AlgoPipeline.h"
 #include <memory>
 #include <mutex>
 #include <vector>
-typedef void (*INTERFACECALLBACK)(void *pctx,
+#include "AlgoPipeline.h"
+typedef void (*INTERFACECALLBACK)(void* pctx,
                                   std::shared_ptr<AlgoRequest> input);
 class AlgoSession {
-public:
+ public:
   AlgoSession(INTERFACECALLBACK pInterfaceCallBackHandler = nullptr,
-              void *pCtx                                  = nullptr);
+              void* pCtx                                  = nullptr);
   ~AlgoSession();
   bool SessionStop();
-  bool SessionAddPipeline(std::shared_ptr<AlgoPipeline> &pipeline);
+  bool SessionAddPipeline(std::shared_ptr<AlgoPipeline>& pipeline);
   bool SessionRemovePipeline(size_t pipelineId);
   bool SessionProcess(std::shared_ptr<AlgoRequest> input,
                       std::vector<AlgoId> algoList);
@@ -45,19 +45,20 @@ public:
   int SessionGetpipelineId(std::vector<AlgoId> algoList);
   std::shared_ptr<AlgoPipeline> SessionGetPipeline(size_t pipelineId);
   INTERFACECALLBACK pInterfaceCallBackHandler = nullptr;
-  void *pInterfaceCtx                         = nullptr;
+  void* pInterfaceCtx                         = nullptr;
   mutable std::mutex mCallbackMutex;
   mutable std::mutex mSessionMutex;
 
   void Dump();
+  int lastPipelinedId = 0XCAFEBABE;
 
-private:
+ private:
   std::vector<std::shared_ptr<AlgoPipeline>> mPipelines;
   size_t mNextPipelineId = 0;
   std::unordered_map<size_t, std::shared_ptr<AlgoPipeline>> mPipelineMap;
 
-  static void PiplineCallBackHandler(void *pctx,
+  static void PiplineCallBackHandler(void* pctx,
                                      std::shared_ptr<AlgoRequest> input);
 };
 
-#endif // ALGO_SESSION_H
+#endif  // ALGO_SESSION_H

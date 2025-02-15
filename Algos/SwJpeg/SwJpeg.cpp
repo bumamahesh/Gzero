@@ -226,15 +226,13 @@ AlgoBase::AlgoStatus SwJpeg::Process(std::shared_ptr<AlgoRequest> req) {
       SetStatus(AlgoStatus::FAILURE);
     }
   }
-#else
+#endif
   int reqdone = 0x00;
   if (req &&
       (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
     reqdone |= ALGO_MASK(mAlgoId);
     req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
   }
-
-#endif
   SetStatus(AlgoStatus::SUCCESS);
   return GetAlgoStatus();
 }

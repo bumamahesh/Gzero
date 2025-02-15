@@ -69,7 +69,7 @@ void* TaskQueue::WorkerThreadFuction(void* arg) {
       bShouldMonitor = false;
       if ((pTaskQObj->monitor.get() != nullptr) && (task.get() != nullptr) &&
           (task->request.get() != nullptr)) {
-        bShouldMonitor = false;
+        bShouldMonitor = true;
       } /*else {
         LOG(ERROR, TASKQUEUE, "task is not monitored");
       }*/
