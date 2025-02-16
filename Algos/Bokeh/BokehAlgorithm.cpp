@@ -84,16 +84,18 @@ AlgoBase::AlgoStatus BokehAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   const ImageFormat inputFormat1 = inputImage1->GetFormat();
   const int width                = inputImage0->GetWidth();
   const int height               = inputImage0->GetHeight();
+  const int reqid                = req->mRequestId;
 
   if (CanProcessFormat(inputFormat0, inputFormat1)) {
-    std::vector<unsigned char> outputData(width * height * 3 / 2,
-                                          0);  // YUV output
+    // Allocate output buffer for a YUV420 image (Y plane + UV planes)
+    std::vector<unsigned char> outputData(width * height * 3 / 2, 0);
+    LOG(ERROR, ALGOBASE, "Processing Bokeh request ::%d", reqid);
 
     // Stereo Disparity Map Calculation
-    cv::Mat img0 = cv::Mat(height, width, CV_8UC1, inputImage0->GetData()[0]);
-    cv::Mat img1 = cv::Mat(height, width, CV_8UC1, inputImage1->GetData()[0]);
+    cv::Mat img0(height, width, CV_8UC1, &inputImage0->GetData()[0]);
+    cv::Mat img1(height, width, CV_8UC1, &inputImage1->GetData()[0]);
 
-    // Convert to grayscale if they are not
+    // Convert to grayscale if the images are not already in grayscale
     cv::Mat gray0, gray1;
     if (img0.channels() == 3) {
       cv::cvtColor(img0, gray0, cv::COLOR_BGR2GRAY);
@@ -103,36 +105,44 @@ AlgoBase::AlgoStatus BokehAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
       gray1 = img1;
     }
 
-    // Compute disparity using StereoBM or StereoSGBM
-    cv::Ptr<cv::StereoBM> stereoBM =
-        cv::StereoBM::create(16, 9);  // Adjust parameters as needed
+    // Compute disparity using StereoBM (adjust parameters as needed)
+    cv::Ptr<cv::StereoBM> stereoBM = cv::StereoBM::create(64, 15);
     cv::Mat disparity;
     stereoBM->compute(gray0, gray1, disparity);
 
     // Normalize disparity for visualization
     cv::Mat dispNorm;
     cv::normalize(disparity, dispNorm, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+    // Normalize and convert to float for depth computation
+    cv::normalize(disparity, disparity, 0, 255, cv::NORM_MINMAX);
+    disparity.convertTo(disparity, CV_32F);
 
-    // Compute depth mask from disparity map (Assume baseline and focal length are known)
-    const float baseline    = 0.1f;  // Example baseline (in meters)
-    const float focalLength = 0.8f;  // Example focal length (in pixels)
-    cv::Mat depthMap        = baseline * focalLength / disparity;
+    // Compute depth map from disparity (avoid division by zero)
+    const float baseline    = 0.1f;    // Example baseline in meters
+    const float focalLength = 800.0f;  // Example focal length in pixels
+    cv::Mat depthMap        = baseline * focalLength / (disparity + 1e-6);
 
-    // Apply depth threshold to create a mask (e.g., mask near objects)
+    // Apply threshold to create a depth mask (adjust threshold value as needed)
     cv::Mat depthMask;
-    cv::threshold(depthMap, depthMask, 0.5, 255, cv::THRESH_BINARY);
+    cv::threshold(depthMap, depthMask, 0.1, 255, cv::THRESH_BINARY);
+    depthMask.convertTo(depthMask,
+                        CV_8U);  // Convert to 8-bit for display/storage
 
-    // Extract process count (mProcessCnt) from the request
-    int processCount =
-        req->mProcessCnt;  // Assuming mProcessCnt is available in the request
+    // Fill outputData:
+    // For a YUV420 image, the first width*height bytes are the Y channel.
+    // We copy the depth mask into the Y plane.
+    unsigned char* yPlane = outputData.data();
+    std::memcpy(yPlane, depthMask.data, width * height);
 
-    // Dump depth mask and disparity map for debugging with process count in filenames
-    DumpDepthMask(depthMask, width, height, processCount);
-    DumpDisparityMap(dispNorm, width, height, processCount);
+    // The remaining bytes are for the U and V planes.
+    // We'll fill them with 128 (neutral chroma) so that the image appears grayscale.
+    unsigned char* uvPlane = outputData.data() + width * height;
+    std::fill(uvPlane, uvPlane + (width * height / 2), 128);
 
-    // Optionally, dump depth map
-    DumpDepthMap(depthMap, width, height, processCount);
-
+    // Dump debug images using the request id for unique filenames
+    //DumpDepthMask(depthMask, width, height, reqid);
+    DumpDisparityMap(dispNorm, width, height, reqid);
+    //DumpDepthMap(depthMap, width, height, reqid);
     // Replace input image with processed output
     req->ClearImages();
     if (req->AddImage(ImageFormat::YUV420, width, height,
@@ -155,22 +165,30 @@ AlgoBase::AlgoStatus BokehAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
 // Function to dump depth mask for debugging with process count
 void BokehAlgorithm::DumpDepthMask(const cv::Mat& depthMask, int width,
                                    int height, int processCount) {
-  std::string filename = "depth_mask_" + std::to_string(processCount) + ".png";
+  (void)width;
+  (void)height;
+  std::string filename =
+      "dump/depth_mask_" + std::to_string(processCount) + ".png";
   cv::imwrite(filename, depthMask);  // Save as an image file
 }
 
 // Function to dump disparity map for debugging with process count
 void BokehAlgorithm::DumpDisparityMap(const cv::Mat& disparityMap, int width,
                                       int height, int processCount) {
+  (void)width;
+  (void)height;
   std::string filename =
-      "disparity_map_" + std::to_string(processCount) + ".png";
+      "dump/disparity_map_" + std::to_string(processCount) + ".png";
   cv::imwrite(filename, disparityMap);  // Save as an image file
 }
 
 // Optionally, you can also dump depth map with process count
 void BokehAlgorithm::DumpDepthMap(const cv::Mat& depthMap, int width,
                                   int height, int processCount) {
-  std::string filename = "depth_map_" + std::to_string(processCount) + ".png";
+  (void)width;
+  (void)height;
+  std::string filename =
+      "dump/depth_map_" + std::to_string(processCount) + ".png";
   cv::imwrite(filename, depthMap);  // Save as an image file
 }
 

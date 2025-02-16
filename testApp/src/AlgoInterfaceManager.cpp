@@ -316,14 +316,12 @@ int AlgoInterfaceManager::SubmitStereoRequest() {
     }
 
     // prepare and submit request
-    auto request        = std::make_shared<AlgoRequest>();
-    request->mRequestId = mRequestId++;
-
+    auto request                            = std::make_shared<AlgoRequest>();
+    request->mRequestId                     = mRequestId++;
     std::vector<unsigned char> Inputyuvbuf1 = yuvStereoBufferp[0];
     std::vector<unsigned char> Inputyuvbuf2 = yuvStereoBufferp[1];
     rc = request->AddImage(ImageFormat::YUV420, mWidth, mHeight,
                            std::move(Inputyuvbuf1));
-
     if (rc != 0) {
       std::cerr << "Failed to add image to request 1 rc=" << rc << std::endl;
       return -1;
