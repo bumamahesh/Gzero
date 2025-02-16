@@ -58,10 +58,7 @@ int main(int argc, char* argv[]) {
   std::shared_ptr<AlgoInterfaceManager> pAlgoInterfaceManager =
       std::make_shared<AlgoInterfaceManager>(
           RESOURCE_PATH + yuvFiles[idx].filePath, width, height);
-#ifdef __RENDER__
-  std::shared_ptr<Renderer> pRenderer =
-      std::make_shared<Renderer>(width, height);
-#endif
+
   g_HdrEnabled           = false;
   g_WatermarkEnabled     = false;
   g_MandlebrotSetEnabled = false;
@@ -96,8 +93,16 @@ int main(int argc, char* argv[]) {
             << " g_MandlebrotSetEnabled = " << g_MandlebrotSetEnabled
             << " g_FilterEnabled = " << g_FilterEnabled
             << " g_LdcEnabled = " << g_LdcEnabled << std::endl;
+  std::shared_ptr<Renderer> pRenderer = nullptr;
+#ifdef __RENDER__
+  if (g_DisplayEnable) {
+    pRenderer = std::make_shared<Renderer>(width, height);
+  }
+#endif
 #ifdef SYNC_THREAD
-  pRenderer->RenderLoop(pAlgoInterfaceManager);
+  if (pRenderer != nullptr) {
+    pRenderer->RenderLoop(pAlgoInterfaceManager);
+  }
 #else
   /* decouple render and submit on different threads */
   auto submit = [pAlgoInterfaceManager]() {
@@ -114,7 +119,9 @@ int main(int argc, char* argv[]) {
   std::thread t2(submit);
   if (g_DisplayEnable) {
 #ifdef __RENDER__
-    pRenderer->RenderLoop(nullptr);
+    if (pRenderer != nullptr) {
+      pRenderer->RenderLoop(nullptr);
+    }
 #endif
   } else {
     while (!g_quit.load()) {
