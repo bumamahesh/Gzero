@@ -24,6 +24,7 @@
 #define ALGOINTERFACEMANAGER_H
 #pragma once
 #include <dlfcn.h>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -54,48 +55,26 @@ class AlgoInterfaceptr {
   void* libraryHandle                       = nullptr;
 };
 
+struct AlgoMetadataList {
+  MetaId metaId;
+  AlgoId algoId;
+};
+
+extern std::vector<AlgoMetadataList> g_AlgoMetadataList;
+
 class DecisionManager : public AlgoDecisionManager {
  public:
   DecisionManager()  = default;
   ~DecisionManager() = default;
   std::vector<AlgoId> ParseMetadata(std::shared_ptr<AlgoRequest> req) override {
     std::vector<AlgoId> ret;
-    bool algo_hdr_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_HDR_ENABLED,
-                                        algo_hdr_enabled)) {
-      if (algo_hdr_enabled) {
-        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_HDR);
-      }
-    }
-    bool algo_filter_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_FILTER_ENABLED,
-                                        algo_filter_enabled)) {
-      if (algo_filter_enabled) {
-        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_FILTER);
-      }
-    }
-    bool algo_watermark_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_WATERMARK_ENABLED,
-                                        algo_watermark_enabled)) {
-      if (algo_watermark_enabled) {
-        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_WATERMARK);
-      }
-    }
-    bool algo_mandlebrotset_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_MANDELBROTSET_ENABLED,
-                                        algo_mandlebrotset_enabled)) {
-      if (algo_mandlebrotset_enabled) {
-        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_MANDELBROTSET);
-      }
-    }
-    bool algo_ldc_enabled = false;
-    if (0 == req->mMetadata.GetMetadata(MetaId::ALGO_LDC_ENABLED,
-                                        algo_ldc_enabled)) {
-      if (algo_ldc_enabled) {
-        AlgoDecisionManager::SetAlgoFlag(AlgoId::ALGO_LDC);
-      }
-    }
 
+    for (const auto& algo : g_AlgoMetadataList) {
+      bool enabled = false;
+      if (0 == req->mMetadata.GetMetadata(algo.metaId, enabled) && enabled) {
+        AlgoDecisionManager::SetAlgoFlag(algo.algoId);
+      }
+    }
     ret = AlgoDecisionManager::ParseMetadata(req);
     return ret;
   }
@@ -103,10 +82,11 @@ class DecisionManager : public AlgoDecisionManager {
 
 class AlgoInterfaceManager {
  public:
-  explicit AlgoInterfaceManager(const std::string inputFilePath, int width,
-                                int height);
+  explicit AlgoInterfaceManager(std::vector<std::string> inputFilePath,
+                                int width, int height, bool stereo = false);
   ~AlgoInterfaceManager();
   int SubmitRequest();
+  int SubmitStereoRequest();
   DecisionManager m_algoDecisionManager;
 
  private:
@@ -117,6 +97,8 @@ class AlgoInterfaceManager {
   std::shared_ptr<AlgoInterfaceptr> phandle;
   std::vector<unsigned char> yuvBuffer;
   std::ifstream mInputFile;
+  std::vector<unsigned char> yuvStereoBufferp[2];
+  std::ifstream mStereoInputFile[2];
   int mWidth;
   int mHeight;
 };

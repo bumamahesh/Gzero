@@ -22,16 +22,19 @@
 #ifndef BOKEH_ALGORITHM_H
 #define BOKEH_ALGORITHM_H
 
+#include <opencv2/opencv.hpp>
+#include <opencv2/stereo.hpp>
+#include <vector>
 #include "AlgoBase.h"
 
-const char *BOKEH_NAME = "BokehAlgorithm";
+const char* BOKEH_NAME = "BokehAlgorithm";
 
 /**
  * @brief BokehAlgorithm class derived from AlgoBase to perform BOKEH-specific
  * operations.
  */
 class BokehAlgorithm : public AlgoBase {
-public:
+ public:
   /**
    * @brief Constructor for BokehAlgorithm.
    *
@@ -68,15 +71,25 @@ public:
    * @return int
    */
   int GetTimeout() override;
+  void DumpDepthMask(const cv::Mat& depthMask, int width, int height,
+                     int processCount);
 
-private:
-  mutable std::mutex mutex_; // Mutex to protect the shared state
+  // Function to dump disparity map for debugging with process count
+  void DumpDisparityMap(const cv::Mat& disparityMap, int width, int height,
+                        int processCount);
+
+  // Optionally, you can also dump depth map with process count
+  void DumpDepthMap(const cv::Mat& depthMap, int width, int height,
+                    int processCount);
+
+ private:
+  mutable std::mutex mutex_;  // Mutex to protect the shared state
 };
 
 /**
  * @brief Factory function to expose BokehAlgorithm via shared library.
  * @return A pointer to the BokehAlgorithm instance.
  */
-extern "C" AlgoBase *GetAlgoMethod();
+extern "C" AlgoBase* GetAlgoMethod();
 
-#endif // BOKEH_ALGORITHM_H
+#endif  // BOKEH_ALGORITHM_H

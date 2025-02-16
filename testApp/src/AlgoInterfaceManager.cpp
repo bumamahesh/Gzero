@@ -1,12 +1,10 @@
 #include "../include/AlgoInterfaceManager.h"
-#include <dlfcn.h>
 #include <unistd.h>
 #include <atomic>
 #include <condition_variable>
 #include <cstring>
 #include <iostream>
 #include <queue>
-#include <vector>
 
 int g_ResultCount    = 0;
 int g_SubmittedCount = 0;
@@ -21,6 +19,15 @@ bool g_WatermarkEnabled     = false;
 bool g_MandlebrotSetEnabled = false;
 bool g_FilterEnabled        = false;
 bool g_LdcEnabled           = false;
+bool g_BokehEnabled         = false;
+
+std::vector<AlgoMetadataList> g_AlgoMetadataList = {
+    {MetaId::ALGO_HDR_ENABLED, AlgoId::ALGO_HDR},
+    {MetaId::ALGO_FILTER_ENABLED, AlgoId::ALGO_FILTER},
+    {MetaId::ALGO_WATERMARK_ENABLED, AlgoId::ALGO_WATERMARK},
+    {MetaId::ALGO_MANDELBROTSET_ENABLED, AlgoId::ALGO_MANDELBROTSET},
+    {MetaId::ALGO_LDC_ENABLED, AlgoId::ALGO_LDC},
+    {MetaId::ALGO_BOKEH_ENABLED, AlgoId::ALGO_BOKEH}};
 
 template <typename T>
 T clamp(T value, T min, T max) {
@@ -113,28 +120,48 @@ void* AlgoInterfaceptr::getSymbol(const char* symbolName) {
  * @brief Construct a new Algo Interface Manager:: Algo Interface Manager object
  *
  */
-AlgoInterfaceManager::AlgoInterfaceManager(const std::string inputFilePath,
-                                           int width, int height) {
-
+AlgoInterfaceManager::AlgoInterfaceManager(
+    std::vector<std::string> inputFilePath, int width, int height,
+    bool stereo) {
+  assert(inputFilePath.size() > 0);
   phandle = std::make_shared<AlgoInterfaceptr>(ALGOLIB_PATH);
   if (!phandle) {
     std::cerr << "Error: Failed to load algorithm library." << std::endl;
     return;
   }
+  mWidth  = width;
+  mHeight = height;
   if (InitAlgoInterface() != 0) {
     std::cerr << "Error: Failed to initialize algorithm interface."
               << std::endl;
     return;
   }
-
-  mInputFile.open(inputFilePath, std::ios::binary);
-  if (!mInputFile) {
-    std::cerr << "Failed to open input file: " << inputFilePath << std::endl;
-    return;
+  auto size = mWidth * mHeight * 3 / 2;
+  if (stereo) {
+    assert(inputFilePath.size() == 2);
+    mStereoInputFile[0].open(inputFilePath[0], std::ios::binary);
+    if (!mStereoInputFile[0]) {
+      std::cerr << "Failed to open input 1 file: " << inputFilePath[0]
+                << std::endl;
+      return;
+    }
+    mStereoInputFile[1].open(inputFilePath[1], std::ios::binary);
+    if (!mStereoInputFile[1]) {
+      std::cerr << "Failed to open input 2 file: " << inputFilePath[1]
+                << std::endl;
+      return;
+    }
+    yuvStereoBufferp[0].resize(size);
+    yuvStereoBufferp[1].resize(size);
+  } else {
+    mInputFile.open(inputFilePath[0], std::ios::binary);
+    if (!mInputFile) {
+      std::cerr << "Failed to open input file: " << inputFilePath[0]
+                << std::endl;
+      return;
+    }
+    yuvBuffer.resize(size);
   }
-  mWidth  = width;
-  mHeight = height;
-  yuvBuffer.resize(mWidth * mHeight * 3 / 2);
 }
 
 /**
@@ -209,6 +236,7 @@ void SetMetadata(std::shared_ptr<AlgoRequest> request) {
     request->mMetadata.SetMetadata(MetaId::ALGO_FILTER_ENABLED,
                                    g_FilterEnabled);
     request->mMetadata.SetMetadata(MetaId::ALGO_LDC_ENABLED, g_LdcEnabled);
+    request->mMetadata.SetMetadata(MetaId::ALGO_BOKEH_ENABLED, g_BokehEnabled);
   }
 }
 
@@ -264,6 +292,64 @@ int AlgoInterfaceManager::SubmitRequest() {
   } else {
     usleep(50);
   }
+  return 0;
+}
+
+int AlgoInterfaceManager::SubmitStereoRequest() {
+  int rc = 0;
+  if ((g_SubmittedCount - g_ResultCount < 20) || (g_SubmittedCount < 30)) {
+
+    // read a yuv buffer from file  assumed yuv image
+    for (int i = 0; i < 2; ++i) {
+      if (!mStereoInputFile[i].read(
+              reinterpret_cast<char*>(yuvStereoBufferp[i].data()),
+              yuvStereoBufferp[i].size())) {
+        // Clear EOF flag
+        mStereoInputFile[i].clear();
+        // Seek back to the start of the file
+        mStereoInputFile[i].seekg(0, std::ios::beg);
+        // Read after reset
+        mStereoInputFile[i].read(
+            reinterpret_cast<char*>(yuvStereoBufferp[i].data()),
+            yuvStereoBufferp[i].size());
+      }
+    }
+
+    // prepare and submit request
+    auto request        = std::make_shared<AlgoRequest>();
+    request->mRequestId = mRequestId++;
+
+    std::vector<unsigned char> Inputyuvbuf1 = yuvStereoBufferp[0];
+    std::vector<unsigned char> Inputyuvbuf2 = yuvStereoBufferp[1];
+    rc = request->AddImage(ImageFormat::YUV420, mWidth, mHeight,
+                           std::move(Inputyuvbuf1));
+
+    if (rc != 0) {
+      std::cerr << "Failed to add image to request 1 rc=" << rc << std::endl;
+      return -1;
+    }
+    rc = request->AddImage(ImageFormat::YUV420, mWidth, mHeight,
+                           std::move(Inputyuvbuf2));
+    if (rc != 0) {
+      std::cerr << "Failed to add image to request 2 rc=" << rc << std::endl;
+      return -2;
+    }
+    request->mMetadata.SetMetadata(MetaId::IMAGE_WIDTH, mWidth);
+    request->mMetadata.SetMetadata(MetaId::IMAGE_HEIGHT, mHeight);
+    SetMetadata(request);
+    std::vector<AlgoId> algoSuggested =
+        m_algoDecisionManager.ParseMetadata(request);
+    rc = phandle->processFunc(&phandle->libraryHandle, request, algoSuggested);
+    if (rc != 0) {
+      std::cerr << "Failed to process algorithm request rc = " << rc
+                << std::endl;
+      return -3;
+    }
+    ++g_SubmittedCount;
+  } else {
+    usleep(50);
+  }
+
   return 0;
 }
 
