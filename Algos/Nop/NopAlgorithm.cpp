@@ -39,7 +39,7 @@ NopAlgorithm::NopAlgorithm() : AlgoBase(NOP_NAME) {
   parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
-    LOG(VERBOSE, ALGOBASE, "Nop Algo Version: %s", Version.c_str());
+    LOG(INFO, ALGOBASE, "Nop Algo Version: %s", Version.c_str());
   }*/
 }
 

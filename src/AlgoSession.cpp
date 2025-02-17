@@ -67,15 +67,14 @@ bool AlgoSession::SessionStop() {
  * @return false
  */
 bool AlgoSession::SessionAddPipeline(std::shared_ptr<AlgoPipeline>& pipeline) {
-  LOG(VERBOSE, ALGOSESSION, "AlgoSession::SessionAddPipeline E");
+  LOG(INFO, ALGOSESSION, "AlgoSession::SessionAddPipeline E");
   if (pipeline == nullptr) {
     return false;
   }
   size_t pipelineId = mNextPipelineId++;
   mPipelines.push_back(pipeline);
   mPipelineMap[pipelineId] = pipeline;
-  LOG(VERBOSE, ALGOSESSION,
-      "AlgoSession::SessionAddPipeline X mPipelines.size() = %ld",
+  LOG(VERBOSE, ALGOSESSION, "SessionAddPipeline mPipelines.size() = %ld",
       mPipelines.size());
   return true;
 }

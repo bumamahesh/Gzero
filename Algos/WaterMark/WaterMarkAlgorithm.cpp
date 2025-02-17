@@ -45,16 +45,16 @@ WaterMarkAlgorithm::WaterMarkAlgorithm() : AlgoBase(WATERMARK_NAME) {
   }
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
-    LOG(VERBOSE, ALGOBASE, "WaterMark Algo Version: %s", Version.c_str());
+    LOG(INFO, ALGOBASE, "WaterMark Algo Version: %s", Version.c_str());
   }
 
   std::string watermarkLogoPath_ = parser.getValue("watermarkLogoPath");
   if (parser.getErrorCode() == 0) {
     watermarkLogoPath = watermarkLogoPath_;
-    LOG(VERBOSE, ALGOBASE, "watermarkLogoPath: %s", watermarkLogoPath.c_str());
+    LOG(INFO, ALGOBASE, "watermarkLogoPath: %s", watermarkLogoPath.c_str());
   } else {
     watermarkLogoPath = CONFIGPATH + "../res/Logo.png";
-    LOG(VERBOSE, ALGOBASE, "watermarkLogoPath: %s errcode %d",
+    LOG(ERROR, ALGOBASE, "watermarkLogoPath: %s errcode %d",
         watermarkLogoPath.c_str(), parser.getErrorCode());
   }
 }

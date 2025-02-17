@@ -37,7 +37,7 @@ BokehAlgorithm::BokehAlgorithm() : AlgoBase(BOKEH_NAME) {
   parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
-    LOG(VERBOSE, ALGOBASE, "BOKEH Algo Version: %s", Version.c_str());
+    LOG(INFO, ALGOBASE, "BOKEH Algo Version: %s", Version.c_str());
   }
 }
 

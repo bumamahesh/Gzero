@@ -37,7 +37,7 @@ HdrAlgorithm::HdrAlgorithm() : AlgoBase(HDR_NAME) {
   parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
-    LOG(VERBOSE, ALGOBASE, "Hdr Algo Version: %s", Version.c_str());
+    LOG(INFO, ALGOBASE, "Hdr Algo Version: %s", Version.c_str());
   }
 }
 

@@ -65,7 +65,7 @@ MandelbrotSet::MandelbrotSet()
   parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
-    LOG(VERBOSE, ALGOBASE, "MandelbrotSet Algo Version: %s", Version.c_str());
+    LOG(INFO, ALGOBASE, "MandelbrotSet Algo Version: %s", Version.c_str());
   }
 }
 

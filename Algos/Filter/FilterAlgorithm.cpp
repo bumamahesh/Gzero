@@ -39,7 +39,7 @@ FilterAlgorithm::FilterAlgorithm() : AlgoBase(FILTER_NAME) {
   parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
-    LOG(VERBOSE, ALGOBASE, "Filter Algo Version: %s", Version.c_str());
+    LOG(INFO, ALGOBASE, "Filter Algo Version: %s", Version.c_str());
   }
 }
 

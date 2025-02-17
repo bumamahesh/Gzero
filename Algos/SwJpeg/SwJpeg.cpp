@@ -43,7 +43,7 @@ SwJpeg::SwJpeg() : AlgoBase(SWJPEG_NAME) {
   parser.loadFile(mConfigFile.c_str());
   std::string Version = parser.getValue("Version");
   if (parser.getErrorCode() == 0) {
-    LOG(VERBOSE, ALGOBASE, "SwJpeg Algo Version: %s", Version.c_str());
+    LOG(INFO, ALGOBASE, "SwJpeg Algo Version: %s", Version.c_str());
   }
 }
 

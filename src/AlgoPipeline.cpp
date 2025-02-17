@@ -311,7 +311,7 @@ void AlgoPipeline::NodeEventHandler(
  *
  */
 void AlgoPipeline::WaitForQueueCompetion() {
-  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::WaitForQueueCompetion E");
+  LOG(INFO, ALGOPIPELINE, "AlgoPipeline::WaitForQueueCompetion E");
   const std::chrono::milliseconds timeoutDuration(500);
   int statsTimeout = 0;
   std::unique_lock<std::mutex> lock(mRequesteMapMutex);
@@ -340,7 +340,7 @@ void AlgoPipeline::WaitForQueueCompetion() {
       algo->WaitForQueueCompetion();
     }
     */
-  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::WaitForQueueCompetion X");
+  LOG(INFO, ALGOPIPELINE, "AlgoPipeline::WaitForQueueCompetion X");
 }
 
 /**
