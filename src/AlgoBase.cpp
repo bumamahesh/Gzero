@@ -20,17 +20,17 @@
  * THE SOFTWARE.
  */
 #include "AlgoBase.h"
-#include "Log.h"
 #include <cassert>
+#include "Log.h"
 /**
 @brief Thread Function object
  *
  */
-void AlgoBase::ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task) {
+void AlgoBase::ThreadFunction(void* Ctx, std::shared_ptr<Task_t> task) {
 
   assert(task != nullptr);
   assert(Ctx != nullptr);
-  auto pCtx                        = static_cast<AlgoBase *>(Ctx);
+  auto pCtx                        = static_cast<AlgoBase*>(Ctx);
   std::shared_ptr<AlgoRequest> req = task->request;
   AlgoBase::AlgoStatus rc          = pCtx->Process(req);
   pCtx->SetStatus(rc);
@@ -41,11 +41,11 @@ void AlgoBase::ThreadFunction(void *Ctx, std::shared_ptr<Task_t> task) {
  *  This will be called when the thread is done with the task
  * @param task
  */
-void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
+void AlgoBase::ThreadCallback(void* Ctx, std::shared_ptr<Task_t> task) {
 
   assert(task != nullptr);
   assert(Ctx != nullptr);
-  auto pCtx = static_cast<AlgoBase *>(Ctx);
+  auto pCtx = static_cast<AlgoBase*>(Ctx);
   if (pCtx && pCtx->pEventHandlerThread) {
     AlgoMessageType msgType;
     AlgoStatus algoStatus = pCtx->GetAlgoStatus();
@@ -53,7 +53,7 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
       if (task->request) {
         task->request->mProcessCnt++;
       }
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
       LOG(ERROR, ALGOBASE, "Exception while accessing mProcessCnt: %s",
           e.what());
       return;
@@ -88,10 +88,11 @@ void AlgoBase::ThreadCallback(void *Ctx, std::shared_ptr<Task_t> task) {
  * @param Ctx
  * @param taskId
 */
-void AlgoBase::ProcessTimeoutCallback(void *Ctx, std::shared_ptr<Task_t> task) {
+void AlgoBase::ProcessTimeoutCallback(void* Ctx, std::shared_ptr<Task_t> task) {
   assert(Ctx != nullptr);
   assert(task != nullptr);
-  auto pCtx = static_cast<AlgoBase *>(Ctx);
+  auto pCtx = static_cast<AlgoBase*>(Ctx);
+  assert(pCtx != nullptr);
   // incomple implementaion WIP @todo
   // find task  from taskId
   pCtx->SetEvent(std::make_shared<AlgoBase::AlgoCallbackMessage>(
@@ -117,9 +118,9 @@ AlgoBase::AlgoBase() {
  *
  * @param name
  */
-AlgoBase::AlgoBase(const char *name)
-    : mAlgoOperations{std::string(name), nullptr}, mCurrentStatus{
-                                                       AlgoStatus::SUCCESS} {
+AlgoBase::AlgoBase(const char* name)
+    : mAlgoOperations{std::string(name), nullptr},
+      mCurrentStatus{AlgoStatus::SUCCESS} {
   // LOG(VERBOSE, ALGOBASE, "AlgoBase::AlgoBase E");
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction,
                                             &AlgoBase::ThreadCallback, this);
@@ -153,7 +154,9 @@ void AlgoBase::StopAlgoThread() {
  *
  * @return AlgoBase::AlgoStatus
  */
-AlgoBase::AlgoStatus AlgoBase::GetAlgoStatus() const { return mCurrentStatus; }
+AlgoBase::AlgoStatus AlgoBase::GetAlgoStatus() const {
+  return mCurrentStatus;
+}
 
 /**
 @brief Get the Status String object
@@ -194,14 +197,18 @@ std::string AlgoBase::GetAlgorithmName() const {
  *
  * @return size_t
  */
-AlgoId AlgoBase::GetAlgoId() const { return mAlgoId; }
+AlgoId AlgoBase::GetAlgoId() const {
+  return mAlgoId;
+}
 
 /**
 @brief Set the Status object
  *
  * @param status
  */
-void AlgoBase::SetStatus(AlgoStatus status) { mCurrentStatus = status; }
+void AlgoBase::SetStatus(AlgoStatus status) {
+  mCurrentStatus = status;
+}
 
 /**
 @brief  Enqueue Request object
@@ -231,7 +238,9 @@ void AlgoBase::SetEventThread(
 @brief Wait For Queue Competion object
  *
  */
-void AlgoBase::WaitForQueueCompetion() { mAlgoThread->WaitForQueueCompetion(); }
+void AlgoBase::WaitForQueueCompetion() {
+  mAlgoThread->WaitForQueueCompetion();
+}
 
 /**
 @brief Set Next Algo object
@@ -246,7 +255,9 @@ void AlgoBase::SetNextAlgo(std::weak_ptr<AlgoBase> nextAlgo) {
  *
  * @return std::weak_ptr<AlgoBase>
  */
-std::weak_ptr<AlgoBase> AlgoBase::GetNextAlgo() { return mNextAlgo; }
+std::weak_ptr<AlgoBase> AlgoBase::GetNextAlgo() {
+  return mNextAlgo;
+}
 
 /**
  * @brief Set Event Message
@@ -270,7 +281,7 @@ void AlgoBase::SetEvent(std::shared_ptr<AlgoCallbackMessage> msg) {
  */
 bool AlgoBase::CanProcessFormat(ImageFormat Iformat, ImageFormat Oformat) {
 
-  for (const auto &[InputFormat, OutputFormat] : SupportedFormatsMap) {
+  for (const auto& [InputFormat, OutputFormat] : SupportedFormatsMap) {
     if (InputFormat == Iformat && OutputFormat == Oformat) {
       return true;
     }

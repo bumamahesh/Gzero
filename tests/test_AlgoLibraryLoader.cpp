@@ -105,9 +105,13 @@ TEST_F(AlgoLibraryLoaderTest, RetrieveAlgoMethod) {
 
   int i = 0;
   while (i < 500) {
-    std::string msg = std::string("GSD");
-    auto task       = std::make_shared<Task_t>();
-    task->request   = nullptr;  // make a request here  @todo
+    std::string msg                      = std::string("GSD");
+    auto task                            = std::make_shared<Task_t>();
+    std::shared_ptr<AlgoRequest> request = std::make_shared<AlgoRequest>();
+    request->mRequestId                  = i;
+    int rc = request->AddImage(ImageFormat::YUV420, 32, 32);
+    ASSERT_EQ(rc, 0);
+    task->request = request;
     algo->EnqueueRequest(task);
     i++;
   }

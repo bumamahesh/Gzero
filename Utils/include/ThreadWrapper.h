@@ -23,7 +23,7 @@
 #define THREADWRAPPER_H
 #pragma once
 #ifdef _WIN32
-/*@todo windows api implemntaion*/
+/*@todo windows api implement*/
 #else
 #include <pthread.h>
 #endif
