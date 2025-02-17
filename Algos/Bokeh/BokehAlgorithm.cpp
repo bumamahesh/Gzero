@@ -68,11 +68,23 @@ AlgoBase::AlgoStatus BokehAlgorithm::Open() {
 AlgoBase::AlgoStatus BokehAlgorithm::Process(std::shared_ptr<AlgoRequest> req) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  if (!req || req->GetImageCount() < 2) {
+  if (!req) {
     SetStatus(AlgoStatus::FAILURE);
     return GetAlgoStatus();
   }
 
+  if (req->GetImageCount() == 1) {
+    /**skip Processing of single request */
+    /*@todo replace with segmentation based algo*/
+    int reqdone = 0x00;
+    if (req &&
+        (0 == req->mMetadata.GetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone))) {
+      reqdone |= ALGO_MASK(mAlgoId);
+      req->mMetadata.SetMetadata(MetaId::ALGO_PROCESS_DONE, reqdone);
+    }
+    SetStatus(AlgoStatus::SUCCESS);
+    return GetAlgoStatus();
+  }
   auto inputImage0 = req->GetImage(0);
   auto inputImage1 = req->GetImage(1);
   if (!inputImage0 || !inputImage1) {

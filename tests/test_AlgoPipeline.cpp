@@ -72,6 +72,9 @@ TEST_F(AlgoPipelineTest, Processtest) {
   for (int i = 0; i < STRESS_CNT; i++) {
     std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
     input->mRequestId                  = i;
+    int rc = input->AddImage(ImageFormat::YUV420, 1920, 1080);
+    EXPECT_EQ(rc, 0);
+    EXPECT_EQ(input->GetImageCount(), 1);
     algoPipeline->Process(input);
   }
 

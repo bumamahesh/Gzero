@@ -44,6 +44,9 @@ TEST(AlgoSessionTest, AlgoSessionApi) {
     EXPECT_EQ(algoSession->SessionGetPipelineCount(), 1);
     std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
     input->mRequestId                  = 0x100;
+    int rc = input->AddImage(ImageFormat::YUV420, 1920, 1080);
+    EXPECT_EQ(rc, 0);
+    EXPECT_EQ(input->GetImageCount(), 1);
     EXPECT_EQ(algoSession->SessionProcess(0, input), true);
     EXPECT_EQ(algoSession->SessionStop(), true);
     EXPECT_EQ(algoSession->SessionGetPipelineCount(), 0);
@@ -65,6 +68,9 @@ TEST(AlgoSessionTest, ProcessTest) {
     for (int i = 0; i < SESSION_STRESS_CNT; i++) {
       std::shared_ptr<AlgoRequest> input = std::make_shared<AlgoRequest>();
       input->mRequestId                  = i;
+      int rc = input->AddImage(ImageFormat::YUV420, 1920, 1080);
+      EXPECT_EQ(rc, 0);
+      EXPECT_EQ(input->GetImageCount(), 1);
       EXPECT_EQ(algoSession->SessionProcess(input, algoList), true);
     }
     EXPECT_EQ(algoSession->SessionGetPipelineCount(), 1);

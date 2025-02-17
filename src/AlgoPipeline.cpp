@@ -186,6 +186,16 @@ void AlgoPipeline::Process(std::shared_ptr<AlgoRequest> input) {
     // LOG(ERROR, ALGOPIPELINE, "No algos to process");
     return;
   }
+  if (!input) {
+    /*invalid input*/
+    LOG(ERROR, ALGOPIPELINE, "Invalid request to process");
+    return;
+  }
+  if (input->GetImageCount() == 0) {
+    /*no load for system*/
+    LOG(ERROR, ALGOPIPELINE, "Request with no images to process");
+    return;
+  }
   if (GetState() == AlgoPipelineState::ConfiguredWithName ||
       GetState() == AlgoPipelineState::ConfiguredWithId) {
     std::shared_ptr<Task_t> task = std::make_shared<Task_t>();
