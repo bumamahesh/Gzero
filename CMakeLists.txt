@@ -16,24 +16,13 @@ endif()
 project(AlgoLib VERSION 1.0)
 
 file(GLOB CORE_SOURCES
-
-    #${CMAKE_SOURCE_DIR}/src/AlgoBase.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoDecisionManager.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoInterface.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoLibraryLoader.cpp
-    #${CMAKE_SOURCE_DIR}/src/AlgoMetadata.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoNodeManager.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoPipeline.cpp
-    #${CMAKE_SOURCE_DIR}/src/AlgoRequest.cpp
     ${CMAKE_SOURCE_DIR}/src/AlgoSession.cpp
     ${CMAKE_SOURCE_DIR}/src/Interface.cpp
-    #${CMAKE_SOURCE_DIR}/src/Watchdog.cpp not used
-    #${CMAKE_SOURCE_DIR}/Utils/src/ConfigParser.cpp
-    #${CMAKE_SOURCE_DIR}/Utils/src/KpiMonitor.cpp
-    #${CMAKE_SOURCE_DIR}/Utils/src/Log.cpp
-    #${CMAKE_SOURCE_DIR}/Utils/src/RequestMonitor.cpp
-    #${CMAKE_SOURCE_DIR}/Utils/src/TaskQueue.cpp
-    #${CMAKE_SOURCE_DIR}/Utils/src/Utils.cpp
 )
 
 # Define the shared library target

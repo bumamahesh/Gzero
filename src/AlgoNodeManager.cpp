@@ -26,8 +26,8 @@
 #include <string>
 #include <vector>
 #include "AlgoLibraryLoader.h"
+#include "ConfigParser.h"
 #include "Log.h"
-
 namespace fs = std::filesystem;
 
 AlgoNodeManager& AlgoNodeManager::Getinstance() {
@@ -41,9 +41,18 @@ AlgoNodeManager& AlgoNodeManager::Getinstance() {
  */
 AlgoNodeManager::AlgoNodeManager() {
   LOG(INFO, ALGOMANAGER, "AlgoNodeManager::AlgoNodeManager E");
-  mLibraryPath =
-      "/home/uma/workspace/Gzero/build/lib/";  // "@todo get from xml later
-  /* Open the path and prepare a list of shared libraries with the format com.Algo.*.so */
+  ConfigParser parser;
+  std::string ConfigFile = CONFIGPATH;
+  ConfigFile += "Gparam.config";
+  parser.loadFile(ConfigFile.c_str());
+  mLibraryPath = parser.getValue("ALGOLIBPATH");
+  if (parser.getErrorCode() == 0) {
+    mLibraryPath = parser.getValue("ALGOLIBPATH");
+    LOG(ERROR, ALGOMANAGER, "ALGOLIBPATH: %s", mLibraryPath.c_str());
+  } else {
+    mLibraryPath = "Some Thing Wrong Parsing Algo Lib Path";
+    return;
+  }
 
   try {
     if (!fs::exists(mLibraryPath) || !fs::is_directory(mLibraryPath)) {
