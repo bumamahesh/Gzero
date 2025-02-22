@@ -23,7 +23,10 @@
 #include <cmath>
 #include "ConfigParser.h"
 #include "Log.h"
-
+#ifdef __OPENCV_ENABLE__
+#include <cmath>
+#include <opencv2/opencv.hpp>
+#endif
 /**
  * @brief Constructor for FilterAlgorithm.
  * @param name Name of the Filter algorithm.
@@ -164,7 +167,54 @@ AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv(
 
   return GetAlgoStatus();
 }
+#ifdef __OPENCV_ENABLE__
+AlgoBase::AlgoStatus FilterAlgorithm::SobelYuv_CV(
+    std::shared_ptr<AlgoRequest> req) {
+  auto inputImage = req->GetImage(0);
+  if (!inputImage) {
+    SetStatus(AlgoStatus::FAILURE);
+    return GetAlgoStatus();
+  }
 
+  const int width                             = inputImage->GetWidth();
+  const int height                            = inputImage->GetHeight();
+  const std::vector<unsigned char>& inputData = inputImage->GetData();
+
+  // Convert YUV420 to Mat (Y channel only)
+  cv::Mat yPlane(height, width, CV_8UC1, (void*)inputData.data());
+
+  // Apply Sobel filter on Y channel
+  // Apply Sobel filter on Y channel
+  cv::Mat gradX, gradY, gradMag;
+  cv::Sobel(yPlane, gradX, CV_16S, 1, 0, 3);
+  cv::Sobel(yPlane, gradY, CV_16S, 0, 1, 3);
+
+  // Convert gradients to float (CV_32F) for magnitude computation
+  gradX.convertTo(gradX, CV_32F);
+  gradY.convertTo(gradY, CV_32F);
+
+  cv::magnitude(gradX, gradY, gradMag);
+
+  // Convert back to 8-bit
+  gradMag.convertTo(yPlane, CV_8U, 1);
+
+  // Copy U and V planes
+  std::vector<unsigned char> outputData(width * height * 3 / 2, 0);
+  std::memcpy(outputData.data(), yPlane.data, width * height);
+  int uvOffset = width * height;
+  std::copy(inputData.begin() + uvOffset, inputData.end(),
+            outputData.begin() + uvOffset);
+
+  req->ClearImages();
+  if (req->AddImage(ImageFormat::YUV420, width, height,
+                    std::move(outputData))) {
+    LOG(ERROR, ALGOBASE, "Error Filling Output data");
+    SetStatus(AlgoStatus::FAILURE);
+  }
+
+  return GetAlgoStatus();
+}
+#endif
 /**
  * @brief Process the Filter algorithm, simulating input validation and Filter
  * computation.
@@ -197,7 +247,11 @@ AlgoBase::AlgoStatus FilterAlgorithm::Process(
     } break;
     case ImageFormat::YUV420: {
       if (true == CanProcessFormat(inputFormat, ImageFormat::YUV420)) {
+#ifdef __OPENCV_ENABLE__
+        rc = SobelYuv_CV(req);
+#else
         rc = SobelYuv(req);
+#endif
       }
     } break;
     default:

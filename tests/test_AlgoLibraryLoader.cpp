@@ -127,7 +127,7 @@ TEST_F(AlgoLibraryLoaderTest, VerifyAllAlgosInterface) {
     for (const auto& [AlgoId, libname] : IdAlgoNameMap) {
       std::string lib = ALGOLIBPATH;
       lib             = lib + libname;
-      std::cout << lib << std::endl;
+      // std::cout << lib << std::endl;
       auto loader = std::make_shared<AlgoLibraryLoader>(lib);
       ASSERT_NE(loader, nullptr);
       ASSERT_EQ(loader->GetAlgoId(), AlgoId);

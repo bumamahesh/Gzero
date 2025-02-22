@@ -101,6 +101,7 @@ LogLevel GetLevel() {
 }
 
 void LOG(LogLevel level, const std::string& component, const char* fmt, ...) {
+#if 1
   if (GetLevel() >= level) {
     char buffer[1024];
     va_list args;
@@ -119,4 +120,9 @@ void LOG(LogLevel level, const std::string& component, const char* fmt, ...) {
        << buffer << std::endl;
     std::cerr << ss.str();
   }
+#else
+  (void)level;
+  (void)component;
+  (void)fmt;
+#endif
 }

@@ -66,8 +66,6 @@ class ImageData {
 };
 
 class AlgoRequest {
- private:
-  std::vector<std::shared_ptr<ImageData>> images;  // Collection of images
 
  public:
   // Add an image to the collection
@@ -101,6 +99,7 @@ class AlgoRequest {
   uint8_t FrameChecksum();
 
  private:
+  std::vector<std::shared_ptr<ImageData>> images;  // Collection of images
 };
 
 #endif  // ALGO_REQUEST_H

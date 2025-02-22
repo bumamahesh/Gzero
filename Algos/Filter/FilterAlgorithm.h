@@ -23,13 +23,13 @@
 #define FILTER_ALGORITHM_H
 
 #include "AlgoBase.h"
-const char *FILTER_NAME = "FilterAlgorithm";
+const char* FILTER_NAME = "FilterAlgorithm";
 /**
  * @brief FilterAlgorithm class derived from AlgoBase to perform Filter-specific
  * operations.
  */
 class FilterAlgorithm : public AlgoBase {
-public:
+ public:
   /**
    * @brief Constructor for FilterAlgorithm.
    *
@@ -67,20 +67,23 @@ public:
    */
   int GetTimeout() override;
 
-private:
-  mutable std::mutex mutex_; // Mutex to protect the shared state
-                             /* Sobel kernels for X and Y gradients*/
+ private:
+  mutable std::mutex mutex_;  // Mutex to protect the shared state
+                              /* Sobel kernels for X and Y gradients*/
   const int Gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
   const int Gy[3][3] = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
 
   AlgoStatus SobelRGB(std::shared_ptr<AlgoRequest> req);
   AlgoStatus SobelYuv(std::shared_ptr<AlgoRequest> req);
+#ifdef __OPENCV_ENABLE__
+  AlgoStatus SobelYuv_CV(std::shared_ptr<AlgoRequest> req);
+#endif
 };
 
 /**
  * @brief Factory function to expose FilterAlgorithm via shared library.
  * @return A pointer to the FilterAlgorithm instance.
  */
-extern "C" AlgoBase *GetAlgoMethod();
+extern "C" AlgoBase* GetAlgoMethod();
 
-#endif // FILTER_ALGORITHM_H
+#endif  // FILTER_ALGORITHM_H
