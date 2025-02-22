@@ -48,7 +48,7 @@ AlgoNodeManager::AlgoNodeManager() {
   mLibraryPath = parser.getValue("ALGOLIBPATH");
   if (parser.getErrorCode() == 0) {
     mLibraryPath = parser.getValue("ALGOLIBPATH");
-    LOG(ERROR, ALGOMANAGER, "ALGOLIBPATH: %s", mLibraryPath.c_str());
+    LOG(INFO, ALGOMANAGER, "ALGOLIBPATH: %s", mLibraryPath.c_str());
   } else {
     mLibraryPath = "Some Thing Wrong Parsing Algo Lib Path";
     return;

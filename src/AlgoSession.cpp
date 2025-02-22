@@ -74,7 +74,7 @@ bool AlgoSession::SessionAddPipeline(std::shared_ptr<AlgoPipeline>& pipeline) {
   size_t pipelineId = mNextPipelineId++;
   mPipelines.push_back(pipeline);
   mPipelineMap[pipelineId] = pipeline;
-  LOG(VERBOSE, ALGOSESSION, "SessionAddPipeline mPipelines.size() = %ld",
+  LOG(INFO, ALGOSESSION, "SessionAddPipeline mPipelines.size() = %ld",
       mPipelines.size());
   return true;
 }

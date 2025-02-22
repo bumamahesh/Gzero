@@ -139,8 +139,7 @@ AlgoPipelineState AlgoPipeline::ConfigureAlgoPipeline(
 AlgoPipelineState AlgoPipeline::ConfigureAlgoPipeline(
     std::vector<std::string>& algoList) {
 
-  LOG(VERBOSE, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld ",
-      algoList.size());
+  LOG(INFO, ALGOPIPELINE, "Configuring AlgoPipeline :: %ld ", algoList.size());
   if (GetState() == AlgoPipelineState::Initialised) {
     if (algoList.size() == 0) {
       LOG(ERROR, ALGOPIPELINE, "AlgoList is empty");
@@ -171,7 +170,7 @@ AlgoPipelineState AlgoPipeline::ConfigureAlgoPipeline(
   } else {
     LOG(ERROR, ALGOPIPELINE, "AlgoPipeline is not Currect State to Configure");
   }
-  LOG(VERBOSE, ALGOPIPELINE, "AlgoPipeline::ConfigureAlgoPipeline X");
+  LOG(INFO, ALGOPIPELINE, "AlgoPipeline::ConfigureAlgoPipeline X");
   return GetState();
 }
 
