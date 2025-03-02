@@ -105,12 +105,12 @@ void AlgoBase::ProcessTimeoutCallback(void* Ctx, std::shared_ptr<Task_t> task) {
  *
  */
 AlgoBase::AlgoBase() {
-  // LOG(VERBOSE, ALGOBASE, "AlgoBase::AlgoBase E");
+  LOG(INFO, ALGOBASE, "AlgoBase::AlgoBase E");
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction,
                                             &AlgoBase::ThreadCallback, this);
   mAlgoThread->SetThread("AlgoBaseDefaultThread");
   mAlgoThread->monitor->SetCallback(&AlgoBase::ProcessTimeoutCallback, this);
-  // LOG(VERBOSE, ALGOBASE, "AlgoBase::AlgoBase X");
+  LOG(INFO, ALGOBASE, "AlgoBase::AlgoBase X");
 }
 
 /**
@@ -121,12 +121,12 @@ AlgoBase::AlgoBase() {
 AlgoBase::AlgoBase(const char* name)
     : mAlgoOperations{std::string(name), nullptr},
       mCurrentStatus{AlgoStatus::SUCCESS} {
-  // LOG(VERBOSE, ALGOBASE, "AlgoBase::AlgoBase E");
+  LOG(INFO, ALGOBASE, "AlgoBase::AlgoBase E");
   mAlgoThread = std::make_shared<TaskQueue>(&AlgoBase::ThreadFunction,
                                             &AlgoBase::ThreadCallback, this);
   mAlgoThread->monitor->SetCallback(&AlgoBase::ProcessTimeoutCallback, this);
   mAlgoThread->SetThread(name);
-  // LOG(VERBOSE, ALGOBASE, "AlgoBase::AlgoBase X");
+  LOG(INFO, ALGOBASE, "AlgoBase::AlgoBase X");
 }
 
 /**
@@ -134,9 +134,9 @@ AlgoBase::AlgoBase(const char* name)
  *
  */
 AlgoBase::~AlgoBase() {
-  // LOG(VERBOSE, ALGOBASE, "AlgoBase::AlgoBase E");
+  LOG(INFO, ALGOBASE, "AlgoBase::AlgoBase E");
   mAlgoThread->WaitForQueueCompetion();
-  // LOG(VERBOSE, ALGOBASE, "AlgoBase::AlgoBase X");
+  LOG(INFO, ALGOBASE, "AlgoBase::AlgoBase X");
 }
 
 /**
@@ -144,9 +144,9 @@ AlgoBase::~AlgoBase() {
  *
  */
 void AlgoBase::StopAlgoThread() {
-  // LOG(VERBOSE, ALGOBASE, "AlgoBase::StopAlgoThread E");
+  LOG(INFO, ALGOBASE, "AlgoBase::StopAlgoThread E");
   mAlgoThread->StopWorkerThread();
-  // LOG(VERBOSE, ALGOBASE, "AlgoBase::StopAlgoThread X");
+  LOG(INFO, ALGOBASE, "AlgoBase::StopAlgoThread X");
 }
 
 /**
